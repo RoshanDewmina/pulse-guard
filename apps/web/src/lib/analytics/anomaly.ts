@@ -219,6 +219,83 @@ export async function createAnomalyIncident(
 }
 
 /**
+ * Detect DEGRADED status: ≥3 consecutive runs above p95
+ */
+export async function detectDegradedPerformance(
+  monitorId: string,
+  durationP95: number | null
+): Promise<boolean> {
+  if (durationP95 === null) return false;
+
+  // Get last 3 successful runs
+  const recentRuns = await prisma.run.findMany({
+    where: {
+      monitorId,
+      outcome: 'SUCCESS',
+      durationMs: { not: null },
+    },
+    select: {
+      durationMs: true,
+    },
+    orderBy: {
+      startedAt: 'desc',
+    },
+    take: 3,
+  });
+
+  // Need at least 3 runs
+  if (recentRuns.length < 3) return false;
+
+  // Check if all 3 runs are above p95
+  const allAboveP95 = recentRuns.every(run => run.durationMs! > durationP95);
+
+  if (allAboveP95) {
+    // Check for existing DEGRADED incident
+    const existingIncident = await prisma.incident.findFirst({
+      where: {
+        monitorId,
+        kind: 'DEGRADED',
+        status: { in: ['OPEN', 'ACKED'] },
+      },
+    });
+
+    if (!existingIncident) {
+      // Create DEGRADED incident
+      await prisma.incident.create({
+        data: {
+          monitorId,
+          kind: 'DEGRADED',
+          severity: 'MEDIUM',
+          summary: `Performance degraded: Last 3 runs exceeded p95 threshold (${Math.round(durationP95)}ms)`,
+          details: JSON.stringify({
+            recentDurations: recentRuns.map(r => r.durationMs),
+            p95Threshold: durationP95,
+            timestamp: new Date(),
+          }),
+        },
+      });
+    }
+
+    return true;
+  }
+
+  // If not degraded, resolve any open DEGRADED incidents
+  await prisma.incident.updateMany({
+    where: {
+      monitorId,
+      kind: 'DEGRADED',
+      status: { in: ['OPEN', 'ACKED'] },
+    },
+    data: {
+      status: 'RESOLVED',
+      resolvedAt: new Date(),
+    },
+  });
+
+  return false;
+}
+
+/**
  * Main anomaly detection function
  * Call this after recording a successful run
  */
@@ -256,6 +333,11 @@ export async function checkForAnomalies(
   // Create incidents for any detected anomalies
   for (const anomaly of anomalies) {
     await createAnomalyIncident(monitorId, runId, anomaly);
+  }
+
+  // Check for degraded performance (≥3 consecutive runs above p95)
+  if (durationMs !== null && durationMs > 0) {
+    await detectDegradedPerformance(monitorId, monitor.durationP95);
   }
 }
 
