@@ -134,6 +134,9 @@ model Monitor {
   durationMedian Float?
   durationMin    Int?
   durationMax    Int?
+  durationP50    Float?        // 50th percentile (median, tracked for quick access)
+  durationP95    Float?        // 95th percentile
+  durationP99    Float?        // 99th percentile
 
   org                 Org                   @relation(fields: [orgId], references: [id], onDelete: Cascade)
   runs                Run[]

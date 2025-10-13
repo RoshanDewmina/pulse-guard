@@ -252,7 +252,7 @@ async function handlePing(request: NextRequest, token: string) {
         durationMax: stats.max,
       };
 
-      // Also update median from recent runs (last 50)
+      // Also update median and percentiles from recent runs (last 100)
       const recentRuns = await prisma.run.findMany({
         where: {
           monitorId: monitor.id,
@@ -261,19 +261,41 @@ async function handlePing(request: NextRequest, token: string) {
         },
         select: { durationMs: true },
         orderBy: { startedAt: 'desc' },
-        take: 50,
+        take: 100,
       });
 
-      if (recentRuns.length > 0) {
+      if (recentRuns.length >= 10) {
         const durations = recentRuns.map(r => r.durationMs!).sort((a, b) => a - b);
+        
+        // Calculate median (p50)
         const mid = Math.floor(durations.length / 2);
         const median = durations.length % 2 === 0
           ? (durations[mid - 1] + durations[mid]) / 2
           : durations[mid];
         
+        // Calculate percentiles
+        const calculatePercentile = (arr: number[], p: number) => {
+          const index = (p / 100) * (arr.length - 1);
+          const lower = Math.floor(index);
+          const upper = Math.ceil(index);
+          const weight = index - lower;
+          
+          if (lower === upper) {
+            return arr[lower];
+          }
+          return arr[lower] * (1 - weight) + arr[upper] * weight;
+        };
+        
+        const p50 = calculatePercentile(durations, 50);
+        const p95 = calculatePercentile(durations, 95);
+        const p99 = calculatePercentile(durations, 99);
+        
         welfordUpdate = {
           ...welfordUpdate,
           durationMedian: median,
+          durationP50: p50,
+          durationP95: p95,
+          durationP99: p99,
         };
       }
     }
