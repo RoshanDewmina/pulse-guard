@@ -5,7 +5,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
-import { Activity, AlertCircle, CheckCircle2, Clock, Plus } from 'lucide-react';
+import { Activity, AlertCircle, CheckCircle2, Clock, Plus, TrendingUp, Award } from 'lucide-react';
+import { EnhancedMonitorCard } from '@/components/enhanced-monitor-card';
+import { calculateHealthScore, calculateExpectedRuns } from '@/lib/analytics/health-score';
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
@@ -20,7 +22,7 @@ export default async function DashboardPage() {
     );
   }
 
-  // Get monitor counts by status
+  // Get monitors with runs for sparklines and health scores
   const monitors = await prisma.monitor.findMany({
     where: { orgId: org.id },
     include: {
@@ -33,8 +35,19 @@ export default async function DashboardPage() {
           },
         },
       },
+      runs: {
+        take: 50,
+        orderBy: {
+          startedAt: 'desc',
+        },
+        select: {
+          outcome: true,
+          durationMs: true,
+          startedAt: true,
+        },
+      },
     },
-    take: 10,
+    take: 20,
     orderBy: {
       updatedAt: 'desc',
     },
@@ -46,6 +59,34 @@ export default async function DashboardPage() {
     missed: monitors.filter(m => m.status === 'MISSED').length,
     failing: monitors.filter(m => m.status === 'FAILING').length,
   };
+
+  // Calculate overall health score
+  let overallHealthScore = 0;
+  if (monitors.length > 0) {
+    const healthScores = monitors.map(monitor => {
+      const expectedRuns = calculateExpectedRuns(
+        monitor.scheduleType,
+        monitor.intervalSec,
+        monitor.createdAt,
+        new Date()
+      );
+      const actualRuns = monitor.runs.length;
+      const successfulRuns = monitor.runs.filter(r => r.outcome === 'SUCCESS').length;
+      
+      return calculateHealthScore({
+        totalExpectedRuns: Math.max(expectedRuns, 1),
+        totalActualRuns: actualRuns,
+        successfulRuns,
+        durationMean: monitor.durationMean,
+        durationM2: monitor.durationM2,
+        durationCount: monitor.durationCount,
+      }).score;
+    });
+    
+    overallHealthScore = Math.round(
+      healthScores.reduce((sum, score) => sum + score, 0) / healthScores.length
+    );
+  }
 
   // Get recent incidents
   const incidents = await prisma.incident.findMany({
@@ -80,7 +121,20 @@ export default async function DashboardPage() {
       </div>
 
       {/* Status Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Overall Health</CardTitle>
+            <Award className={`h-4 w-4 ${overallHealthScore >= 90 ? 'text-green-600' : overallHealthScore >= 70 ? 'text-yellow-600' : 'text-red-600'}`} />
+          </CardHeader>
+          <CardContent>
+            <div className={`text-2xl font-bold ${overallHealthScore >= 90 ? 'text-green-600' : overallHealthScore >= 70 ? 'text-yellow-600' : 'text-red-600'}`}>
+              {overallHealthScore}
+            </div>
+            <p className="text-xs text-muted-foreground">average health score</p>
+          </CardContent>
+        </Card>
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Healthy</CardTitle>
@@ -127,56 +181,47 @@ export default async function DashboardPage() {
       </div>
 
       {/* Recent Monitors */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Monitors</CardTitle>
-          <CardDescription>Your most recently updated monitors</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {monitors.length === 0 ? (
-            <div className="text-center py-8 text-gray-600">
-              <p className="mb-4">No monitors yet. Create your first one!</p>
-              <Link href="/app/monitors/new">
-                <Button>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Create Monitor
-                </Button>
-              </Link>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {monitors.map(monitor => (
-                <Link
-                  key={monitor.id}
-                  href={`/app/monitors/${monitor.id}`}
-                  className="flex items-center justify-between p-4 rounded-lg border hover:bg-gray-50 transition-colors"
-                >
-                  <div>
-                    <div className="font-medium">{monitor.name}</div>
-                    <div className="text-sm text-gray-600">
-                      Last run: {monitor.lastRunAt ? new Date(monitor.lastRunAt).toLocaleString() : 'Never'}
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    {monitor._count.incidents > 0 && (
-                      <Badge variant="destructive">{monitor._count.incidents} incident{monitor._count.incidents !== 1 ? 's' : ''}</Badge>
-                    )}
-                    <Badge
-                      variant={
-                        monitor.status === 'OK' ? 'default' :
-                        monitor.status === 'LATE' ? 'secondary' :
-                        'destructive'
-                      }
-                    >
-                      {monitor.status}
-                    </Badge>
-                  </div>
+      {monitors.length === 0 ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>Get Started</CardTitle>
+            <CardDescription>Create your first monitor to start tracking jobs</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="text-center py-8">
+              <p className="text-muted-foreground mb-4">No monitors yet. Create your first one!</p>
+              <div className="flex gap-2 justify-center">
+                <Link href="/app/monitors/new">
+                  <Button>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Create Monitor
+                  </Button>
                 </Link>
-              ))}
+                <Link href="/app/onboarding">
+                  <Button variant="outline">
+                    <TrendingUp className="w-4 h-4 mr-2" />
+                    Start Onboarding
+                  </Button>
+                </Link>
+              </div>
             </div>
-          )}
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      ) : (
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-bold">Your Monitors</h2>
+            <Link href="/app/monitors">
+              <Button variant="outline" size="sm">View All</Button>
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {monitors.slice(0, 6).map(monitor => (
+              <EnhancedMonitorCard key={monitor.id} monitor={monitor as any} />
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Open Incidents */}
       {incidents.length > 0 && (
