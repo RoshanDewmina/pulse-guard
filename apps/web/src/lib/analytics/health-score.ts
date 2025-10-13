@@ -1,242 +1,152 @@
 /**
- * Monitor Health Score Calculation
+ * Health Score Calculation
  * 
- * Score: 0-100 based on recent performance
- * - Base: 100
- * - -5 for each failure (last 7 days)
- * - -10 for each missed run
- * - -3 for each late run
- * - +2 for each on-time success (capped at 100)
+ * Formula: 0.4 * Uptime% + 0.3 * SuccessRate% + 0.3 * PerformanceScore%
+ * 
+ * - Uptime: Percentage of expected runs that occurred
+ * - SuccessRate: Percentage of runs that succeeded
+ * - PerformanceScore: Based on duration consistency (100 - stddev/mean * 100)
  */
 
-import { prisma } from '@tokiflow/db';
+export interface HealthScoreInput {
+  totalExpectedRuns: number;
+  totalActualRuns: number;
+  successfulRuns: number;
+  durationMean?: number | null;
+  durationM2?: number | null;
+  durationCount: number;
+}
 
 export interface HealthScoreResult {
   score: number;
-  breakdown: {
-    base: number;
-    successes: number;
-    failures: number;
-    missed: number;
-    late: number;
-  };
+  uptime: number;
+  successRate: number;
+  performanceScore: number;
   grade: 'A' | 'B' | 'C' | 'D' | 'F';
-  status: 'excellent' | 'good' | 'fair' | 'poor' | 'critical';
+  color: string;
 }
 
-/**
- * Calculate health score for a monitor
- * 
- * @param monitorId - Monitor ID
- * @param days - Number of days to look back (default 7)
- * @returns Health score with breakdown
- */
-export async function calculateHealthScore(
-  monitorId: string,
-  days: number = 7
-): Promise<HealthScoreResult> {
-  const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+export function calculateHealthScore(input: HealthScoreInput): HealthScoreResult {
+  // Calculate uptime (0-100)
+  const uptime = input.totalExpectedRuns > 0 
+    ? (input.totalActualRuns / input.totalExpectedRuns) * 100
+    : 100;
 
-  // Get all runs in the time period
-  const runs = await prisma.run.findMany({
-    where: {
-      monitorId,
-      startedAt: {
-        gte: since,
-      },
-    },
-    orderBy: {
-      startedAt: 'desc',
-    },
-  });
+  // Calculate success rate (0-100)
+  const successRate = input.totalActualRuns > 0
+    ? (input.successfulRuns / input.totalActualRuns) * 100
+    : 100;
 
-  let score = 100;
-  const breakdown = {
-    base: 100,
-    successes: 0,
-    failures: 0,
-    missed: 0,
-    late: 0,
-  };
-
-  for (const run of runs) {
-    switch (run.outcome) {
-      case 'SUCCESS':
-        // Add 2 points for on-time success (capped at 100)
-        breakdown.successes += 2;
-        break;
-      case 'FAIL':
-        breakdown.failures -= 5;
-        score -= 5;
-        break;
-      case 'MISSED':
-        breakdown.missed -= 10;
-        score -= 10;
-        break;
-      case 'LATE':
-        breakdown.late -= 3;
-        score -= 3;
-        break;
-    }
+  // Calculate performance score based on duration variance (0-100)
+  let performanceScore = 100;
+  
+  if (input.durationCount >= 10 && input.durationMean && input.durationM2) {
+    // Calculate coefficient of variation (stddev / mean)
+    const variance = input.durationM2 / input.durationCount;
+    const stddev = Math.sqrt(variance);
+    const coefficientOfVariation = input.durationMean > 0 ? stddev / input.durationMean : 0;
+    
+    // Lower CV = better performance (more consistent)
+    // CV > 1 means high variance, CV < 0.3 means low variance
+    performanceScore = Math.max(0, Math.min(100, 100 - (coefficientOfVariation * 100)));
   }
 
-  // Add success bonus (but cap at 100)
-  score = Math.min(100, score + breakdown.successes);
-  
-  // Ensure minimum of 0
-  score = Math.max(0, score);
+  // Calculate weighted health score
+  const score = Math.round(
+    0.4 * uptime +
+    0.3 * successRate +
+    0.3 * performanceScore
+  );
 
-  // Determine grade and status
+  // Determine grade and color
   let grade: 'A' | 'B' | 'C' | 'D' | 'F';
-  let status: 'excellent' | 'good' | 'fair' | 'poor' | 'critical';
+  let color: string;
 
   if (score >= 90) {
     grade = 'A';
-    status = 'excellent';
+    color = 'text-green-600';
   } else if (score >= 80) {
     grade = 'B';
-    status = 'good';
+    color = 'text-blue-600';
   } else if (score >= 70) {
     grade = 'C';
-    status = 'fair';
+    color = 'text-yellow-600';
   } else if (score >= 60) {
     grade = 'D';
-    status = 'poor';
+    color = 'text-orange-600';
   } else {
     grade = 'F';
-    status = 'critical';
+    color = 'text-red-600';
   }
 
   return {
-    score: Math.round(score),
-    breakdown,
+    score,
+    uptime: Math.round(uptime * 10) / 10,
+    successRate: Math.round(successRate * 10) / 10,
+    performanceScore: Math.round(performanceScore * 10) / 10,
     grade,
-    status,
+    color,
   };
 }
 
 /**
- * Calculate uptime percentage
- * 
- * @param monitorId - Monitor ID
- * @param days - Number of days to look back
- * @returns Uptime percentage (0-100)
+ * Calculate expected runs based on schedule
+ * Used for uptime calculation
  */
-export async function calculateUptime(
-  monitorId: string,
-  days: number = 7
-): Promise<number> {
-  const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
-
-  const runs = await prisma.run.findMany({
-    where: {
-      monitorId,
-      startedAt: {
-        gte: since,
-      },
-      outcome: {
-        in: ['SUCCESS', 'FAIL', 'LATE', 'MISSED'],
-      },
-    },
-  });
-
-  if (runs.length === 0) return 100;
-
-  const successfulRuns = runs.filter(r => 
-    r.outcome === 'SUCCESS' || r.outcome === 'LATE'
-  ).length;
-
-  return (successfulRuns / runs.length) * 100;
-}
-
-/**
- * Calculate MTBF (Mean Time Between Failures)
- * 
- * @param monitorId - Monitor ID
- * @returns MTBF in seconds, or null if no failures
- */
-export async function calculateMTBF(monitorId: string): Promise<number | null> {
-  const failures = await prisma.run.findMany({
-    where: {
-      monitorId,
-      outcome: {
-        in: ['FAIL', 'MISSED'],
-      },
-    },
-    orderBy: {
-      startedAt: 'asc',
-    },
-    select: {
-      startedAt: true,
-    },
-  });
-
-  if (failures.length < 2) return null;
-
-  let totalTimeBetweenFailures = 0;
-  for (let i = 1; i < failures.length; i++) {
-    const timeDiff = failures[i].startedAt.getTime() - failures[i - 1].startedAt.getTime();
-    totalTimeBetweenFailures += timeDiff;
+export function calculateExpectedRuns(
+  scheduleType: 'INTERVAL' | 'CRON',
+  intervalSec: number | null,
+  createdAt: Date,
+  now: Date = new Date()
+): number {
+  const ageMs = now.getTime() - createdAt.getTime();
+  
+  if (scheduleType === 'INTERVAL' && intervalSec) {
+    // Simple: age / interval
+    return Math.floor(ageMs / (intervalSec * 1000));
+  } else if (scheduleType === 'CRON') {
+    // Approximation: assume daily average of 1-24 runs
+    // More accurate implementation would parse cron expression
+    const ageDays = ageMs / (24 * 60 * 60 * 1000);
+    return Math.floor(ageDays); // Conservative estimate: 1 run per day
   }
-
-  return totalTimeBetweenFailures / (failures.length - 1) / 1000; // Convert to seconds
+  
+  return 0;
 }
 
 /**
- * Calculate MTTR (Mean Time To Repair)
- * 
- * @param monitorId - Monitor ID
- * @returns MTTR in seconds, or null if no resolved incidents
+ * Get MTBF (Mean Time Between Failures) in hours
  */
-export async function calculateMTTR(monitorId: string): Promise<number | null> {
-  const incidents = await prisma.incident.findMany({
-    where: {
-      monitorId,
-      status: 'RESOLVED',
-      resolvedAt: { not: null },
-    },
-    select: {
-      openedAt: true,
-      resolvedAt: true,
-    },
-  });
-
-  if (incidents.length === 0) return null;
-
-  let totalRepairTime = 0;
-  for (const incident of incidents) {
-    if (incident.resolvedAt) {
-      const repairTime = incident.resolvedAt.getTime() - incident.openedAt.getTime();
-      totalRepairTime += repairTime;
-    }
+export function calculateMTBF(
+  incidents: Array<{ openedAt: Date }>,
+  monitorAge: number // in milliseconds
+): number {
+  if (incidents.length === 0) {
+    return monitorAge / (1000 * 60 * 60); // Return total uptime in hours
   }
-
-  return totalRepairTime / incidents.length / 1000; // Convert to seconds
+  
+  // Calculate average time between failures
+  const mtbfMs = monitorAge / incidents.length;
+  return Math.round((mtbfMs / (1000 * 60 * 60)) * 10) / 10;
 }
 
 /**
- * Get health score color class
+ * Get MTTR (Mean Time To Resolution) in minutes
  */
-export function getHealthScoreColor(score: number): string {
-  if (score >= 90) return 'text-green-600';
-  if (score >= 80) return 'text-blue-600';
-  if (score >= 70) return 'text-yellow-600';
-  if (score >= 60) return 'text-orange-600';
-  return 'text-red-600';
+export function calculateMTTR(
+  incidents: Array<{ openedAt: Date; resolvedAt: Date | null }>
+): number {
+  const resolvedIncidents = incidents.filter(inc => inc.resolvedAt);
+  
+  if (resolvedIncidents.length === 0) {
+    return 0;
+  }
+  
+  const totalResolutionTime = resolvedIncidents.reduce((sum, inc) => {
+    const resolutionTimeMs = inc.resolvedAt!.getTime() - inc.openedAt.getTime();
+    return sum + resolutionTimeMs;
+  }, 0);
+  
+  const avgResolutionTimeMs = totalResolutionTime / resolvedIncidents.length;
+  return Math.round((avgResolutionTimeMs / (1000 * 60)) * 10) / 10;
 }
-
-/**
- * Get health score background color
- */
-export function getHealthScoreBgColor(score: number): string {
-  if (score >= 90) return 'bg-green-100';
-  if (score >= 80) return 'bg-blue-100';
-  if (score >= 70) return 'bg-yellow-100';
-  if (score >= 60) return 'bg-orange-100';
-  return 'bg-red-100';
-}
-
-
-
-
-
