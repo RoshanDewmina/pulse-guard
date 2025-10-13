@@ -22,6 +22,30 @@ async function postSlackMessage(accessToken: string, channel: string, blocks: an
   }
 }
 
+async function postSlackThreadReply(
+  accessToken: string,
+  channel: string,
+  threadTs: string,
+  text: string,
+  blocks?: any[]
+) {
+  try {
+    const { WebClient } = await import('@slack/web-api');
+    const client = new WebClient(accessToken);
+    return await client.chat.postMessage({
+      channel,
+      thread_ts: threadTs,
+      text,
+      blocks,
+    });
+  } catch (error: any) {
+    if (error.code === 'MODULE_NOT_FOUND') {
+      throw new Error('Slack SDK not installed');
+    }
+    throw error;
+  }
+}
+
 const logger = createLogger('slack');
 const connection = new Redis(process.env.REDIS_URL || 'redis://localhost:6379', {
   maxRetriesPerRequest: null,
@@ -144,47 +168,125 @@ export function startSlackWorker() {
               type: 'button',
               text: {
                 type: 'plain_text',
+                text: 'Resolve',
+                emoji: true,
+              },
+              style: 'primary',
+              value: incidentId,
+              action_id: 'resolve_incident',
+            },
+            {
+              type: 'button',
+              text: {
+                type: 'plain_text',
+                text: 'Mute',
+                emoji: true,
+              },
+              value: incidentId,
+              action_id: 'mute_incident',
+            },
+            {
+              type: 'button',
+              text: {
+                type: 'plain_text',
                 text: 'View Dashboard',
                 emoji: true,
               },
               url: `${process.env.NEXTAUTH_URL}/app/monitors/${incident.monitorId}`,
               action_id: 'view_dashboard',
             },
-            {
-              type: 'button',
-              text: {
-                type: 'plain_text',
-                text: 'Mute 2h',
-                emoji: true,
-              },
-              value: incidentId,
-              action_id: 'mute_incident',
-            },
           ],
         },
       ];
 
       try {
-        const result = await postSlackMessage(
-          accessToken,
-          slackChannel,
-          blocks,
-          `${incident.kind}: ${incident.monitor.name} - ${incident.summary}`
-        );
+        // Check if this incident already has a Slack message (for threaded updates)
+        if (incident.slackMessageTs && incident.slackChannelId) {
+          logger.info(`Incident ${incidentId} has existing thread, posting update`);
+          
+          // Build thread reply based on incident status
+          let replyText = '';
+          let replyBlocks: any[] = [];
+          
+          if (incident.status === 'ACKED') {
+            replyText = `✅ *Incident Acknowledged*\nThe incident has been acknowledged and is being investigated.`;
+            replyBlocks = [
+              {
+                type: 'section',
+                text: {
+                  type: 'mrkdwn',
+                  text: replyText,
+                },
+              },
+            ];
+          } else if (incident.status === 'RESOLVED') {
+            replyText = `🎉 *Incident Resolved*\nThe monitor is now healthy and the incident has been resolved.`;
+            replyBlocks = [
+              {
+                type: 'section',
+                text: {
+                  type: 'mrkdwn',
+                  text: replyText,
+                },
+              },
+            ];
+          } else {
+            // Status update (e.g., incident escalated, repeated failure)
+            replyText = `📢 *Incident Update*\n${incident.summary}`;
+            replyBlocks = [
+              {
+                type: 'section',
+                text: {
+                  type: 'mrkdwn',
+                  text: replyText,
+                },
+                fields: [
+                  {
+                    type: 'mrkdwn',
+                    text: `*Status:*\n${incident.status}`,
+                  },
+                  {
+                    type: 'mrkdwn',
+                    text: `*Time:*\n${format(new Date(), 'PPpp')}`,
+                  },
+                ],
+              },
+            ];
+          }
+          
+          // Post as thread reply
+          await postSlackThreadReply(
+            accessToken,
+            incident.slackChannelId,
+            incident.slackMessageTs,
+            replyText,
+            replyBlocks
+          );
+          
+          logger.info(`Posted thread update for incident ${incidentId}`);
+        } else {
+          // First-time alert, post new message
+          const result = await postSlackMessage(
+            accessToken,
+            slackChannel,
+            blocks,
+            `${incident.kind}: ${incident.monitor.name} - ${incident.summary}`
+          );
 
-        // Store message timestamp and channel for future updates
-        if (result && result.ts) {
-          await prisma.incident.update({
-            where: { id: incidentId },
-            data: {
-              slackMessageTs: result.ts,
-              slackChannelId: result.channel || slackChannel,
-            },
-          });
-          logger.info(`Stored Slack message TS ${result.ts} for incident ${incidentId}`);
+          // Store message timestamp and channel for future updates
+          if (result && result.ts) {
+            await prisma.incident.update({
+              where: { id: incidentId },
+              data: {
+                slackMessageTs: result.ts,
+                slackChannelId: result.channel || slackChannel,
+              },
+            });
+            logger.info(`Stored Slack message TS ${result.ts} for incident ${incidentId}`);
+          }
+
+          logger.info(`Slack message sent to ${slackChannel} for incident ${incidentId}`);
         }
-
-        logger.info(`Slack message sent to ${slackChannel} for incident ${incidentId}`);
       } catch (error: any) {
         if (error.message === 'Slack SDK not installed') {
           logger.warn('Slack SDK not available, skipping Slack alert');

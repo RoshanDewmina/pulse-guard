@@ -234,3 +234,53 @@ export async function updateSlackMessage(
   }
 }
 
+/**
+ * Post a threaded reply to an existing Slack message
+ */
+export async function postSlackThreadReply(
+  accessToken: string,
+  channel: string,
+  threadTs: string,
+  text: string,
+  blocks?: any[]
+) {
+  const client = createSlackClient(accessToken);
+  
+  try {
+    const result = await client.chat.postMessage({
+      channel,
+      thread_ts: threadTs,
+      text,
+      blocks,
+    });
+    
+    return result;
+  } catch (error) {
+    console.error('Failed to post Slack thread reply:', error);
+    throw error;
+  }
+}
+
+/**
+ * Open a modal dialog in Slack
+ */
+export async function openSlackModal(
+  accessToken: string,
+  triggerId: string,
+  view: any
+) {
+  const client = createSlackClient(accessToken);
+  
+  try {
+    const result = await client.views.open({
+      trigger_id: triggerId,
+      view,
+    });
+    
+    return result;
+  } catch (error) {
+    console.error('Failed to open Slack modal:', error);
+    throw error;
+  }
+}
+
