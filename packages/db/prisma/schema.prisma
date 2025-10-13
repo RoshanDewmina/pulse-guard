@@ -329,11 +329,12 @@ model AuditLog {
 }
 
 model MonitorDependency {
-  id          String   @id @default(cuid())
-  monitorId   String   // Dependent monitor (runs second)
-  dependsOnId String   // Dependency (must run first)
-  required    Boolean  @default(true) // Fail if dependency fails
-  createdAt   DateTime @default(now())
+  id             String   @id @default(cuid())
+  monitorId      String   // Dependent monitor (runs second)
+  dependsOnId    String   // Dependency (must run first)
+  required       Boolean  @default(true) // Fail if dependency fails
+  cascadeReason  String?  // Reason for cascade suppression (if applicable)
+  createdAt      DateTime @default(now())
 
   monitor   Monitor @relation("DependentMonitor", fields: [monitorId], references: [id], onDelete: Cascade)
   dependsOn Monitor @relation("DependsOnMonitor", fields: [dependsOnId], references: [id], onDelete: Cascade)

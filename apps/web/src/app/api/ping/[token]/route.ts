@@ -5,6 +5,7 @@ import { uploadOutput, redactOutput, truncateOutput } from '@/lib/s3';
 import { rateLimit } from '@/lib/rate-limit';
 import { updateWelfordStats } from '@/lib/analytics/welford';
 import { checkForAnomalies } from '@/lib/analytics/anomaly';
+import { checkCascadeSuppression, createSuppressedIncident, findAffectedDownstream, createCompositeAlert } from '@/lib/cascade/suppression';
 
 export const runtime = 'nodejs';
 
@@ -211,6 +212,9 @@ async function handlePing(request: NextRequest, token: string) {
         ? `Job failed with exit code ${runExitCode}`
         : `Job completed but was late by ${Math.floor((now.getTime() - monitor.nextDueAt!.getTime() - monitor.graceSec * 1000) / 1000)}s`;
 
+      // Check for cascade suppression (upstream dependency failures)
+      const cascadeCheck = await checkCascadeSuppression(monitor.id);
+
       // Check for existing open incident of this kind
       const existingIncident = await prisma.incident.findFirst({
         where: {
@@ -221,14 +225,32 @@ async function handlePing(request: NextRequest, token: string) {
       });
 
       if (!existingIncident) {
-        await prisma.incident.create({
-          data: {
-            monitorId: monitor.id,
+        if (cascadeCheck.shouldSuppress) {
+          // Create suppressed incident (low severity, won't trigger alerts)
+          await createSuppressedIncident(
+            monitor.id,
             kind,
-            summary,
-            details: outputKey ? `Output captured: ${outputKey}` : null,
-          },
-        });
+            cascadeCheck.reason!,
+            cascadeCheck.affectedUpstream?.incidentId
+          );
+        } else {
+          // Create normal incident
+          const newIncident = await prisma.incident.create({
+            data: {
+              monitorId: monitor.id,
+              kind,
+              summary,
+              details: outputKey ? `Output captured: ${outputKey}` : null,
+            },
+          });
+
+          // Check if this failure affects downstream monitors (composite alert)
+          const affectedDownstream = await findAffectedDownstream(monitor.id);
+          if (affectedDownstream.length > 0) {
+            // Create composite alert for visibility
+            await createCompositeAlert(monitor.id, affectedDownstream);
+          }
+        }
       }
     }
 
