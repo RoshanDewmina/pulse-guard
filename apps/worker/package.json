@@ -1,0 +1,23 @@
+{
+    "name": "@tokiflow/worker",
+    "version": "0.1.0",
+    "private": true,
+    "scripts": {
+        "dev": "bun run src/index.ts",
+        "build": "bun build src/index.ts --outdir dist --target node",
+        "start": "node dist/index.js"
+    },
+    "dependencies": {
+        "@tokiflow/db": "workspace:*",
+        "@sentry/node": "^8.40.0",
+        "@sentry/profiling-node": "^8.40.0",
+        "bullmq": "^5.20.3",
+        "ioredis": "^5.4.1",
+        "pino": "^9.4.0",
+        "cron-parser": "^4.9.0",
+        "date-fns": "^4.1.0"
+    },
+    "devDependencies": {
+        "@types/node": "^22.7.5"
+    }
+}

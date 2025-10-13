@@ -1,0 +1,22 @@
+apiVersion: v2
+name: tokiflow-monitor
+description: Zero-code monitoring for Kubernetes CronJobs with Tokiflow
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+keywords:
+  - monitoring
+  - cronjob
+  - alerting
+  - observability
+home: https://tokiflow.co
+sources:
+  - https://github.com/tokiflow/tokiflow
+maintainers:
+  - name: Tokiflow Team
+    email: support@tokiflow.co
+icon: https://tokiflow.co/icon.png
+
+
+
+

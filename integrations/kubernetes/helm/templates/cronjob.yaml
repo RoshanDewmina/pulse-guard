@@ -1,0 +1,88 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ .Values.cronjob.name }}
+  labels:
+    app: {{ .Values.cronjob.name }}
+    monitor.tokiflow.com/enabled: "true"
+    {{- with .Values.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with .Values.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  schedule: {{ .Values.cronjob.schedule | quote }}
+  {{- with .Values.cronjob.timezone }}
+  timeZone: {{ . }}
+  {{- end }}
+  concurrencyPolicy: {{ .Values.cronjob.concurrencyPolicy }}
+  successfulJobsHistoryLimit: {{ .Values.cronjob.successfulJobsHistoryLimit }}
+  failedJobsHistoryLimit: {{ .Values.cronjob.failedJobsHistoryLimit }}
+  jobTemplate:
+    spec:
+      backoffLimit: {{ .Values.cronjob.backoffLimit }}
+      template:
+        metadata:
+          labels:
+            app: {{ .Values.cronjob.name }}
+            tokiflow-monitor: "enabled"
+        spec:
+          serviceAccountName: {{ .Values.serviceAccount.name }}
+          restartPolicy: {{ .Values.cronjob.restartPolicy }}
+          
+          containers:
+          # Main container (your job)
+          - name: {{ .Values.cronjob.container.name }}
+            image: {{ .Values.cronjob.container.image }}
+            {{- with .Values.cronjob.container.command }}
+            command:
+              {{- toYaml . | nindent 14 }}
+            {{- end }}
+            {{- with .Values.cronjob.container.args }}
+            args:
+              {{- toYaml . | nindent 14 }}
+            {{- end }}
+            {{- with .Values.cronjob.container.resources }}
+            resources:
+              {{- toYaml . | nindent 14 }}
+            {{- end }}
+          
+          # Tokiflow sidecar
+          - name: tokiflow-sidecar
+            image: "{{ .Values.sidecar.image.repository }}:{{ .Values.sidecar.image.tag }}"
+            imagePullPolicy: {{ .Values.sidecar.image.pullPolicy }}
+            env:
+            - name: PULSEGUARD_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.cronjob.name }}-tokiflow
+                  key: token
+            - name: PULSEGUARD_API
+              value: {{ .Values.tokiflow.apiUrl | quote }}
+            - name: CRONJOB_NAME
+              value: {{ .Values.cronjob.name | quote }}
+            - name: NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: MAIN_CONTAINER_NAME
+              value: {{ .Values.cronjob.container.name | quote }}
+            - name: CAPTURE_OUTPUT
+              value: {{ .Values.tokiflow.captureOutput | quote }}
+            - name: MAX_OUTPUT_BYTES
+              value: {{ .Values.tokiflow.maxOutputBytes | quote }}
+            {{- with .Values.sidecar.resources }}
+            resources:
+              {{- toYaml . | nindent 14 }}
+            {{- end }}
+
+
+
+
+

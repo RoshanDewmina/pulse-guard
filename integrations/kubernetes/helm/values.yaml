@@ -1,0 +1,97 @@
+# Default values for tokiflow-monitor
+# This is a YAML-formatted file.
+
+# Tokiflow configuration
+tokiflow:
+  # API endpoint (use your self-hosted instance or SaaS)
+  apiUrl: "https://api.tokiflow.com"
+  
+  # Monitor token from Tokiflow dashboard
+  # REQUIRED: Set this to your monitor token
+  token: ""
+  
+  # Enable output capture
+  captureOutput: true
+  
+  # Maximum output size in bytes (default: 10KB)
+  maxOutputBytes: 10240
+
+# Sidecar container configuration
+sidecar:
+  # Sidecar image
+  image:
+    repository: tokiflow/k8s-sidecar
+    tag: "1.0.0"
+    pullPolicy: IfNotPresent
+  
+  # Resources for sidecar container
+  resources:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 50m
+      memory: 64Mi
+
+# Your CronJob specification
+cronjob:
+  # Name of the CronJob
+  name: my-cronjob
+  
+  # Cron schedule (required)
+  schedule: "0 3 * * *"
+  
+  # Timezone (optional, default: UTC)
+  # timezone: "America/New_York"
+  
+  # Main container specification
+  container:
+    name: main
+    image: busybox
+    command: ["/bin/sh"]
+    args: ["-c", "echo 'Hello from CronJob'; sleep 5"]
+    
+    # Resources for main container
+    resources:
+      limits:
+        cpu: 500m
+        memory: 512Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+  
+  # Job configuration
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+  
+  # Job template settings
+  restartPolicy: OnFailure
+  backoffLimit: 2
+
+# Service account for sidecar (needs permissions to read pod status and logs)
+serviceAccount:
+  # Create a service account
+  create: true
+  
+  # Name of the service account
+  name: tokiflow-monitor
+  
+  # Annotations to add to the service account
+  annotations: {}
+
+# RBAC configuration
+rbac:
+  # Create RBAC resources
+  create: true
+
+# Additional labels to add to all resources
+labels: {}
+
+# Additional annotations to add to all resources
+annotations: {}
+
+
+
+
+
