@@ -6,6 +6,7 @@ const connection = new Redis(process.env.REDIS_URL || 'redis://localhost:6379', 
 });
 
 export const evaluateQueue = new Queue('evaluate', { connection });
+export const checkMissedQueue = new Queue('check-missed', { connection });
 export const alertsQueue = new Queue('alerts', { connection });
 export const emailQueue = new Queue('email', { connection });
 export const slackQueue = new Queue('slack', { connection });
@@ -14,6 +15,7 @@ export const webhookQueue = new Queue('webhook', { connection });
 
 // Queue events for monitoring
 export const evaluateQueueEvents = new QueueEvents('evaluate', { connection });
+export const checkMissedQueueEvents = new QueueEvents('check-missed', { connection });
 export const alertsQueueEvents = new QueueEvents('alerts', { connection });
 export const emailQueueEvents = new QueueEvents('email', { connection });
 export const slackQueueEvents = new QueueEvents('slack', { connection });

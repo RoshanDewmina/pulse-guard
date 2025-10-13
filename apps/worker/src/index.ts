@@ -1,6 +1,7 @@
 import { createLogger } from './logger';
 import { initializeSentry, captureJobError } from './sentry';
 import { startEvaluator } from './jobs/evaluator';
+import { startCheckMissedWorker } from './jobs/check-missed';
 import { startAlertWorker } from './jobs/alerts';
 import { startEmailWorker } from './jobs/email';
 import { startSlackWorker } from './jobs/slack';
@@ -24,6 +25,9 @@ async function main() {
     // Start workers
     startEvaluator();
     logger.info('✅ Evaluator worker started');
+
+    startCheckMissedWorker();
+    logger.info('✅ Check-missed worker started');
 
     startAlertWorker();
     logger.info('✅ Alert dispatcher worker started');

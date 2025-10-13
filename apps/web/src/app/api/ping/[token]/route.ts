@@ -5,8 +5,17 @@ import { uploadOutput, redactOutput, truncateOutput } from '@/lib/s3';
 import { rateLimit } from '@/lib/rate-limit';
 import { updateWelfordStats } from '@/lib/analytics/welford';
 import { checkForAnomalies } from '@/lib/analytics/anomaly';
+import { Queue } from 'bullmq';
+import Redis from 'ioredis';
 
 export const runtime = 'nodejs';
+
+// Initialize Redis connection and check-missed queue
+const redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379', {
+  maxRetriesPerRequest: null,
+});
+
+const checkMissedQueue = new Queue('check-missed', { connection: redis });
 
 export async function GET(
   request: NextRequest,
@@ -78,6 +87,7 @@ async function handlePing(request: NextRequest, token: string) {
     const state = searchParams.get('state') || 'success';
     const durationMs = searchParams.get('durationMs');
     const exitCode = searchParams.get('exitCode');
+    const severityParam = searchParams.get('severity');
 
     // Parse optional output body
     let output: string | null = null;
@@ -128,16 +138,25 @@ async function handlePing(request: NextRequest, token: string) {
 
     // Handle output capture
     let outputKey: string | null = null;
+    let outputPreview: string | null = null;
     if (output && monitor.captureOutput) {
       const redacted = redactOutput(output);
-      const truncated = truncateOutput(redacted, monitor.captureLimitKb);
-      outputKey = `outputs/${monitor.id}/${Date.now()}.txt`;
+      const outputSizeKb = Buffer.byteLength(redacted, 'utf8') / 1024;
       
-      try {
-        await uploadOutput(outputKey, truncated);
-      } catch (error) {
-        console.error('Failed to upload output:', error);
-        outputKey = null;
+      // Create preview (first 1KB)
+      outputPreview = redacted.slice(0, 1024);
+      
+      // Upload to S3 if output > 8KB
+      if (outputSizeKb > 8) {
+        const truncated = truncateOutput(redacted, monitor.captureLimitKb);
+        outputKey = `outputs/${monitor.id}/${Date.now()}.txt`;
+        
+        try {
+          await uploadOutput(outputKey, truncated);
+        } catch (error) {
+          console.error('Failed to upload output:', error);
+          outputKey = null;
+        }
       }
     }
 
@@ -157,6 +176,7 @@ async function handlePing(request: NextRequest, token: string) {
             exitCode: runExitCode,
             outcome: actualOutcome,
             outputKey,
+            outputPreview,
             sizeBytes: output?.length || null,
           },
         })
@@ -169,6 +189,7 @@ async function handlePing(request: NextRequest, token: string) {
             exitCode: runExitCode,
             outcome: actualOutcome,
             outputKey,
+            outputPreview,
             sizeBytes: output?.length || null,
           },
         });
@@ -211,6 +232,18 @@ async function handlePing(request: NextRequest, token: string) {
         ? `Job failed with exit code ${runExitCode}`
         : `Job completed but was late by ${Math.floor((now.getTime() - monitor.nextDueAt!.getTime() - monitor.graceSec * 1000) / 1000)}s`;
 
+      // Parse severity from param or default based on kind
+      let severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL' = 'HIGH';
+      if (severityParam) {
+        const upperSeverity = severityParam.toUpperCase();
+        if (['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'].includes(upperSeverity)) {
+          severity = upperSeverity as 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+        }
+      } else {
+        // Default severity based on kind
+        severity = outcome === 'FAIL' ? 'HIGH' : 'MEDIUM';
+      }
+
       // Check for existing open incident of this kind
       const existingIncident = await prisma.incident.findFirst({
         where: {
@@ -225,6 +258,7 @@ async function handlePing(request: NextRequest, token: string) {
           data: {
             monitorId: monitor.id,
             kind,
+            severity,
             summary,
             details: outputKey ? `Output captured: ${outputKey}` : null,
           },
@@ -290,6 +324,39 @@ async function handlePing(request: NextRequest, token: string) {
         ...welfordUpdate,
       },
     });
+
+    // Schedule check-missed job at nextDueAt + grace period
+    if (nextDueAt) {
+      const checkTime = nextDueAt.getTime() + monitor.graceSec * 1000;
+      const jobId = `check-missed-${monitor.id}-${nextDueAt.getTime()}`;
+      
+      try {
+        // Remove any previous check-missed job for this monitor
+        await checkMissedQueue.removeRepeatable(jobId, {
+          pattern: '*',
+        }).catch(() => {
+          // Ignore errors (job might not exist)
+        });
+        
+        // Schedule new check-missed job
+        await checkMissedQueue.add(
+          'check-monitor',
+          {
+            monitorId: monitor.id,
+            expectedAt: nextDueAt.getTime(),
+          },
+          {
+            jobId,
+            delay: Math.max(0, checkTime - Date.now()),
+            removeOnComplete: true,
+            removeOnFail: false,
+          }
+        );
+      } catch (error) {
+        console.error('Failed to schedule check-missed job:', error);
+        // Non-critical error, continue
+      }
+    }
 
     // Check for anomalies after successful run (async, non-blocking)
     if (outcome === 'SUCCESS' && actualOutcome !== 'LATE' && runRecord) {
