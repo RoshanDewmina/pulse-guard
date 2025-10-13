@@ -23,8 +23,10 @@ export async function POST(request: NextRequest) {
         return await handleStatus(teamId!, args.join(' '));
       } else if (subCommand === 'ack') {
         return await handleAck(teamId!, args[0], userId);
-      } else if (subCommand === 'list') {
+      } else if (subCommand === 'list' || subCommand === 'monitors') {
         return await handleList(teamId!);
+      } else if (subCommand === 'incidents') {
+        return await handleIncidents(teamId!);
       } else {
         return NextResponse.json({
           response_type: 'ephemeral',
@@ -66,19 +68,23 @@ function handleHelp() {
         fields: [
           {
             type: 'mrkdwn',
-            text: '`/pulse list`\nShow all monitors',
+            text: '`/pulse monitors`\nList all monitors',
           },
           {
             type: 'mrkdwn',
-            text: '`/pulse status <name>`\nShow monitor status with recent runs',
+            text: '`/pulse incidents`\nList open incidents',
           },
           {
             type: 'mrkdwn',
-            text: '`/pulse ack <incident-id>`\nAcknowledge an incident',
+            text: '`/pulse status <name>`\nShow monitor details',
           },
           {
             type: 'mrkdwn',
-            text: '`/pulse help`\nShow this help message',
+            text: '`/pulse ack <incident-id>`\nAcknowledge incident',
+          },
+          {
+            type: 'mrkdwn',
+            text: '`/pulse help`\nShow this help',
           },
         ],
       },
@@ -434,6 +440,123 @@ async function handleAck(teamId: string, incidentId: string, userId?: string | n
           {
             type: 'mrkdwn',
             text: 'The incident is now acknowledged. Use `/pulse status` to check monitor health.',
+          },
+        ],
+      },
+    ],
+  });
+}
+
+async function handleIncidents(teamId: string) {
+  // Find org by Slack team ID
+  const channel = await prisma.alertChannel.findFirst({
+    where: {
+      type: 'SLACK',
+      configJson: {
+        path: ['teamId'],
+        equals: teamId,
+      },
+    },
+    include: {
+      org: true,
+    },
+  });
+
+  if (!channel) {
+    return NextResponse.json({
+      response_type: 'ephemeral',
+      text: 'Slack workspace not connected to PulseGuard.',
+    });
+  }
+
+  const incidents = await prisma.incident.findMany({
+    where: {
+      monitor: {
+        orgId: channel.orgId,
+      },
+      status: {
+        in: ['OPEN', 'ACKED'],
+      },
+    },
+    include: {
+      monitor: true,
+    },
+    take: 20,
+    orderBy: {
+      openedAt: 'desc',
+    },
+  });
+
+  if (incidents.length === 0) {
+    return NextResponse.json({
+      response_type: 'ephemeral',
+      blocks: [
+        {
+          type: 'section',
+          text: {
+            type: 'mrkdwn',
+            text: '🎉 *No Open Incidents*\n\nAll systems are healthy! There are no open or acknowledged incidents at this time.',
+          },
+        },
+        {
+          type: 'context',
+          elements: [
+            {
+              type: 'mrkdwn',
+              text: 'Use `/pulse monitors` to see all your monitors.',
+            },
+          ],
+        },
+      ],
+    });
+  }
+
+  const kindEmoji: Record<string, string> = {
+    MISSED: '⏰',
+    LATE: '🕐',
+    FAIL: '❌',
+    ANOMALY: '📊',
+    DEGRADED: '⚠️',
+  };
+
+  const statusEmoji: Record<string, string> = {
+    OPEN: '🔴',
+    ACKED: '🟡',
+    RESOLVED: '✅',
+  };
+
+  const incidentList = incidents.map(inc => {
+    const timeSinceOpened = Math.floor((Date.now() - new Date(inc.openedAt).getTime()) / 1000 / 60);
+    const timeStr = timeSinceOpened < 60 ? `${timeSinceOpened}m ago` : `${Math.floor(timeSinceOpened / 60)}h ago`;
+    return `${kindEmoji[inc.kind] || '⚠️'} ${statusEmoji[inc.status]} *${inc.monitor.name}* - ${inc.kind}\n   _${inc.summary}_ • Opened ${timeStr} • ID: \`${inc.id}\``;
+  }).join('\n\n');
+
+  return NextResponse.json({
+    response_type: 'ephemeral',
+    blocks: [
+      {
+        type: 'header',
+        text: {
+          type: 'plain_text',
+          text: `🚨 Open Incidents (${incidents.length})`,
+        },
+      },
+      {
+        type: 'section',
+        text: {
+          type: 'mrkdwn',
+          text: incidentList,
+        },
+      },
+      {
+        type: 'divider',
+      },
+      {
+        type: 'context',
+        elements: [
+          {
+            type: 'mrkdwn',
+            text: `💡 Use \`/pulse ack <incident-id>\` to acknowledge an incident.`,
           },
         ],
       },
