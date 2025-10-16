@@ -11,7 +11,7 @@ const s3Client = new S3Client({
   forcePathStyle: process.env.S3_FORCE_PATH_STYLE === 'true',
 });
 
-const BUCKET_NAME = process.env.S3_BUCKET || 'pulseguard-outputs';
+const BUCKET_NAME = process.env.S3_BUCKET || 'saturn-outputs';
 
 export async function uploadOutput(key: string, content: string): Promise<void> {
   const command = new PutObjectCommand({
@@ -48,22 +48,22 @@ export async function getOutput(key: string): Promise<string> {
 export function redactOutput(output: string): string {
   let redacted = output;
 
+  // JWT tokens (do this first before generic key pattern)
+  redacted = redacted.replace(/eyJ[a-zA-Z0-9_-]+\.eyJ[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+/g, 'eyJ***.eyJ***.***');
+  
+  // URLs with credentials (including postgres://)
+  redacted = redacted.replace(/((?:https?|postgres|postgresql|mysql):\/\/)[^:]+:[^@]+@/gi, '$1***:***@');
+  
   // AWS Access Keys
   redacted = redacted.replace(/AKIA[0-9A-Z]{16}/g, 'AKIA****************');
   
-  // Generic API keys (common patterns)
-  redacted = redacted.replace(/[a-zA-Z0-9_-]{32,}/g, (match) => {
-    if (match.length > 32) {
-      return match.substring(0, 8) + '***' + match.substring(match.length - 4);
-    }
-    return match;
+  // Password-like environment variables
+  redacted = redacted.replace(/(password|pwd|secret|token|key)\s*[=:]\s*[^\s]+/gi, '$1=***');
+  
+  // Generic API keys (longer patterns)
+  redacted = redacted.replace(/\b[a-zA-Z0-9_-]{40,}\b/g, (match) => {
+    return match.substring(0, 8) + '***' + match.substring(match.length - 4);
   });
-  
-  // JWT tokens
-  redacted = redacted.replace(/eyJ[a-zA-Z0-9_-]*\.eyJ[a-zA-Z0-9_-]*\.[a-zA-Z0-9_-]*/g, 'eyJ***.eyJ***.***');
-  
-  // URLs with credentials
-  redacted = redacted.replace(/(https?:\/\/)[^:]+:[^@]+@/g, '$1***:***@');
   
   return redacted;
 }

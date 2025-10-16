@@ -1,0 +1,36 @@
+{
+  "id": "kubernetes/sidecar",
+  "title": "Kubernetes Sidecar",
+  "description": "How the Saturn Go sidecar works with environment variables, exit codes, and log capture",
+  "source": "@site/docs/kubernetes/sidecar.mdx",
+  "sourceDirName": "kubernetes",
+  "slug": "/kubernetes/sidecar",
+  "permalink": "/kubernetes/sidecar",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/saturn/saturn/tree/main/website/docs/kubernetes/sidecar.mdx",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "sidecar",
+    "title": "Kubernetes Sidecar",
+    "description": "How the Saturn Go sidecar works with environment variables, exit codes, and log capture",
+    "keywords": [
+      "kubernetes",
+      "sidecar",
+      "cronjob",
+      "k8s",
+      "golang",
+      "container"
+    ]
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Webhooks",
+    "permalink": "/alerts/webhooks"
+  },
+  "next": {
+    "title": "Helm Values Reference",
+    "permalink": "/kubernetes/helm-values"
+  }
+}

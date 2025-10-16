@@ -32,7 +32,7 @@ export default async function OG() {
             color: 'transparent',
           }}
         >
-          Tokiflow
+          Saturn
         </div>
         <div
           style={{
@@ -59,5 +59,6 @@ export default async function OG() {
     size
   );
 }
+
 
 

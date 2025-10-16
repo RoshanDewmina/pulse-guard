@@ -1,14 +1,14 @@
 <?php
 /**
- * Tokiflow API Client
+ * Saturn API Client
  * 
- * Handles communication with Tokiflow API
+ * Handles communication with Saturn API
  */
 
-class Tokiflow_API {
+class Saturn_API {
     
     /**
-     * Send ping to Tokiflow
+     * Send ping to Saturn
      * 
      * @param string $token Monitor token
      * @param string $state State: start, success, or fail
@@ -18,7 +18,7 @@ class Tokiflow_API {
      * @return bool Success status
      */
     public function send_ping($token, $state = 'success', $exit_code = null, $duration_ms = null, $output = null) {
-        $api_url = get_option('tokiflow_api_url', 'https://api.tokiflow.com');
+        $api_url = get_option('saturn_api_url', 'https://api.saturn.io');
         $endpoint = $api_url . '/api/ping/' . $token;
         
         // Build query parameters
@@ -35,7 +35,7 @@ class Tokiflow_API {
         $args = array(
             'timeout' => 10,
             'headers' => array(
-                'User-Agent' => 'Tokiflow-WordPress/' . PULSEGUARD_VERSION,
+                'User-Agent' => 'Saturn-WordPress/' . SATURN_VERSION,
             ),
         );
         
@@ -51,13 +51,13 @@ class Tokiflow_API {
         
         // Check response
         if (is_wp_error($response)) {
-            error_log('Tokiflow API Error: ' . $response->get_error_message());
+            error_log('Saturn API Error: ' . $response->get_error_message());
             return false;
         }
         
         $status_code = wp_remote_retrieve_response_code($response);
         if ($status_code < 200 || $status_code >= 300) {
-            error_log('Tokiflow API returned status ' . $status_code);
+            error_log('Saturn API returned status ' . $status_code);
             return false;
         }
         
@@ -65,7 +65,7 @@ class Tokiflow_API {
     }
     
     /**
-     * Test connection to Tokiflow
+     * Test connection to Saturn
      * 
      * @param string $token Monitor token
      * @param string $api_url API URL
@@ -77,7 +77,7 @@ class Tokiflow_API {
         $response = wp_remote_get($endpoint, array(
             'timeout' => 10,
             'headers' => array(
-                'User-Agent' => 'Tokiflow-WordPress/' . PULSEGUARD_VERSION,
+                'User-Agent' => 'Saturn-WordPress/' . SATURN_VERSION,
             ),
         ));
         

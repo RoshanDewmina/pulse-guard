@@ -1,0 +1,35 @@
+{
+  "id": "output-capture/overview",
+  "title": "Output Capture",
+  "description": "Capture job output with MinIO storage, redaction patterns, and size limits",
+  "source": "@site/docs/output-capture/overview.mdx",
+  "sourceDirName": "output-capture",
+  "slug": "/output-capture/overview",
+  "permalink": "/output-capture/overview",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/saturn/saturn/tree/main/website/docs/output-capture/overview.mdx",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "overview",
+    "title": "Output Capture",
+    "description": "Capture job output with MinIO storage, redaction patterns, and size limits",
+    "keywords": [
+      "output capture",
+      "logs",
+      "minio",
+      "s3",
+      "redaction"
+    ]
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Maintenance Windows",
+    "permalink": "/maintenance-windows/"
+  },
+  "next": {
+    "title": "Security Overview",
+    "permalink": "/security/overview"
+  }
+}

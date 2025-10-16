@@ -1,0 +1,35 @@
+{
+  "id": "billing/plans",
+  "title": "Pricing Plans",
+  "description": "FREE, PRO, BUSINESS, and ENTERPRISE plans with limits and features",
+  "source": "@site/docs/billing/plans.mdx",
+  "sourceDirName": "billing",
+  "slug": "/billing/plans",
+  "permalink": "/billing/plans",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/saturn/saturn/tree/main/website/docs/billing/plans.mdx",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "plans",
+    "title": "Pricing Plans",
+    "description": "FREE, PRO, BUSINESS, and ENTERPRISE plans with limits and features",
+    "keywords": [
+      "pricing",
+      "plans",
+      "billing",
+      "limits",
+      "enterprise"
+    ]
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Output Redaction",
+    "permalink": "/security/redaction"
+  },
+  "next": {
+    "title": "Usage Enforcement",
+    "permalink": "/billing/usage-enforcement"
+  }
+}

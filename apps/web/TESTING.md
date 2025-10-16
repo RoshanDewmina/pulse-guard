@@ -2,7 +2,7 @@
 
 ## What Was Created
 
-I've set up a complete E2E testing infrastructure for Tokiflow using Playwright to prevent issues like the Client Component error from happening again.
+I've set up a complete E2E testing infrastructure for Saturn using Playwright to prevent issues like the Client Component error from happening again.
 
 ### Files Created
 
@@ -26,7 +26,7 @@ Since this is a Bun workspace, you need to install dependencies from the root:
 
 ```bash
 # Option 1: Using bun (from project root)
-cd /home/roshan/development/personal/tokiflow
+cd /home/roshan/development/personal/Saturn
 bun install
 
 # Option 2: Using npm in the web directory (if bun fails)

@@ -1,14 +1,14 @@
 services:
   postgres:
     image: postgres:17-alpine
-    container_name: pulseguard-postgres
+    container_name: saturn-postgres
     restart: unless-stopped
     ports:
       - "5432:5432"
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: pulseguard
+      POSTGRES_DB: saturn
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -19,7 +19,7 @@ services:
 
   redis:
     image: redis:7.4-alpine
-    container_name: pulseguard-redis
+    container_name: saturn-redis
     restart: unless-stopped
     ports:
       - "6379:6379"
@@ -33,7 +33,7 @@ services:
 
   minio:
     image: minio/minio:latest
-    container_name: pulseguard-minio
+    container_name: saturn-minio
     restart: unless-stopped
     ports:
       - "9000:9000"
@@ -53,21 +53,21 @@ services:
   # MinIO bucket initialization
   minio-init:
     image: minio/mc:latest
-    container_name: pulseguard-minio-init
+    container_name: saturn-minio-init
     depends_on:
       minio:
         condition: service_healthy
     entrypoint: >
       /bin/sh -c "
       mc alias set myminio http://minio:9000 minioadmin minioadmin;
-      mc mb myminio/pulseguard-outputs --ignore-existing;
-      mc anonymous set download myminio/pulseguard-outputs;
+      mc mb myminio/saturn-outputs --ignore-existing;
+      mc anonymous set download myminio/saturn-outputs;
       exit 0;
       "
 
   selenium:
     image: selenium/standalone-chrome:latest
-    container_name: pulseguard-selenium
+    container_name: saturn-selenium
     restart: unless-stopped
     shm_size: 2g
     network_mode: host

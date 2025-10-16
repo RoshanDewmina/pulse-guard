@@ -1,0 +1,10 @@
+# Artifact Hub repository metadata file
+# https://github.com/artifacthub/hub/blob/master/docs/metadata/artifacthub-repo.yml
+repositoryID: saturn
+name: Saturn Monitoring
+displayName: Saturn
+url: https://charts.saturn.example.com
+owners:
+  - name: Saturn Team
+    email: support@saturn.example.com
+

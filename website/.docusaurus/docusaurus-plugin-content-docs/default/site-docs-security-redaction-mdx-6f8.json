@@ -1,0 +1,35 @@
+{
+  "id": "security/redaction",
+  "title": "Output Redaction",
+  "description": "Patterns for automatically redacting sensitive data in job output",
+  "source": "@site/docs/security/redaction.mdx",
+  "sourceDirName": "security",
+  "slug": "/security/redaction",
+  "permalink": "/security/redaction",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/saturn/saturn/tree/main/website/docs/security/redaction.mdx",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "redaction",
+    "title": "Output Redaction",
+    "description": "Patterns for automatically redacting sensitive data in job output",
+    "keywords": [
+      "redaction",
+      "security",
+      "sensitive data",
+      "passwords",
+      "api keys"
+    ]
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Security Overview",
+    "permalink": "/security/overview"
+  },
+  "next": {
+    "title": "Pricing Plans",
+    "permalink": "/billing/plans"
+  }
+}

@@ -2,122 +2,109 @@
 
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import {
+  SaturnCard,
+  SaturnCardHeader,
+  SaturnCardTitle,
+  SaturnCardDescription,
+  SaturnCardContent,
+  SaturnButton,
+  SaturnInput,
+  SaturnLabel,
+} from '@/components/saturn';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 export default function SignUpPage() {
   const router = useRouter();
-  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleSignUp = async (e: React.FormEvent) => {
+  const handleCredentialsSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
     setIsLoading(true);
     setError('');
 
-    // Validate passwords match
-    if (password !== confirmPassword) {
-      setError('Passwords do not match');
-      setIsLoading(false);
-      return;
-    }
-
-    // Validate password length
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters');
-      setIsLoading(false);
-      return;
-    }
-
     try {
-      // Create user account
       const response = await fetch('/api/auth/signup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ name, email, password }),
+        body: JSON.stringify({
+          email,
+          password,
+        }),
       });
 
-      const data = await response.json();
+      if (response.ok) {
+        // Auto sign in after successful signup
+        const result = await signIn('credentials', {
+          email,
+          password,
+          redirect: false,
+          callbackUrl: '/',
+        });
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to create account');
+        if (result?.ok) {
+          router.push('/app');
+        } else {
+          setError('Account created but sign in failed. Please try signing in manually.');
+        }
+      } else {
+        const data = await response.json();
+        setError(data.error || 'An error occurred during sign up');
       }
-
-      // Sign in the user after successful registration
-      const result = await signIn('credentials', {
-        email,
-        password,
-        redirect: false,
-        callbackUrl: '/',
-      });
-
-      if (result?.error) {
-        setError('Account created but sign-in failed. Please try signing in.');
-        setTimeout(() => router.push('/auth/signin'), 2000);
-      } else if (result?.ok) {
-        router.push('/app');
-      }
-    } catch (error: any) {
+    } catch (error) {
       console.error('Sign up error:', error);
-      setError(error.message || 'An error occurred during sign up');
+      setError('An error occurred during sign up');
     } finally {
       setIsLoading(false);
     }
   };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-6">
-        {/* Logo */}
-        <div className="text-center">
-          <Link href="/" className="inline-flex items-center space-x-2 mb-2">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg"></div>
-            <span className="text-2xl font-bold">Tokiflow</span>
-          </Link>
-          <p className="text-gray-600">Monitor your cron jobs with confidence</p>
-        </div>
+  const handleGoogleSignUp = () => {
+    signIn('google', { callbackUrl: '/app' });
+  };
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Create Account</CardTitle>
-            <CardDescription>Sign up to get started with Tokiflow</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSignUp} className="space-y-4">
+  return (
+    <>
+      <div
+        className="min-h-screen bg-[#F7F5F3] flex items-center justify-center p-4"
+        style={{
+          backgroundImage: `
+            radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+            radial-gradient(circle at 40% 40%, rgba(120, 200, 255, 0.2) 0%, transparent 50%)
+          `,
+        }}
+      >
+        <div className="w-full max-w-md space-y-6">
+          <SaturnCard>
+            <SaturnCardHeader>
+              <SaturnCardTitle as="h2">Create Account</SaturnCardTitle>
+              <SaturnCardDescription>Sign up to get started with Saturn</SaturnCardDescription>
+            </SaturnCardHeader>
+            <SaturnCardContent>
+              <form onSubmit={handleCredentialsSignUp} className="space-y-4">
               {error && (
-                <div className="bg-red-50 text-red-600 p-3 rounded-md text-sm">
+                <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm border border-red-200 font-sans">
                   {error}
                 </div>
               )}
               
               <div className="space-y-2">
-                <Label htmlFor="name">Name</Label>
-                <Input
-                  id="name"
-                  name="name"
-                  type="text"
-                  placeholder="John Doe"
-                  required
-                  autoComplete="name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  disabled={isLoading}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
+                <SaturnLabel htmlFor="email" required>Email</SaturnLabel>
+                <SaturnInput
                   id="email"
                   name="email"
                   type="email"
@@ -127,12 +114,13 @@ export default function SignUpPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={isLoading}
+                  fullWidth
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <Input
+                <SaturnLabel htmlFor="password" required>Password</SaturnLabel>
+                <SaturnInput
                   id="password"
                   name="password"
                   type="password"
@@ -143,12 +131,13 @@ export default function SignUpPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={isLoading}
                   minLength={6}
+                  fullWidth
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Confirm Password</Label>
-                <Input
+                <SaturnLabel htmlFor="confirmPassword" required>Confirm Password</SaturnLabel>
+                <SaturnInput
                   id="confirmPassword"
                   name="confirmPassword"
                   type="password"
@@ -159,29 +148,36 @@ export default function SignUpPage() {
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   disabled={isLoading}
                   minLength={6}
+                  fullWidth
                 />
               </div>
 
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? 'Creating account...' : 'Create Account'}
-              </Button>
+              <SaturnButton 
+                type="submit" 
+                fullWidth 
+                disabled={isLoading}
+                loading={isLoading}
+              >
+                Create Account
+              </SaturnButton>
 
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t" />
+                  <span className="w-full border-t border-[rgba(55,50,47,0.12)]" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-white px-2 text-muted-foreground">Or continue with</span>
+                  <span className="bg-white px-2 text-[rgba(55,50,47,0.60)] font-sans">Or continue with</span>
                 </div>
               </div>
 
-              <Button
+              <SaturnButton
                 type="button"
-                variant="outline"
-                className="w-full"
-                onClick={() => window.location.href = '/api/auth/signin/google'}
+                variant="secondary"
+                fullWidth
+                onClick={handleGoogleSignUp}
+                disabled={isLoading}
               >
-                <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
+                <svg className="w-5 h-5" viewBox="0 0 24 24">
                   <path
                     fill="currentColor"
                     d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -200,23 +196,30 @@ export default function SignUpPage() {
                   />
                 </svg>
                 Sign up with Google
-              </Button>
+              </SaturnButton>
             </form>
 
-            <p className="text-center text-sm text-gray-600 mt-4">
+            <p className="text-center text-sm text-[rgba(55,50,47,0.80)] font-sans mt-4">
               Already have an account?{' '}
-              <Link href="/auth/signin" className="text-blue-600 hover:underline">
+              <Link href="/auth/signin" className="text-[#37322F] hover:underline font-medium">
                 Sign in
               </Link>
             </p>
-          </CardContent>
-        </Card>
+          </SaturnCardContent>
+        </SaturnCard>
 
-        <p className="text-center text-xs text-gray-500">
-          By signing up, you agree to our Terms of Service and Privacy Policy
+        <p className="text-center text-xs text-[rgba(55,50,47,0.60)] font-sans">
+          By signing up, you agree to our{' '}
+          <Link href="/legal/terms" className="text-[#37322F] hover:underline">
+            Terms of Service
+          </Link>
+          {' '}and{' '}
+          <Link href="/legal/privacy" className="text-[#37322F] hover:underline">
+            Privacy Policy
+          </Link>
         </p>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
-

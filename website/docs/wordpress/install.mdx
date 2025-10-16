@@ -1,0 +1,67 @@
+---
+id: install
+title: WordPress Plugin Installation
+description: Install and configure the Saturn WordPress plugin for wp-cron monitoring
+keywords: [wordpress, plugin, wp-cron, install, configuration]
+---
+
+# WordPress Plugin Installation
+
+Monitor wp-cron events across your WordPress sites with the Saturn plugin.
+
+## Installation
+
+### From WordPress Admin
+
+1. Go to **Plugins → Add New**
+2. Search for "Saturn Watchdog"
+3. Click **Install Now**
+4. Click **Activate**
+
+### Manual Upload
+
+1. Download `saturn-watchdog.zip`
+2. Go to **Plugins → Add New → Upload Plugin**
+3. Choose ZIP file
+4. Click **Install Now** and **Activate**
+
+## Configuration
+
+### 1. Add Organization Token
+
+1. Go to **Settings → Saturn Watchdog**
+2. Enter your Organization Token
+3. Click **Save Settings**
+4. Click **Test Connection**
+
+### 2. Configure Monitoring
+
+\`\`\`
+Monitor Settings:
+- Monitor All Events: ✓
+- Report Interval: 5 minutes
+- Capture Output: ✗ (optional)
+- Excluded Events: (comma-separated)
+\`\`\`
+
+### 3. View Dashboard
+
+The plugin adds a **Saturn Health** widget to your admin dashboard showing:
+- Active cron events
+- Health score (A-F)
+- Recent incidents
+- Last ping times
+
+## Features
+
+- ✅ Automatic event discovery
+- ✅ Health dashboard widget
+- ✅ Test connection button
+- ✅ Event exclusion filters
+- ✅ Bulk management support
+- ✅ Zero performance impact
+
+## Next Steps
+
+- [Bulk Agency Rollout](./bulk-agency) — Deploy to multiple sites
+- [Troubleshooting](./troubleshooting) — Common wp-cron issues

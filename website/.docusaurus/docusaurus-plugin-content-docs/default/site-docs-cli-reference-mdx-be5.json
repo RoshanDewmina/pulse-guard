@@ -1,0 +1,34 @@
+{
+  "id": "cli/reference",
+  "title": "CLI Reference",
+  "description": "Complete command reference for the Saturn CLI",
+  "source": "@site/docs/cli/reference.mdx",
+  "sourceDirName": "cli",
+  "slug": "/cli/reference",
+  "permalink": "/cli/reference",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/saturn/saturn/tree/main/website/docs/cli/reference.mdx",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "reference",
+    "title": "CLI Reference",
+    "description": "Complete command reference for the Saturn CLI",
+    "keywords": [
+      "cli",
+      "commands",
+      "reference",
+      "pulse"
+    ]
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "CLI Installation",
+    "permalink": "/cli/install"
+  },
+  "next": {
+    "title": "pulse run Wrapper",
+    "permalink": "/cli/pulse-run"
+  }
+}

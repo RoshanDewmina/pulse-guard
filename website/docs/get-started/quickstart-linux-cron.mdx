@@ -1,0 +1,271 @@
+---
+id: quickstart-linux-cron
+title: Linux Cron with curl or CLI
+description: Monitor traditional cron jobs on Linux servers using curl or the Saturn CLI
+keywords: [linux, cron, curl, cli, bash]
+---
+
+# Linux Cron with curl or CLI
+
+Monitor traditional Linux cron jobs with minimal changes using curl commands or the Saturn CLI.
+
+## Prerequisites
+
+- A Saturn account with a monitor created
+- Your monitor's unique ID (from dashboard)
+- `curl` (pre-installed on most Linux systems) or Saturn CLI
+
+:::tip Creating a Monitor
+Go to your dashboard → **Add Monitor** → Set schedule → Copy the monitor ID from the URL or settings.
+:::
+
+## Method 1: Simple curl (Recommended for Quick Setup)
+
+### Basic Success Ping
+
+Add a curl command after your existing cron job:
+
+```bash title="crontab"
+0 3 * * * /path/to/backup.sh && curl -X POST https://api.saturnmonitor.com/api/ping/YOUR_MONITOR_ID/success
+```
+
+This sends a **success ping** after the script completes successfully (due to `&&`).
+
+### With Failure Handling
+
+Send different pings based on exit status:
+
+```bash title="crontab"
+0 3 * * * /path/to/backup.sh && curl -X POST https://api.saturnmonitor.com/api/ping/YOUR_MONITOR_ID/success || curl -X POST https://api.saturnmonitor.com/api/ping/YOUR_MONITOR_ID/fail
+```
+
+### With Duration Tracking
+
+Measure job duration and include in ping:
+
+```bash title="crontab"
+0 3 * * * start=$(date +%s) && /path/to/backup.sh && end=$(date +%s) && duration=$((end - start)) && curl -X POST https://api.saturnmonitor.com/api/ping/YOUR_MONITOR_ID/success -H "Content-Type: application/json" -d "{\"durationMs\": $((duration * 1000))}"
+```
+
+## Method 2: Saturn CLI (Recommended for Complex Jobs)
+
+The CLI automatically handles start/success/fail pings and captures output.
+
+### Install CLI
+
+```bash
+# Linux/macOS
+curl -fsSL https://get.saturnmonitor.com | sh
+
+# Or with npm
+npm install -g @saturn/cli
+
+# Verify installation
+pulse --version
+```
+
+### Authenticate
+
+```bash
+# Device flow (browser-based)
+pulse login
+
+# Or with token directly
+pulse login --token YOUR_TOKEN
+```
+
+Configuration is stored in `~/.pulse/config.json`.
+
+### Wrap Your Command
+
+Instead of running the job directly, wrap it with `pulse run`:
+
+```bash title="crontab"
+0 3 * * * pulse run --monitor YOUR_MONITOR_ID -- /path/to/backup.sh
+```
+
+The CLI will:
+1. Send a **start ping**
+2. Run your command
+3. Capture stdout/stderr (optional)
+4. Send **success** or **fail** ping with exit code and duration
+
+### With Output Capture
+
+```bash
+0 3 * * * pulse run --monitor YOUR_MONITOR_ID --capture-output -- /path/to/backup.sh
+```
+
+Output is sent with the ping and visible in the Saturn dashboard.
+
+### Multiple Commands
+
+```bash
+0 3 * * * pulse run --monitor YOUR_MONITOR_ID -- bash -c "cd /app && ./backup.sh && ./verify.sh"
+```
+
+## Method 3: Bash Wrapper Script
+
+For more control, create a wrapper script:
+
+```bash title="/usr/local/bin/saturn-wrapper.sh"
+#!/bin/bash
+
+MONITOR_ID="$1"
+shift  # Remove first arg, rest is the command
+
+API_URL="https://api.saturnmonitor.com/api/ping/${MONITOR_ID}"
+
+# Start ping
+curl -X POST "${API_URL}/start" -s > /dev/null
+
+# Run command and capture exit code
+START=$(date +%s)
+"$@"
+EXIT_CODE=$?
+END=$(date +%s)
+DURATION=$(( (END - START) * 1000 ))
+
+# Success or fail ping
+if [ $EXIT_CODE -eq 0 ]; then
+  curl -X POST "${API_URL}/success" \
+    -H "Content-Type: application/json" \
+    -d "{\"durationMs\": ${DURATION}}" \
+    -s > /dev/null
+else
+  curl -X POST "${API_URL}/fail" \
+    -H "Content-Type: application/json" \
+    -d "{\"exitCode\": ${EXIT_CODE}, \"durationMs\": ${DURATION}}" \
+    -s > /dev/null
+fi
+
+exit $EXIT_CODE
+```
+
+Make it executable:
+
+```bash
+chmod +x /usr/local/bin/saturn-wrapper.sh
+```
+
+Use in cron:
+
+```bash title="crontab"
+0 3 * * * /usr/local/bin/saturn-wrapper.sh YOUR_MONITOR_ID /path/to/backup.sh
+```
+
+## Examples
+
+### Database Backup
+
+```bash title="crontab"
+# Daily at 3 AM
+0 3 * * * pulse run --monitor mon_abc123 -- pg_dump mydb > /backups/$(date +\%Y\%m\%d).sql
+```
+
+### Cleanup Script
+
+```bash title="crontab"
+# Hourly cleanup
+0 * * * * pulse run --monitor mon_xyz789 -- find /tmp -type f -mtime +7 -delete
+```
+
+### Log Rotation
+
+```bash title="crontab"
+# Daily at midnight
+0 0 * * * pulse run --monitor mon_log001 -- logrotate /etc/logrotate.conf
+```
+
+## Authentication with Tokens
+
+For servers without browser access, use monitor-specific tokens:
+
+```bash
+# Using token in URL (less secure, but simple)
+curl -X POST https://api.saturnmonitor.com/api/ping/YOUR_MONITOR_ID/success?token=YOUR_TOKEN
+
+# Using Authorization header (recommended)
+curl -X POST https://api.saturnmonitor.com/api/ping/YOUR_MONITOR_ID/success \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+Get tokens from **Dashboard → Monitor Settings → API Tokens**.
+
+## Validation
+
+After your first run, verify in the dashboard:
+
+1. Monitor shows last ping time
+2. Duration is recorded
+3. Status is "OK"
+
+:::tip Testing cron jobs
+Don't wait for the schedule! Run manually first:
+
+```bash
+# Run the cron command directly
+/path/to/backup.sh
+
+# Or test with CLI
+pulse run --monitor YOUR_MONITOR_ID -- /path/to/backup.sh
+```
+:::
+
+## Troubleshooting
+
+### Ping Not Received
+
+**Check network connectivity**:
+
+```bash
+curl -v https://api.saturnmonitor.com/api/health
+```
+
+**Check cron logs**:
+
+```bash
+# Most systems log to syslog
+grep CRON /var/log/syslog
+
+# Or check mail for cron errors
+mail
+```
+
+### Wrong Timezone
+
+Cron uses system timezone. Verify:
+
+```bash
+timedatectl
+# or
+cat /etc/timezone
+```
+
+In Saturn dashboard, ensure monitor timezone matches.
+
+### Permissions Issues
+
+Ensure the cron user has execute permissions:
+
+```bash
+chmod +x /path/to/backup.sh
+```
+
+And check ownership:
+
+```bash
+ls -l /path/to/backup.sh
+```
+
+## Next Steps
+
+**You should now see your first healthy monitor within 10 minutes.**
+
+Explore more:
+
+- [Monitor Types](../../monitors/types) to understand scheduling
+- [Ping API](../../monitors/pings) for advanced usage
+- [CLI Reference](../../cli/reference) for all CLI commands
+- [Output Capture](../../output-capture/overview) for debugging failed jobs
+

@@ -1,0 +1,46 @@
+---
+id: install
+title: CLI Installation
+description: Install the Saturn CLI with device flow authentication and config management
+keywords: [cli, install, authentication, device flow, pulse command]
+---
+
+# CLI Installation
+
+The Saturn CLI (`pulse`) wraps your commands and automatically reports to Saturn.
+
+## Install
+
+\`\`\`bash
+# Linux/macOS
+curl -fsSL https://get.saturn.example.com | sh
+
+# Or with npm
+npm install -g @saturn/cli
+
+# Verify
+pulse --version
+\`\`\`
+
+## Authenticate
+
+\`\`\`bash
+# Device flow (opens browser)
+pulse login
+
+# Or with token
+pulse login --token YOUR_TOKEN
+\`\`\`
+
+Config stored in `~/.pulse/config.json`.
+
+## Basic Usage
+
+\`\`\`bash
+pulse run --monitor YOUR_MONITOR_ID -- ./your-script.sh
+\`\`\`
+
+## Next Steps
+
+- [CLI Reference](./reference) — All commands
+- [pulse run](./pulse-run) — Wrapper semantics

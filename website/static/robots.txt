@@ -1,0 +1,27 @@
+# Saturn Documentation - robots.txt
+
+User-agent: *
+Allow: /
+
+# Sitemaps
+Sitemap: https://docs.saturn.example.com/sitemap.xml
+
+# Disallow admin/internal paths (if any)
+Disallow: /admin/
+Disallow: /_next/
+
+# Allow search engines to index all documentation
+Allow: /get-started/
+Allow: /monitors/
+Allow: /incidents/
+Allow: /anomalies/
+Allow: /analytics/
+Allow: /alerts/
+Allow: /kubernetes/
+Allow: /wordpress/
+Allow: /cli/
+Allow: /api/
+
+# Crawl delay (optional)
+Crawl-delay: 1
+

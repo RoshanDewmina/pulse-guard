@@ -1,0 +1,92 @@
+---
+id: choose-your-path
+title: Choose Your Path
+description: Find the quickest way to get started with Saturn based on your environment
+keywords: [getting started, quickstart, kubernetes, wordpress, cron, ci/cd]
+---
+
+# Choose Your Path
+
+Pick the guide that matches your environment for the fastest setup.
+
+<div className="path-cards">
+
+<div className="path-card">
+
+### 🚢 Kubernetes CronJobs
+
+**Best for**: Teams running CronJobs in K8s clusters
+
+**Time**: 60 seconds  
+**Method**: Helm chart with automatic sidecar injection
+
+[→ Kubernetes Quickstart](./quickstart-kubernetes)
+
+</div>
+
+<div className="path-card">
+
+### 🔷 WordPress Sites
+
+**Best for**: Agencies managing multiple WordPress sites
+
+**Time**: 2 minutes  
+**Method**: Plugin installation with bulk management
+
+[→ WordPress Quickstart](./quickstart-wordpress)
+
+</div>
+
+<div className="path-card">
+
+### 🐧 Linux Cron
+
+**Best for**: Traditional cron jobs on Linux servers
+
+**Time**: 5 minutes  
+**Method**: curl commands or Saturn CLI wrapper
+
+[→ Linux Cron Quickstart](./quickstart-linux-cron)
+
+</div>
+
+<div className="path-card">
+
+### ⚙️ CI/CD Pipelines
+
+**Best for**: GitHub Actions, GitLab CI, Jenkins jobs
+
+**Time**: 5 minutes  
+**Method**: CLI wrapper for pipeline steps
+
+[→ CI/CD Quickstart](./quickstart-ci)
+
+</div>
+
+</div>
+
+## Comparison Matrix
+
+| Environment | Setup Time | Code Changes | Auto-discovery | Best For |
+|-------------|------------|--------------|----------------|----------|
+| **Kubernetes** | 60 sec | None | ✅ Yes | CronJobs in K8s |
+| **WordPress** | 2 min | None | ✅ Yes | wp-cron at scale |
+| **Linux Cron** | 5 min | Minimal | ❌ Manual | Traditional cron |
+| **CI/CD** | 5 min | Minimal | ❌ Manual | Build pipelines |
+
+## Not Sure?
+
+If you're monitoring a variety of job types across different platforms, start with **Linux Cron** using the CLI. It's the most flexible approach and works anywhere you can run a command.
+
+:::info Multiple environments?
+You can use Saturn across all these environments simultaneously. Each monitor is independent and can use any integration method.
+:::
+
+## Next Step
+
+Once you've completed a quickstart, explore:
+
+- [Monitor Types](../monitors/types) for scheduling options
+- [Anomaly Detection](../anomalies/overview) for statistical insights
+- [Alert Channels](../alerts/email) for notification setup
+

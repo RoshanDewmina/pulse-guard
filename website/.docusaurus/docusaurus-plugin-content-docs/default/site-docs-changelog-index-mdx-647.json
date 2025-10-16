@@ -1,0 +1,34 @@
+{
+  "id": "changelog/index",
+  "title": "Changelog",
+  "description": "Release notes and version history for Saturn",
+  "source": "@site/docs/changelog/index.mdx",
+  "sourceDirName": "changelog",
+  "slug": "/changelog/",
+  "permalink": "/changelog/",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/saturn/saturn/tree/main/website/docs/changelog/index.mdx",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "index",
+    "title": "Changelog",
+    "description": "Release notes and version history for Saturn",
+    "keywords": [
+      "changelog",
+      "releases",
+      "updates",
+      "version history"
+    ]
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "FAQ",
+    "permalink": "/faq/"
+  },
+  "next": {
+    "title": "Roadmap",
+    "permalink": "/roadmap/"
+  }
+}

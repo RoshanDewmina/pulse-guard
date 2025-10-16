@@ -1,0 +1,35 @@
+{
+  "id": "cli/install",
+  "title": "CLI Installation",
+  "description": "Install the Saturn CLI with device flow authentication and config management",
+  "source": "@site/docs/cli/install.mdx",
+  "sourceDirName": "cli",
+  "slug": "/cli/install",
+  "permalink": "/cli/install",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/saturn/saturn/tree/main/website/docs/cli/install.mdx",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "install",
+    "title": "CLI Installation",
+    "description": "Install the Saturn CLI with device flow authentication and config management",
+    "keywords": [
+      "cli",
+      "install",
+      "authentication",
+      "device flow",
+      "pulse command"
+    ]
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "WordPress Troubleshooting",
+    "permalink": "/wordpress/troubleshooting"
+  },
+  "next": {
+    "title": "CLI Reference",
+    "permalink": "/cli/reference"
+  }
+}

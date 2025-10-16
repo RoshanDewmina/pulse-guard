@@ -1,0 +1,35 @@
+{
+  "id": "kubernetes/helm-values",
+  "title": "Helm Values Reference",
+  "description": "Complete values.yaml reference with all configuration options for the Saturn Helm chart",
+  "source": "@site/docs/kubernetes/helm-values.mdx",
+  "sourceDirName": "kubernetes",
+  "slug": "/kubernetes/helm-values",
+  "permalink": "/kubernetes/helm-values",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/saturn/saturn/tree/main/website/docs/kubernetes/helm-values.mdx",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "helm-values",
+    "title": "Helm Values Reference",
+    "description": "Complete values.yaml reference with all configuration options for the Saturn Helm chart",
+    "keywords": [
+      "helm",
+      "values.yaml",
+      "kubernetes",
+      "chart",
+      "configuration"
+    ]
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Kubernetes Sidecar",
+    "permalink": "/kubernetes/sidecar"
+  },
+  "next": {
+    "title": "Kubernetes CronJob Examples",
+    "permalink": "/kubernetes/examples"
+  }
+}

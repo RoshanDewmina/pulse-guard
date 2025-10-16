@@ -1,0 +1,35 @@
+{
+  "id": "kubernetes/examples",
+  "title": "Kubernetes CronJob Examples",
+  "description": "Real-world examples of monitored CronJobs for backups, ETL, cleanup, and more",
+  "source": "@site/docs/kubernetes/examples.mdx",
+  "sourceDirName": "kubernetes",
+  "slug": "/kubernetes/examples",
+  "permalink": "/kubernetes/examples",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/saturn/saturn/tree/main/website/docs/kubernetes/examples.mdx",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "examples",
+    "title": "Kubernetes CronJob Examples",
+    "description": "Real-world examples of monitored CronJobs for backups, ETL, cleanup, and more",
+    "keywords": [
+      "kubernetes examples",
+      "cronjob examples",
+      "backups",
+      "etl",
+      "cleanup"
+    ]
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Helm Values Reference",
+    "permalink": "/kubernetes/helm-values"
+  },
+  "next": {
+    "title": "WordPress Plugin Installation",
+    "permalink": "/wordpress/install"
+  }
+}

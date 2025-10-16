@@ -1,0 +1,209 @@
+---
+id: helm-values
+title: Helm Values Reference
+description: Complete values.yaml reference with all configuration options for the Saturn Helm chart
+keywords: [helm, values.yaml, kubernetes, chart, configuration]
+---
+
+# Helm Values Reference
+
+Complete reference for the Saturn Helm chart `values.yaml`.
+
+## Saturn Configuration
+
+\`\`\`yaml
+saturn:
+  # API endpoint (use self-hosted or SaaS)
+  apiUrl: "https://api.saturn.example.com"
+  
+  # Organization or monitor token (REQUIRED)
+  token: ""
+  
+  # Enable output capture
+  captureOutput: true
+  
+  # Maximum output size in bytes
+  maxOutputBytes: 10240  # 10 KB
+  
+  # Timeout waiting for main container (seconds)
+  timeout: 300
+\`\`\`
+
+## Sidecar Container
+
+\`\`\`yaml
+sidecar:
+  image:
+    repository: saturn/k8s-sidecar
+    tag: "1.0.0"
+    pullPolicy: IfNotPresent
+  
+  resources:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 50m
+      memory: 64Mi
+\`\`\`
+
+## CronJob Specification
+
+\`\`\`yaml
+cronjob:
+  # Name of the CronJob
+  name: my-cronjob
+  
+  # Cron schedule (REQUIRED)
+  schedule: "0 3 * * *"
+  
+  # Timezone (optional, requires K8s 1.25+)
+  timezone: "America/New_York"
+  
+  # Main container configuration
+  container:
+    name: main
+    image: busybox
+    command: ["/bin/sh"]
+    args: ["-c", "echo 'Hello'; sleep 5"]
+    
+    # Resources for main container
+    resources:
+      limits:
+        cpu: 500m
+        memory: 512Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+    
+    # Environment variables
+    env: []
+    
+    # Volume mounts
+    volumeMounts: []
+  
+  # Job configuration
+  concurrencyPolicy: Forbid  # or Allow, Replace
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+  
+  # Job template settings
+  restartPolicy: OnFailure
+  backoffLimit: 2
+  activeDeadlineSeconds: 3600  # 1 hour max
+  
+  # Volumes
+  volumes: []
+\`\`\`
+
+## Service Account & RBAC
+
+\`\`\`yaml
+serviceAccount:
+  create: true
+  name: saturn-monitor
+  annotations: {}
+
+rbac:
+  create: true
+\`\`\`
+
+## Labels & Annotations
+
+\`\`\`yaml
+# Additional labels for all resources
+labels:
+  app: my-app
+  environment: production
+
+# Additional annotations
+annotations:
+  team: platform
+\`\`\`
+
+## Full Example
+
+\`\`\`yaml
+# values.yaml
+saturn:
+  apiUrl: "https://api.saturn.example.com"
+  token: "pg_your_token_here"
+  captureOutput: true
+  maxOutputBytes: 51200  # 50 KB
+
+sidecar:
+  image:
+    repository: saturn/k8s-sidecar
+    tag: "1.0.0"
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+cronjob:
+  name: database-backup
+  schedule: "0 3 * * *"
+  timezone: "UTC"
+  
+  container:
+    name: backup
+    image: postgres:15
+    command: ["pg_dump"]
+    args:
+      - "-h"
+      - "postgres.default.svc.cluster.local"
+      - "-U"
+      - "backup_user"
+      - "-f"
+      - "/backups/dump.sql"
+    
+    env:
+    - name: PGPASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: postgres-secrets
+          key: password
+    
+    volumeMounts:
+    - name: backups
+      mountPath: /backups
+    
+    resources:
+      limits:
+        cpu: 1000m
+        memory: 1Gi
+      requests:
+        cpu: 500m
+        memory: 512Mi
+  
+  volumes:
+  - name: backups
+    persistentVolumeClaim:
+      claimName: backup-storage
+  
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 5
+  failedJobsHistoryLimit: 3
+  restartPolicy: OnFailure
+  backoffLimit: 3
+
+serviceAccount:
+  create: true
+  name: database-backup-sa
+
+labels:
+  app: database-backup
+  environment: production
+  team: platform
+
+annotations:
+  description: "Daily PostgreSQL backup"
+\`\`\`
+
+## Next Steps
+
+- [Sidecar Architecture](./sidecar) — How the sidecar works
+- [Examples](./examples) — Real-world use cases

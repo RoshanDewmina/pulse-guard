@@ -1,0 +1,35 @@
+{
+  "id": "monitors/types",
+  "title": "Monitor Types & Schedules",
+  "description": "Understanding interval-based and cron-based monitors with timezone support",
+  "source": "@site/docs/monitors/types.mdx",
+  "sourceDirName": "monitors",
+  "slug": "/monitors/types",
+  "permalink": "/monitors/types",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/saturn/saturn/tree/main/website/docs/monitors/types.mdx",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "types",
+    "title": "Monitor Types & Schedules",
+    "description": "Understanding interval-based and cron-based monitors with timezone support",
+    "keywords": [
+      "monitor types",
+      "interval",
+      "cron expression",
+      "schedule",
+      "timezone"
+    ]
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "CI/CD Pipeline Monitoring",
+    "permalink": "/get-started/quickstart-ci"
+  },
+  "next": {
+    "title": "Ping API",
+    "permalink": "/monitors/pings"
+  }
+}

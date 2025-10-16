@@ -1,0 +1,63 @@
+---
+id: troubleshooting
+title: WordPress Troubleshooting
+description: Fix common wp-cron issues including DISABLE_WP_CRON and real cron setup
+keywords: [wordpress, troubleshooting, wp-cron, disable_wp_cron, cron]
+---
+
+# WordPress Troubleshooting
+
+Common wp-cron issues and solutions.
+
+## Events Not Running
+
+### Problem
+
+wp-cron events never execute.
+
+### Cause
+
+Low-traffic sites don't trigger wp-cron (visitor-dependent).
+
+### Solution
+
+Use real cron instead:
+
+**1. Disable WP pseudo-cron**:
+
+\`\`\`php
+// wp-config.php
+define('DISABLE_WP_CRON', true);
+\`\`\`
+
+**2. Add to system crontab**:
+
+\`\`\`bash
+*/5 * * * * wget -q -O - https://example.com/wp-cron.php?doing_wp_cron > /dev/null 2>&1
+\`\`\`
+
+Or with WP-CLI:
+
+\`\`\`bash
+*/5 * * * * cd /var/www/example.com && wp cron event run --due-now > /dev/null 2>&1
+\`\`\`
+
+## Connection Test Fails
+
+### Checklist
+
+- [ ] Token correct?
+- [ ] Outbound HTTPS allowed?
+- [ ] PHP functions enabled (`curl`, `file_get_contents`)?
+- [ ] Site can reach `api.saturn.example.com`?
+
+### Test manually
+
+\`\`\`bash
+curl -H "Authorization: Bearer YOUR_TOKEN" https://api.saturn.example.com/api/health
+\`\`\`
+
+## Next Steps
+
+- [Installation](./install) — Setup guide
+- [Bulk Rollout](./bulk-agency) — Deploy at scale

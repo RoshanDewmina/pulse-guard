@@ -4,7 +4,7 @@ metadata:
   name: {{ .Values.cronjob.name }}
   labels:
     app: {{ .Values.cronjob.name }}
-    monitor.tokiflow.com/enabled: "true"
+    monitor.Saturn.com/enabled: "true"
     {{- with .Values.labels }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
@@ -27,7 +27,7 @@ spec:
         metadata:
           labels:
             app: {{ .Values.cronjob.name }}
-            tokiflow-monitor: "enabled"
+            Saturn-monitor: "enabled"
         spec:
           serviceAccountName: {{ .Values.serviceAccount.name }}
           restartPolicy: {{ .Values.cronjob.restartPolicy }}
@@ -49,18 +49,18 @@ spec:
               {{- toYaml . | nindent 14 }}
             {{- end }}
           
-          # Tokiflow sidecar
-          - name: tokiflow-sidecar
+          # Saturn sidecar
+          - name: Saturn-sidecar
             image: "{{ .Values.sidecar.image.repository }}:{{ .Values.sidecar.image.tag }}"
             imagePullPolicy: {{ .Values.sidecar.image.pullPolicy }}
             env:
             - name: PULSEGUARD_TOKEN
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.cronjob.name }}-tokiflow
+                  name: {{ .Values.cronjob.name }}-Saturn
                   key: token
             - name: PULSEGUARD_API
-              value: {{ .Values.tokiflow.apiUrl | quote }}
+              value: {{ .Values.Saturn.apiUrl | quote }}
             - name: CRONJOB_NAME
               value: {{ .Values.cronjob.name | quote }}
             - name: NAMESPACE
@@ -74,13 +74,14 @@ spec:
             - name: MAIN_CONTAINER_NAME
               value: {{ .Values.cronjob.container.name | quote }}
             - name: CAPTURE_OUTPUT
-              value: {{ .Values.tokiflow.captureOutput | quote }}
+              value: {{ .Values.Saturn.captureOutput | quote }}
             - name: MAX_OUTPUT_BYTES
-              value: {{ .Values.tokiflow.maxOutputBytes | quote }}
+              value: {{ .Values.Saturn.maxOutputBytes | quote }}
             {{- with .Values.sidecar.resources }}
             resources:
               {{- toYaml . | nindent 14 }}
             {{- end }}
+
 
 
 

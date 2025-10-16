@@ -1,35 +1,48 @@
 import type { Metadata, Viewport } from 'next';
-import { Inter } from 'next/font/google';
+import { Inter, Instrument_Serif } from 'next/font/google';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap',
+  preload: true,
+});
+
+const instrumentSerif = Instrument_Serif({
+  subsets: ['latin'],
+  variable: '--font-instrument-serif',
+  weight: ['400'],
+  display: 'swap',
+  preload: true,
+});
 
 export const viewport: Viewport = {
   themeColor: '#0EA5E9'
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.SITE_URL ?? 'https://tokiflow.co'),
+  metadataBase: new URL(process.env.SITE_URL ?? 'https://saturn.io'),
   title: {
-    default: 'Tokiflow',
-    template: '%s · Tokiflow'
+    default: 'Saturn - Cron Monitoring with Anomaly Detection',
+    template: '%s · Saturn'
   },
-  description: 'Tokiflow — Cron & job monitoring with smart Slack alerts, runtime analytics, and anomaly detection.',
-  applicationName: 'Tokiflow',
-  keywords: ['cron monitoring', 'job monitoring', 'heartbeat monitoring', 'Slack alerts', 'runtime analytics', 'anomaly detection'],
+  description: 'Statistical anomaly detection catches slowdowns before failures. Monitor your cron jobs with health scores, MTBF/MTTR analytics, and multi-channel alerts. Built for DevOps teams.',
+  applicationName: 'Saturn',
+  keywords: ['cron monitoring', 'scheduled jobs', 'anomaly detection', 'kubernetes cronjobs', 'wordpress monitoring', 'health scores', 'MTBF', 'MTTR', 'DevOps', 'SRE'],
   openGraph: {
     type: 'website',
-    siteName: 'Tokiflow',
-    title: 'Tokiflow — Cron & Job Monitoring',
-    description: 'Detect missed, late, or failing jobs fast. Slack-first alerts with runtime and output context.',
-    url: 'https://tokiflow.co',
-    images: [{ url: '/og/default-og.png', width: 1200, height: 630, alt: 'Tokiflow' }]
+    siteName: 'Saturn',
+    title: 'Saturn — Cron Monitoring with Anomaly Detection',
+    description: 'Statistical anomaly detection catches slowdowns before failures. Built for DevOps and SRE teams.',
+    url: 'https://saturn.io',
+    images: [{ url: '/og/default-og.png', width: 1200, height: 630, alt: 'Saturn - Cron Monitoring' }]
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Tokiflow — Cron & Job Monitoring',
-    description: 'Slack-first cron alerts with runtime analytics and anomaly detection.',
+    title: 'Saturn — Cron Monitoring with Anomaly Detection',
+    description: 'Statistical anomaly detection catches slowdowns before failures. Built for DevOps teams.',
     images: ['/og/default-og.png']
   },
   alternates: {
@@ -54,8 +67,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className={inter.className}>
+    <html lang="en" className={`${inter.variable} ${instrumentSerif.variable} antialiased`}>
+      <body className="font-sans antialiased">
         {children}
         <Toaster />
       </body>

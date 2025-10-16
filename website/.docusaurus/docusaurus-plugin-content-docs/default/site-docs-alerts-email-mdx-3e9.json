@@ -1,0 +1,35 @@
+{
+  "id": "alerts/email",
+  "title": "Email Alerts",
+  "description": "Configure email notifications with high deliverability and customizable templates",
+  "source": "@site/docs/alerts/email.mdx",
+  "sourceDirName": "alerts",
+  "slug": "/alerts/email",
+  "permalink": "/alerts/email",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/saturn/saturn/tree/main/website/docs/alerts/email.mdx",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "email",
+    "title": "Email Alerts",
+    "description": "Configure email notifications with high deliverability and customizable templates",
+    "keywords": [
+      "email alerts",
+      "notifications",
+      "deliverability",
+      "email templates",
+      "SMTP"
+    ]
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Duration Percentiles",
+    "permalink": "/analytics/percentiles"
+  },
+  "next": {
+    "title": "Slack Alerts",
+    "permalink": "/alerts/slack"
+  }
+}

@@ -104,14 +104,14 @@ export async function sendWebhook(
     const payloadString = JSON.stringify(payload);
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      'User-Agent': 'PulseGuard/1.0',
+      'User-Agent': 'Saturn/1.0',
       ...config.headers,
     };
 
     // Add HMAC signature if secret provided
     if (config.secret) {
-      headers['X-PulseGuard-Signature'] = generateSignature(payloadString, config.secret);
-      headers['X-PulseGuard-Timestamp'] = Date.now().toString();
+      headers['X-Saturn-Signature'] = generateSignature(payloadString, config.secret);
+      headers['X-Saturn-Timestamp'] = Date.now().toString();
     }
 
     const response = await fetch(config.url, {
@@ -247,7 +247,7 @@ export async function testWebhook(config: WebhookConfig): Promise<{ success: boo
       id: 'test-incident-id',
       kind: 'FAIL',
       status: 'OPEN',
-      summary: 'Test incident from PulseGuard',
+      summary: 'Test incident from Saturn',
       openedAt: new Date().toISOString(),
     },
     monitor: {

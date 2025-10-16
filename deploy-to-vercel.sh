@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# Tokiflow - Vercel Deployment Script
-# This script helps you deploy Tokiflow to Vercel with all required setup
+# Saturn - Vercel Deployment Script
+# This script helps you deploy Saturn to Vercel with all required setup
 
 set -e
 
-echo "🚀 Tokiflow - Vercel Deployment Helper"
+echo "🚀 Saturn - Vercel Deployment Helper"
 echo "======================================"
 echo ""
 
@@ -201,4 +201,5 @@ else
     echo "  vercel logs"
     exit 1
 fi
+
 

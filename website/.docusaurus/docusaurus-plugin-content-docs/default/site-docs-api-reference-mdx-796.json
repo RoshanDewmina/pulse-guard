@@ -1,0 +1,26 @@
+{
+  "id": "api/reference",
+  "title": "API Reference",
+  "description": "Complete Saturn API reference with authentication, endpoints, and examples",
+  "source": "@site/docs/api/reference.mdx",
+  "sourceDirName": "api",
+  "slug": "/api/reference",
+  "permalink": "/api/reference",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/saturn/saturn/tree/main/website/docs/api/reference.mdx",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "reference",
+    "title": "API Reference",
+    "description": "Complete Saturn API reference with authentication, endpoints, and examples",
+    "keywords": [
+      "api",
+      "reference",
+      "endpoints",
+      "rest api",
+      "openapi"
+    ]
+  }
+}

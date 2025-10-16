@@ -6,7 +6,7 @@ import (
 )
 
 type Config struct {
-	TokiflowAPI     string
+	SaturnAPI     string
 	MonitorToken      string
 	CronJobName       string
 	Namespace         string
@@ -24,7 +24,7 @@ func loadConfig() (*Config, error) {
 
 	apiURL := os.Getenv("PULSEGUARD_API")
 	if apiURL == "" {
-		apiURL = "https://api.tokiflow.com"
+		apiURL = "https://api.saturnmonitor.com"
 	}
 
 	cronJobName := os.Getenv("CRONJOB_NAME")
@@ -56,7 +56,7 @@ func loadConfig() (*Config, error) {
 	}
 
 	return &Config{
-		TokiflowAPI:     apiURL,
+		SaturnAPI:     apiURL,
 		MonitorToken:      token,
 		CronJobName:       cronJobName,
 		Namespace:         namespace,
@@ -66,6 +66,7 @@ func loadConfig() (*Config, error) {
 		MaxOutputBytes:    maxOutputBytes,
 	}, nil
 }
+
 
 
 

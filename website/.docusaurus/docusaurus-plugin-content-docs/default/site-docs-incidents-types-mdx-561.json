@@ -1,0 +1,36 @@
+{
+  "id": "incidents/types",
+  "title": "Incident Types",
+  "description": "Understanding MISSED, LATE, FAIL, and ANOMALY incidents",
+  "source": "@site/docs/incidents/types.mdx",
+  "sourceDirName": "incidents",
+  "slug": "/incidents/types",
+  "permalink": "/incidents/types",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/saturn/saturn/tree/main/website/docs/incidents/types.mdx",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "types",
+    "title": "Incident Types",
+    "description": "Understanding MISSED, LATE, FAIL, and ANOMALY incidents",
+    "keywords": [
+      "incidents",
+      "missed",
+      "late",
+      "fail",
+      "anomaly",
+      "incident types"
+    ]
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Tokens & RBAC",
+    "permalink": "/monitors/tokens-rbac"
+  },
+  "next": {
+    "title": "Incident Lifecycle",
+    "permalink": "/incidents/lifecycle"
+  }
+}

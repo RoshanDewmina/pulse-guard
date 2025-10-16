@@ -1,0 +1,35 @@
+{
+  "id": "analytics/uptime-sla",
+  "title": "Uptime & SLA Tracking",
+  "description": "Track 7/30/90 day uptime percentages and generate SLA reports for compliance",
+  "source": "@site/docs/analytics/uptime-sla.mdx",
+  "sourceDirName": "analytics",
+  "slug": "/analytics/uptime-sla",
+  "permalink": "/analytics/uptime-sla",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/saturn/saturn/tree/main/website/docs/analytics/uptime-sla.mdx",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "uptime-sla",
+    "title": "Uptime & SLA Tracking",
+    "description": "Track 7/30/90 day uptime percentages and generate SLA reports for compliance",
+    "keywords": [
+      "uptime",
+      "sla",
+      "service level agreement",
+      "availability",
+      "compliance reporting"
+    ]
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Health Scores",
+    "permalink": "/analytics/health-score"
+  },
+  "next": {
+    "title": "MTBF & MTTR",
+    "permalink": "/analytics/mtbf-mttr"
+  }
+}

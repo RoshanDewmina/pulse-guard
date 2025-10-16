@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 /**
  * Comprehensive Selenium E2E Test Suite
- * Tests critical user flows for Tokiflow
+ * Tests critical user flows for Saturn
  */
 
 import { Builder, By, until, WebDriver, Key } from 'selenium-webdriver';
@@ -59,11 +59,11 @@ async function runTest(name: string, testFn: (driver: WebDriver) => Promise<void
 // Test 1: Homepage loads and displays correctly
 async function testHomepage(driver: WebDriver) {
   await driver.get(BASE_URL);
-  await driver.wait(until.titleContains('Tokiflow'), TIMEOUT);
+  await driver.wait(until.titleContains('Saturn'), TIMEOUT);
 
   const title = await driver.getTitle();
-  if (!title.includes('Tokiflow')) {
-    throw new Error(`Expected title to contain 'Tokiflow', got: ${title}`);
+  if (!title.includes('Saturn')) {
+    throw new Error(`Expected title to contain 'Saturn', got: ${title}`);
   }
 
   // Check for hero heading
@@ -95,7 +95,7 @@ async function testHomepage(driver: WebDriver) {
 // Test 2: Navigation to signin page
 async function testSigninNavigation(driver: WebDriver) {
   await driver.get(BASE_URL);
-  await driver.wait(until.titleContains('Tokiflow'), TIMEOUT);
+  await driver.wait(until.titleContains('Saturn'), TIMEOUT);
 
   // Click signin button
   const signinButton = await driver.findElement(By.css('a[href="/auth/signin"]'));
@@ -218,7 +218,7 @@ async function testSigninFormValidation(driver: WebDriver) {
 // Test 6: Responsive design check
 async function testResponsiveDesign(driver: WebDriver) {
   await driver.get(BASE_URL);
-  await driver.wait(until.titleContains('Tokiflow'), TIMEOUT);
+  await driver.wait(until.titleContains('Saturn'), TIMEOUT);
 
   // Test mobile viewport
   await driver.manage().window().setRect({ width: 375, height: 667 });
@@ -250,7 +250,7 @@ async function testResponsiveDesign(driver: WebDriver) {
 // Test 7: Footer links
 async function testFooter(driver: WebDriver) {
   await driver.get(BASE_URL);
-  await driver.wait(until.titleContains('Tokiflow'), TIMEOUT);
+  await driver.wait(until.titleContains('Saturn'), TIMEOUT);
 
   // Scroll to footer
   await driver.executeScript('window.scrollTo(0, document.body.scrollHeight)');
@@ -264,7 +264,7 @@ async function testFooter(driver: WebDriver) {
 
   // Check for footer text
   const footerText = await footer.getText();
-  if (!footerText.includes('Tokiflow') && !footerText.includes('2025')) {
+  if (!footerText.includes('Saturn') && !footerText.includes('2025')) {
     throw new Error('Footer text not found');
   }
 }
@@ -295,7 +295,7 @@ async function testPingEndpoint(driver: WebDriver) {
 // Test 9: Keyboard navigation
 async function testKeyboardNavigation(driver: WebDriver) {
   await driver.get(BASE_URL);
-  await driver.wait(until.titleContains('Tokiflow'), TIMEOUT);
+  await driver.wait(until.titleContains('Saturn'), TIMEOUT);
 
   // Tab through interactive elements
   const body = await driver.findElement(By.css('body'));
@@ -319,7 +319,7 @@ async function testKeyboardNavigation(driver: WebDriver) {
 // Test 10: Features scroll navigation
 async function testFeaturesScrolling(driver: WebDriver) {
   await driver.get(BASE_URL);
-  await driver.wait(until.titleContains('Tokiflow'), TIMEOUT);
+  await driver.wait(until.titleContains('Saturn'), TIMEOUT);
 
   // Find and click "View Features" button
   const viewFeaturesButton = await driver.findElement(By.xpath("//a[contains(text(), 'View Features')]"));

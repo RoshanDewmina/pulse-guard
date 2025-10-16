@@ -1,0 +1,367 @@
+---
+id: health-score
+title: Health Scores
+description: Understanding Saturn's 0-100 health scoring system with A-F grades for monitors and organizations
+keywords: [health score, grades, A-F rating, monitor health, reliability metrics]
+---
+
+# Health Scores
+
+Saturn assigns every monitor a **health score** (0-100) and letter grade (A-F) based on reliability, performance, and incident history.
+
+## Scoring System
+
+### Score Ranges
+
+| Score | Grade | Status | Interpretation |
+|-------|-------|--------|----------------|
+| 95-100 | A+ | Excellent | Near-perfect reliability |
+| 90-94 | A | Very Good | Occasional minor issues |
+| 85-89 | B+ | Good | Acceptable performance |
+| 80-84 | B | Above Average | Some concerns |
+| 75-79 | C+ | Average | Needs attention |
+| 70-74 | C | Below Average | Action required |
+| 60-69 | D | Poor | Serious issues |
+| 0-59 | F | Critical | Failing |
+
+## How Scores are Calculated
+
+Health scores combine multiple factors:
+
+```
+Health Score = (
+  Uptime Weight × Uptime Score +
+  Incident Weight × Incident Score +
+  Anomaly Weight × Anomaly Score +
+  Consistency Weight × Consistency Score
+) / Total Weight
+```
+
+### Factor 1: Uptime (40% weight)
+
+```
+Uptime Score = (Successful Pings / Total Expected Pings) × 100
+```
+
+**Example**:
+```
+Expected: 30 pings (daily for 30 days)
+Successful: 28 pings
+Uptime: 28/30 = 93.3%
+Uptime Score: 93.3
+```
+
+### Factor 2: Incidents (30% weight)
+
+```
+Incident Score = 100 - (Incident Penalty × Number of Incidents)
+```
+
+**Penalty by Type**:
+- MISSED: -5 points per incident
+- LATE: -2 points per incident
+- FAIL: -5 points per incident
+- ANOMALY: -1 point per incident
+
+**Example**:
+```
+Last 30 days:
+- 2 MISSED incidents: -10 points
+- 5 LATE incidents: -10 points
+- 1 FAIL incident: -5 points
+- 3 ANOMALY incidents: -3 points
+
+Incident Score = 100 - 28 = 72
+```
+
+### Factor 3: Anomaly Frequency (15% weight)
+
+```
+Anomaly Score = 100 - (Anomaly Rate × 100 × 5)
+```
+
+**Example**:
+```
+Anomalies: 4
+Total runs: 100
+Anomaly Rate: 4%
+
+Anomaly Score = 100 - (0.04 × 100 × 5) = 80
+```
+
+### Factor 4: Consistency (15% weight)
+
+```
+Consistency Score = max(0, 100 - (CV × 200))
+
+Where CV = Coefficient of Variation = StdDev / Mean
+```
+
+**Example**:
+```
+Mean duration: 12 minutes
+Std Dev: 3 minutes
+CV = 3/12 = 0.25
+
+Consistency Score = 100 - (0.25 × 200) = 50
+```
+
+### Combined Example
+
+```
+Monitor: Daily Backup
+
+Uptime Score: 93.3
+Incident Score: 72
+Anomaly Score: 80
+Consistency Score: 50
+
+Health Score = (
+  0.40 × 93.3 +
+  0.30 × 72 +
+  0.15 × 80 +
+  0.15 × 50
+) = 37.32 + 21.6 + 12 + 7.5 = 78.42
+
+Grade: C+
+```
+
+## Time Windows
+
+Health scores are calculated for multiple time windows:
+
+| Window | Use Case |
+|--------|----------|
+| **7 days** | Current health, recent trends |
+| **30 days** | Monthly SLA reports |
+| **90 days** | Quarterly reviews |
+| **All time** | Historical baseline |
+
+View all windows in the dashboard.
+
+## Org-Level Health
+
+Organization health = weighted average of all monitors:
+
+```
+Org Health = Σ(Monitor Health × Monitor Weight) / Σ(Monitor Weight)
+```
+
+**Monitor Weights**:
+- Critical monitors: 3x weight
+- Normal monitors: 1x weight
+- Low-priority monitors: 0.5x weight
+
+Set weight in monitor settings:
+
+```json
+{
+  "name": "Production API",
+  "priority": "critical"  // 3x weight in org health
+}
+```
+
+## Health Dashboard
+
+### Org Dashboard Widgets
+
+**Health Distribution**:
+```
+A: ████████████████ 45%
+B: ████████ 25%
+C: ████ 15%
+D: ██ 10%
+F: █ 5%
+```
+
+**Top/Bottom Monitors**:
+```
+Best:
+1. Daily Backup (A+, 98)
+2. API Health Check (A, 94)
+3. Log Rotation (A, 92)
+
+Worst:
+1. Legacy ETL (F, 45) ⚠️
+2. Weekend Deploy (D, 63)
+3. Cache Rebuild (C, 74)
+```
+
+**Trend**:
+```
+7-day trend: ↗ +5 points
+30-day trend: → stable
+90-day trend: ↗ +12 points
+```
+
+## Improving Health Scores
+
+### Scenario 1: Low Uptime Score
+
+**Current**: 75 (C+)  
+**Uptime**: 85%
+
+**Actions**:
+1. Fix root cause of MISSED incidents
+2. Adjust grace periods to reduce LATE incidents
+3. Add redundancy/retries to jobs
+4. **Impact**: +10-15 points
+
+### Scenario 2: High Incident Count
+
+**Current**: 70 (C)  
+**Incidents**: 15 FAIL in 30 days
+
+**Actions**:
+1. Review and fix failing jobs
+2. Add input validation
+3. Improve error handling
+4. Monitor dependencies
+5. **Impact**: +15-20 points
+
+### Scenario 3: Frequent Anomalies
+
+**Current**: 82 (B)  
+**Anomalies**: 12% of runs
+
+**Actions**:
+1. Investigate performance degradation
+2. Optimize slow queries/operations
+3. Tune anomaly thresholds (if false positives)
+4. **Impact**: +5-10 points
+
+### Scenario 4: High Variance
+
+**Current**: 78 (C+)  
+**CV**: 0.4 (very inconsistent)
+
+**Actions**:
+1. Identify and fix variable performance
+2. Consistent resource allocation
+3. Remove dependencies on shared resources
+4. **Impact**: +5-10 points
+
+## SLA Reporting
+
+Export health scores for SLA compliance:
+
+### Via Dashboard
+
+1. Go to **Analytics → Health**
+2. Select time range
+3. Click **Export Report**
+4. Choose format (PDF/CSV)
+
+### Report Contents
+
+```
+Saturn Health Report
+Organization: Acme Corp
+Period: Oct 1-31, 2025
+
+Summary:
+- Overall Health: 87 (B+)
+- Total Monitors: 45
+- Uptime: 97.2%
+- Incidents: 23
+
+Grade Distribution:
+- A: 18 monitors (40%)
+- B: 15 monitors (33%)
+- C: 8 monitors (18%)
+- D: 3 monitors (7%)
+- F: 1 monitor (2%)
+
+Critical Monitors:
+- Production API: 95 (A)
+- Payment Processing: 93 (A)
+- User Auth: 91 (A-)
+
+[Detailed per-monitor breakdown...]
+```
+
+## Health Alerts
+
+Get notified when health drops:
+
+```json
+{
+  "name": "Production Services",
+  "healthAlerts": {
+    "enabled": true,
+    "thresholds": [
+      {
+        "score": 80,
+        "channels": ["email"]
+      },
+      {
+        "score": 70,
+        "channels": ["slack:oncall"]
+      },
+      {
+        "score": 60,
+        "channels": ["pagerduty"]
+      }
+    ],
+    "frequency": "daily"  // or "immediate"
+  }
+}
+```
+
+## Benchmarks
+
+### Industry Benchmarks
+
+| Industry | Avg Health Score |
+|----------|------------------|
+| SaaS / Tech | 88 |
+| E-commerce | 85 |
+| Financial Services | 92 |
+| Healthcare | 90 |
+| Media / Publishing | 82 |
+
+### By Monitor Type
+
+| Type | Avg Health Score |
+|------|------------------|
+| Health Checks | 95 |
+| Backups | 89 |
+| ETL / Data Pipelines | 83 |
+| Report Generation | 86 |
+| Cleanup Jobs | 91 |
+
+## API Access
+
+```bash
+# Get monitor health
+curl -X GET https://api.saturn.example.com/api/monitors/YOUR_MONITOR_ID/health \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+Response:
+
+```json
+{
+  "monitorId": "mon_abc123",
+  "health": {
+    "score": 87,
+    "grade": "B+",
+    "trend": "improving",
+    "breakdown": {
+      "uptime": {"score": 95, "weight": 0.4},
+      "incidents": {"score": 82, "weight": 0.3},
+      "anomalies": {"score": 85, "weight": 0.15},
+      "consistency": {"score": 78, "weight": 0.15}
+    }
+  },
+  "period": "30d",
+  "calculatedAt": "2025-10-14T10:00:00Z"
+}
+```
+
+## Next Steps
+
+- [Uptime & SLA](./uptime-sla) — Track uptime percentages
+- [MTBF/MTTR](./mtbf-mttr) — Reliability metrics
+- [Percentiles](./percentiles) — Performance distribution
+

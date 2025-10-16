@@ -1,0 +1,24 @@
+{
+  "id": "legal/terms",
+  "title": "Terms of Service",
+  "description": "Saturn terms of service",
+  "source": "@site/docs/legal/terms.mdx",
+  "sourceDirName": "legal",
+  "slug": "/legal/terms",
+  "permalink": "/legal/terms",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/saturn/saturn/tree/main/website/docs/legal/terms.mdx",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "terms",
+    "title": "Terms of Service",
+    "description": "Saturn terms of service",
+    "keywords": [
+      "terms",
+      "service",
+      "legal"
+    ]
+  }
+}

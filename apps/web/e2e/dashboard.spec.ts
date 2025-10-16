@@ -75,10 +75,11 @@ test.describe('Dashboard Page', () => {
     await expect(page.getByText('Sign Out')).toBeVisible();
   });
 
-  test('should have Tokiflow branding in header', async ({ page }) => {
-    await expect(page.getByText('Tokiflow').first()).toBeVisible();
+  test('should have Saturn branding in header', async ({ page }) => {
+    await expect(page.getByText('Saturn').first()).toBeVisible();
   });
 });
+
 
 
 

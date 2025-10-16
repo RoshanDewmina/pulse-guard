@@ -25,10 +25,10 @@ interface ErrorResponse {
 export function loginCommand(program: Command) {
   program
     .command('login')
-    .description('Authenticate CLI with Tokiflow')
-    .option('--api <url>', 'API URL', 'http://localhost:3000')
+    .description('Authenticate CLI with Saturn')
+    .option('--api <url>', 'API URL', 'https://api.saturnmonitor.com')
     .action(async (options) => {
-      const apiUrl = options.api || 'http://localhost:3000';
+      const apiUrl = options.api || 'https://api.saturnmonitor.com';
 
       try {
         console.log('🔐 Starting device authorization...\n');

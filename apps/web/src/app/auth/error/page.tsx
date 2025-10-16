@@ -1,5 +1,11 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { 
+  SaturnCard, 
+  SaturnCardHeader, 
+  SaturnCardTitle, 
+  SaturnCardDescription, 
+  SaturnCardContent, 
+  SaturnButton 
+} from '@/components/saturn';
 import { AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 
@@ -19,40 +25,37 @@ export default async function AuthErrorPage({
   const errorMessage = errorMessages[error] || errorMessages.Default;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[#F7F5F3] flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <Card>
-          <CardHeader className="text-center">
+        <SaturnCard>
+          <SaturnCardHeader className="text-center">
             <div className="flex justify-center mb-4">
               <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
                 <AlertCircle className="w-8 h-8 text-red-600" />
               </div>
             </div>
-            <CardTitle>Authentication Error</CardTitle>
-            <CardDescription>There was a problem signing you in</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-sm text-red-800">{errorMessage}</p>
-            </div>
+            <SaturnCardTitle as="h2">Authentication Error</SaturnCardTitle>
+            <SaturnCardDescription>There was a problem signing you in</SaturnCardDescription>
+          </SaturnCardHeader>
+          <SaturnCardContent>
+            <div className="space-y-4">
+              <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-sm text-red-800 font-sans">{errorMessage}</p>
+              </div>
 
-            <div className="pt-4 text-center">
-              <Link href="/auth/signin">
-                <Button>Try Again</Button>
-              </Link>
-            </div>
+              <div className="pt-4 text-center">
+                <Link href="/auth/signin">
+                  <SaturnButton fullWidth>Try Again</SaturnButton>
+                </Link>
+              </div>
 
-            <p className="text-center text-xs text-gray-500">
-              If the problem persists, please contact support
-            </p>
-          </CardContent>
-        </Card>
+              <p className="text-center text-xs text-[rgba(55,50,47,0.60)] font-sans">
+                If the problem persists, please contact support
+              </p>
+            </div>
+          </SaturnCardContent>
+        </SaturnCard>
       </div>
     </div>
   );
 }
-
-
-
-
-

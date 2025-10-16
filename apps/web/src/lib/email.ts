@@ -11,7 +11,7 @@ export interface SendEmailParams {
 export async function sendEmail({ to, subject, html }: SendEmailParams) {
   try {
     const result = await resend.emails.send({
-      from: 'Tokiflow <alerts@tokiflow.co>',
+      from: 'Saturn <alerts@Saturn.co>',
       to: Array.isArray(to) ? to : [to],
       subject,
       html,
@@ -64,7 +64,7 @@ export function generateIncidentEmail(data: IncidentEmailData): string {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PulseGuard Alert</title>
+  <title>Saturn Alert</title>
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
     .container { max-width: 600px; margin: 0 auto; padding: 20px; }
@@ -133,7 +133,7 @@ export function generateIncidentEmail(data: IncidentEmailData): string {
       <a href="${dashboardUrl}" class="button">View Dashboard</a>
 
       <div class="footer">
-        <p>You're receiving this alert from PulseGuard</p>
+        <p>You're receiving this alert from Saturn</p>
         <p>Manage your alert settings in the dashboard</p>
       </div>
     </div>

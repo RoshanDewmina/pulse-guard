@@ -1,0 +1,54 @@
+---
+id: pulse-run
+title: pulse run Wrapper
+description: Wrap commands with automatic start/success/fail pings and output capture
+keywords: [cli, pulse run, wrapper, monitoring]
+---
+
+# pulse run Wrapper
+
+The `pulse run` command wraps your scripts and automatically handles pings.
+
+## How It Works
+
+\`\`\`bash
+pulse run --monitor YOUR_MONITOR_ID -- ./backup.sh
+\`\`\`
+
+**Steps**:
+1. Send start ping
+2. Run command
+3. Capture exit code and duration
+4. Send success or fail ping
+5. Exit with same code as command
+
+## Options
+
+\`\`\`bash
+--monitor <ID>         Monitor ID (required)
+--capture-output       Capture stdout/stderr
+--timeout <seconds>    Max runtime (default: no limit)
+--no-start-ping        Skip start ping
+--token YOUR_TOKEN        Override config token
+\`\`\`
+
+## Examples
+
+\`\`\`bash
+# Basic
+pulse run --monitor mon_abc123 -- ./backup.sh
+
+# With output capture
+pulse run --monitor mon_abc123 --capture-output -- ./backup.sh
+
+# With timeout
+pulse run --monitor mon_abc123 --timeout 3600 -- ./long-task.sh
+
+# Complex command
+pulse run --monitor mon_abc123 -- bash -c "cd /app && ./build.sh && ./test.sh"
+\`\`\`
+
+## Next Steps
+
+- [Installation](./install) — Install the CLI
+- [CLI Reference](./reference) — All commands

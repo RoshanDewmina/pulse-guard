@@ -61,7 +61,7 @@ test.describe('Monitor CRUD Operations', () => {
           memberships: {
             some: {
               user: {
-                email: 'dev@tokiflow.co',
+                email: 'dev@saturn.co',
               },
             },
           },
@@ -157,7 +157,7 @@ test.describe('Monitor CRUD Operations', () => {
         memberships: {
           where: {
             user: {
-              email: 'dev@tokiflow.co',
+              email: 'dev@saturn.co',
             },
           },
         },
@@ -234,6 +234,7 @@ test.describe('Monitor CRUD Operations', () => {
     }
   });
 });
+
 
 
 

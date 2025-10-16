@@ -1,10 +1,25 @@
 import * as Sentry from '@sentry/node';
-import { ProfilingIntegration } from '@sentry/profiling-node';
+
+// Try to import profiling integration, but make it optional
+let nodeProfilingIntegration: any = null;
+try {
+  const profilingModule = require('@sentry/profiling-node');
+  nodeProfilingIntegration = profilingModule.nodeProfilingIntegration;
+} catch (e) {
+  console.log('Sentry profiling module not available, profiling disabled');
+}
 
 export function initializeSentry() {
   if (!process.env.SENTRY_DSN) {
     console.log('Sentry DSN not configured, skipping initialization');
     return;
+  }
+
+  const integrations = [Sentry.httpIntegration()];
+  
+  // Add profiling if available
+  if (nodeProfilingIntegration) {
+    integrations.push(nodeProfilingIntegration());
   }
 
   Sentry.init({
@@ -13,13 +28,10 @@ export function initializeSentry() {
     // Performance monitoring
     tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
     
-    // Profiling
-    profilesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
+    // Profiling (only if available)
+    profilesSampleRate: nodeProfilingIntegration && process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
     
-    integrations: [
-      new ProfilingIntegration(),
-      new Sentry.Integrations.Http({ tracing: true }),
-    ],
+    integrations,
     
     environment: process.env.NODE_ENV || 'development',
     

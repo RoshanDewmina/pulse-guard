@@ -51,7 +51,7 @@ if (!defined('ABSPATH')) exit;
                 <td><strong>Last Ping:</strong></td>
                 <td>
                     <?php
-                    $last_ping = get_option('tokiflow_last_ping', 0);
+                    $last_ping = get_option('Saturn_last_ping', 0);
                     if ($last_ping > 0) {
                         echo human_time_diff($last_ping) . ' ago';
                     } else {
@@ -62,29 +62,29 @@ if (!defined('ABSPATH')) exit;
             </tr>
             <tr>
                 <td><strong>Total Pings Sent:</strong></td>
-                <td><?php echo intval(get_option('tokiflow_ping_count', 0)); ?></td>
+                <td><?php echo intval(get_option('Saturn_ping_count', 0)); ?></td>
             </tr>
         </table>
     </div>
     
     <!-- Configuration Form -->
     <form method="post" action="options.php" style="margin-top: 20px;">
-        <?php settings_fields('tokiflow_settings'); ?>
+        <?php settings_fields('Saturn_settings'); ?>
         
         <table class="form-table" role="presentation">
             <tr>
                 <th scope="row">
-                    <label for="tokiflow_token">Monitor Token</label>
+                    <label for="Saturn_token">Monitor Token</label>
                 </th>
                 <td>
                     <input type="text" 
-                           id="tokiflow_token" 
-                           name="tokiflow_token" 
-                           value="<?php echo esc_attr(get_option('tokiflow_token')); ?>" 
+                           id="Saturn_token" 
+                           name="Saturn_token" 
+                           value="<?php echo esc_attr(get_option('Saturn_token')); ?>" 
                            class="regular-text code"
                            placeholder="pg_..." />
                     <p class="description">
-                        Get your monitor token from the <a href="https://app.tokiflow.com" target="_blank">Tokiflow Dashboard</a>.
+                        Get your monitor token from the <a href="https://app.Saturn.com" target="_blank">Saturn Dashboard</a>.
                         Create a new monitor with an INTERVAL schedule matching your wp-cron frequency.
                     </p>
                 </td>
@@ -92,35 +92,35 @@ if (!defined('ABSPATH')) exit;
             
             <tr>
                 <th scope="row">
-                    <label for="tokiflow_api_url">API URL</label>
+                    <label for="Saturn_api_url">API URL</label>
                 </th>
                 <td>
                     <input type="url" 
-                           id="tokiflow_api_url" 
-                           name="tokiflow_api_url" 
-                           value="<?php echo esc_url(get_option('tokiflow_api_url', 'https://api.tokiflow.com')); ?>" 
+                           id="Saturn_api_url" 
+                           name="Saturn_api_url" 
+                           value="<?php echo esc_url(get_option('Saturn_api_url', 'https://api.Saturn.com')); ?>" 
                            class="regular-text" />
                     <p class="description">
-                        Default: <code>https://api.tokiflow.com</code>. Change if using self-hosted Tokiflow.
+                        Default: <code>https://api.Saturn.com</code>. Change if using self-hosted Saturn.
                     </p>
                 </td>
             </tr>
             
             <tr>
                 <th scope="row">
-                    <label for="tokiflow_capture_output">Capture Output</label>
+                    <label for="Saturn_capture_output">Capture Output</label>
                 </th>
                 <td>
                     <label>
                         <input type="checkbox" 
-                               id="tokiflow_capture_output" 
-                               name="tokiflow_capture_output" 
+                               id="Saturn_capture_output" 
+                               name="Saturn_capture_output" 
                                value="1"
-                               <?php checked(get_option('tokiflow_capture_output'), 1); ?> />
+                               <?php checked(get_option('Saturn_capture_output'), 1); ?> />
                         Capture wp-cron output for debugging
                     </label>
                     <p class="description">
-                        Enable to send wp-cron execution logs to Tokiflow (experimental).
+                        Enable to send wp-cron execution logs to Saturn (experimental).
                     </p>
                 </td>
             </tr>
@@ -132,13 +132,13 @@ if (!defined('ABSPATH')) exit;
     <!-- Test Connection -->
     <div class="card" style="max-width: none; margin-top: 20px;">
         <h2>Test Connection</h2>
-        <p>Test your Tokiflow connection to ensure the plugin is working correctly.</p>
+        <p>Test your Saturn connection to ensure the plugin is working correctly.</p>
         
-        <button type="button" id="tokiflow-test-connection" class="button button-secondary">
+        <button type="button" id="Saturn-test-connection" class="button button-secondary">
             Test Connection
         </button>
         
-        <div id="tokiflow-test-result" style="margin-top: 15px;"></div>
+        <div id="Saturn-test-result" style="margin-top: 15px;"></div>
     </div>
     
     <!-- Help -->
@@ -165,12 +165,12 @@ if (!defined('ABSPATH')) exit;
             <li><strong>Connection fails:</strong> Check your token and API URL are correct.</li>
             <li><strong>No pings received:</strong> WP-Cron may not be running. Check if DISABLE_WP_CRON is set.</li>
             <li><strong>Pings too frequent:</strong> Normal - WordPress runs wp-cron on page loads.</li>
-            <li><strong>Token not working:</strong> Create a new monitor in Tokiflow dashboard with INTERVAL schedule.</li>
+            <li><strong>Token not working:</strong> Create a new monitor in Saturn dashboard with INTERVAL schedule.</li>
         </ul>
         
         <h3>Recommended Setup</h3>
         <ol style="list-style: decimal; margin-left: 20px;">
-            <li>Create a monitor in Tokiflow with:
+            <li>Create a monitor in Saturn with:
                 <ul style="list-style: circle; margin-left: 20px; margin-top: 5px;">
                     <li>Schedule Type: <strong>INTERVAL</strong></li>
                     <li>Interval: <strong>15 minutes</strong> (900 seconds)</li>
@@ -185,8 +185,8 @@ if (!defined('ABSPATH')) exit;
         
         <h3>Support</h3>
         <p>
-            Need help? Visit <a href="https://docs.tokiflow.com/wordpress" target="_blank">Tokiflow WordPress Documentation</a>
-            or email <a href="mailto:support@tokiflow.com">support@tokiflow.com</a>.
+            Need help? Visit <a href="https://docs.Saturn.com/wordpress" target="_blank">Saturn WordPress Documentation</a>
+            or email <a href="mailto:support@Saturn.com">support@Saturn.com</a>.
         </p>
     </div>
     

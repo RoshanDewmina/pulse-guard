@@ -1,0 +1,435 @@
+openapi: 3.1.0
+info:
+  title: Saturn Monitoring API
+  version: 1.0.0
+  description: |
+    Saturn API for cron and scheduled job monitoring with anomaly detection.
+    
+    ## Authentication
+    
+    Use Bearer token authentication:
+    ```
+    Authorization: Bearer <TOKEN>
+    ```
+    
+    Get tokens from the Saturn dashboard under Settings → Tokens.
+    
+  contact:
+    name: Saturn Support
+    email: support@saturn.example.com
+    url: https://saturn.example.com
+  license:
+    name: Proprietary
+
+servers:
+  - url: https://api.saturn.example.com
+    description: Production API
+  - url: https://api.saturn-staging.example.com
+    description: Staging API
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: Ping
+    description: Send pings from monitored jobs
+  - name: Monitors
+    description: Manage monitors
+  - name: Incidents
+    description: View and manage incidents
+  - name: Webhooks
+    description: Webhook event deliveries
+
+paths:
+  /api/ping/{monitorId}/start:
+    post:
+      tags: [Ping]
+      summary: Send start ping
+      description: Signal that a job has started execution
+      operationId: pingStart
+      parameters:
+        - $ref: '#/components/parameters/MonitorId'
+      responses:
+        '200':
+          description: Ping accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PingResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /api/ping/{monitorId}/success:
+    post:
+      tags: [Ping]
+      summary: Send success ping
+      description: Signal that a job completed successfully
+      operationId: pingSuccess
+      parameters:
+        - $ref: '#/components/parameters/MonitorId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                durationMs:
+                  type: integer
+                  description: Job duration in milliseconds
+                  example: 12456
+                output:
+                  type: string
+                  description: Job output (stdout/stderr)
+                  example: "Backup completed\n5000 files processed"
+      responses:
+        '200':
+          description: Ping accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PingResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /api/ping/{monitorId}/fail:
+    post:
+      tags: [Ping]
+      summary: Send fail ping
+      description: Signal that a job failed
+      operationId: pingFail
+      parameters:
+        - $ref: '#/components/parameters/MonitorId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                exitCode:
+                  type: integer
+                  description: Process exit code
+                  example: 1
+                durationMs:
+                  type: integer
+                  description: Job duration in milliseconds
+                  example: 3200
+                output:
+                  type: string
+                  description: Error output
+                  example: "ERROR: Database connection failed"
+      responses:
+        '200':
+          description: Ping accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PingResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /api/monitors:
+    get:
+      tags: [Monitors]
+      summary: List monitors
+      description: Get all monitors for the authenticated organization
+      operationId: listMonitors
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+            maximum: 100
+      responses:
+        '200':
+          description: List of monitors
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  monitors:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Monitor'
+                  total:
+                    type: integer
+                  page:
+                    type: integer
+                  limit:
+                    type: integer
+
+  /api/incidents:
+    get:
+      tags: [Incidents]
+      summary: List incidents
+      description: Get incidents for the authenticated organization
+      operationId: listIncidents
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [OPEN, ACKNOWLEDGED, RESOLVED]
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [MISSED, LATE, FAIL, ANOMALY]
+        - name: monitorId
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of incidents
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  incidents:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Incident'
+
+  /api/incidents/{incidentId}/acknowledge:
+    post:
+      tags: [Incidents]
+      summary: Acknowledge incident
+      description: Mark an incident as acknowledged
+      operationId: acknowledgeIncident
+      parameters:
+        - name: incidentId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                note:
+                  type: string
+                  example: "Investigating database connection"
+      responses:
+        '200':
+          description: Incident acknowledged
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Incident'
+
+  /api/incidents/{incidentId}/resolve:
+    post:
+      tags: [Incidents]
+      summary: Resolve incident
+      description: Mark an incident as resolved
+      operationId: resolveIncident
+      parameters:
+        - name: incidentId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                note:
+                  type: string
+                  example: "Fixed database credentials"
+      responses:
+        '200':
+          description: Incident resolved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Incident'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: Organization or monitor token from Saturn dashboard
+
+  parameters:
+    MonitorId:
+      name: monitorId
+      in: path
+      required: true
+      description: Unique monitor identifier
+      schema:
+        type: string
+      example: mon_abc123xyz
+
+  schemas:
+    Monitor:
+      type: object
+      properties:
+        id:
+          type: string
+          example: mon_abc123
+        name:
+          type: string
+          example: Daily Backup
+        schedule:
+          type: object
+          properties:
+            type:
+              type: string
+              enum: [interval, cron, manual]
+            expression:
+              type: string
+              example: "0 3 * * *"
+            timezone:
+              type: string
+              example: "America/New_York"
+        status:
+          type: string
+          enum: [OK, LATE, MISSED, FAILING, DISABLED]
+        healthScore:
+          type: integer
+          minimum: 0
+          maximum: 100
+          example: 95
+        createdAt:
+          type: string
+          format: date-time
+
+    Incident:
+      type: object
+      properties:
+        id:
+          type: string
+          example: inc_abc123
+        type:
+          type: string
+          enum: [MISSED, LATE, FAIL, ANOMALY]
+        severity:
+          type: string
+          enum: [LOW, MEDIUM, HIGH]
+        status:
+          type: string
+          enum: [OPEN, ACKNOWLEDGED, RESOLVED]
+        monitorId:
+          type: string
+          example: mon_xyz789
+        createdAt:
+          type: string
+          format: date-time
+        acknowledgedAt:
+          type: string
+          format: date-time
+          nullable: true
+        resolvedAt:
+          type: string
+          format: date-time
+          nullable: true
+        details:
+          type: object
+          additionalProperties: true
+
+    PingResponse:
+      type: object
+      properties:
+        received:
+          type: boolean
+          example: true
+        runId:
+          type: string
+          example: run_abc123
+
+    WebhookEvent:
+      type: object
+      properties:
+        event:
+          type: string
+          enum:
+            - incident.opened
+            - incident.acknowledged
+            - incident.resolved
+            - monitor.created
+            - monitor.updated
+            - monitor.deleted
+        id:
+          type: string
+          example: evt_abc123
+        createdAt:
+          type: string
+          format: date-time
+        data:
+          type: object
+          additionalProperties: true
+      example:
+        event: incident.opened
+        id: evt_abc123
+        createdAt: "2025-10-14T03:15:23Z"
+        data:
+          incident:
+            id: inc_abc123
+            type: FAIL
+            severity: HIGH
+            monitorId: mon_xyz789
+
+  responses:
+    Unauthorized:
+      description: Invalid or missing authentication token
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: "Invalid token"
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: "Monitor not found"
+
+    RateLimited:
+      description: Rate limit exceeded
+      headers:
+        Retry-After:
+          schema:
+            type: integer
+          description: Seconds to wait before retry
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: "Rate limit exceeded"
+

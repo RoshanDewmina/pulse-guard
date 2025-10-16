@@ -74,6 +74,7 @@ export function startSlackWorker() {
         LATE: '🕐',
         FAIL: '❌',
         ANOMALY: '📊',
+        DEGRADED: '⚠️',
       }[incident.kind] || '⚠️';
 
       const recentRuns = incident.monitor.runs
@@ -190,7 +191,7 @@ export function startSlackWorker() {
           logger.warn('Slack SDK not available, skipping Slack alert');
           return;
         }
-        logger.error(`Failed to send Slack message:`, error);
+        logger.error({ err: error }, `Failed to send Slack message`);
         throw error;
       }
     },
@@ -202,7 +203,7 @@ export function startSlackWorker() {
   });
 
   worker.on('failed', (job, err) => {
-    logger.error(`Job ${job?.id} failed:`, err);
+    logger.error({ err, jobId: job?.id }, `Job ${job?.id} failed`);
   });
 
   return worker;

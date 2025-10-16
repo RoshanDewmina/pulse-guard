@@ -1,0 +1,25 @@
+{
+  "id": "legal/dpa",
+  "title": "Data Processing Agreement",
+  "description": "Saturn DPA for GDPR compliance",
+  "source": "@site/docs/legal/dpa.mdx",
+  "sourceDirName": "legal",
+  "slug": "/legal/dpa",
+  "permalink": "/legal/dpa",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/saturn/saturn/tree/main/website/docs/legal/dpa.mdx",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "dpa",
+    "title": "Data Processing Agreement",
+    "description": "Saturn DPA for GDPR compliance",
+    "keywords": [
+      "dpa",
+      "gdpr",
+      "data processing",
+      "compliance"
+    ]
+  }
+}

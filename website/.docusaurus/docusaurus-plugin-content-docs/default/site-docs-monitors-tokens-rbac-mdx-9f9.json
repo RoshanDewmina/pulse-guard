@@ -1,0 +1,36 @@
+{
+  "id": "monitors/tokens-rbac",
+  "title": "Tokens & RBAC",
+  "description": "Managing API tokens, scopes, organizations, and role-based access control",
+  "source": "@site/docs/monitors/tokens-rbac.mdx",
+  "sourceDirName": "monitors",
+  "slug": "/monitors/tokens-rbac",
+  "permalink": "/monitors/tokens-rbac",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/saturn/saturn/tree/main/website/docs/monitors/tokens-rbac.mdx",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "tokens-rbac",
+    "title": "Tokens & RBAC",
+    "description": "Managing API tokens, scopes, organizations, and role-based access control",
+    "keywords": [
+      "tokens",
+      "api keys",
+      "rbac",
+      "permissions",
+      "organizations",
+      "access control"
+    ]
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Grace Periods",
+    "permalink": "/monitors/grace-periods"
+  },
+  "next": {
+    "title": "Incident Types",
+    "permalink": "/incidents/types"
+  }
+}

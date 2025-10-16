@@ -27,10 +27,25 @@ export function clearApiKey(): void {
 }
 
 export function getApiUrl(): string {
-  return config.get('apiUrl') || 'http://localhost:3000';
+  return config.get('apiUrl') || 'https://api.saturnmonitor.com';
 }
 
 export function setApiUrl(url: string): void {
   config.set('apiUrl', url);
 }
 
+export function getConfig(): Config {
+  return {
+    apiKey: config.get('apiKey'),
+    apiUrl: config.get('apiUrl'),
+  };
+}
+
+export async function saveConfig(newConfig: Config): Promise<void> {
+  if (newConfig.apiKey !== undefined) {
+    config.set('apiKey', newConfig.apiKey);
+  }
+  if (newConfig.apiUrl !== undefined) {
+    config.set('apiUrl', newConfig.apiUrl);
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "id": "get-started/quickstart-kubernetes",
+  "title": "Kubernetes CronJobs in 60 Seconds",
+  "description": "Deploy Saturn monitoring for Kubernetes CronJobs using Helm with automatic sidecar injection",
+  "source": "@site/docs/get-started/quickstart-kubernetes.mdx",
+  "sourceDirName": "get-started",
+  "slug": "/get-started/quickstart-kubernetes",
+  "permalink": "/get-started/quickstart-kubernetes",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/saturn/saturn/tree/main/website/docs/get-started/quickstart-kubernetes.mdx",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "quickstart-kubernetes",
+    "title": "Kubernetes CronJobs in 60 Seconds",
+    "description": "Deploy Saturn monitoring for Kubernetes CronJobs using Helm with automatic sidecar injection",
+    "keywords": [
+      "kubernetes",
+      "cronjob",
+      "helm",
+      "sidecar",
+      "k8s monitoring"
+    ]
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Choose Your Path",
+    "permalink": "/get-started/choose-your-path"
+  },
+  "next": {
+    "title": "Reliable wp-cron Monitoring at Scale",
+    "permalink": "/get-started/quickstart-wordpress"
+  }
+}

@@ -1,309 +1,486 @@
-# Tokiflow Kubernetes Integration
+# Saturn Kubernetes Integration
 
-Zero-code monitoring for Kubernetes CronJobs. Add the Tokiflow sidecar to your CronJobs and get instant monitoring with automatic start/success/fail pings.
+Automatically monitor Kubernetes CronJobs with Saturn. No code changes required!
 
 ## Features
 
-- ✅ **Zero-code monitoring** - No changes to your job code
-- ✅ **Automatic pings** - Sidecar handles start/success/fail states
-- ✅ **Output capture** - Optionally capture job logs
-- ✅ **Exit code tracking** - Automatic failure detection
-- ✅ **Duration tracking** - Measure job performance
-- ✅ **Easy deployment** - Helm chart or kubectl apply
+- 🔄 **Auto-Discovery**: Automatically detects and monitors CronJobs
+- 🏷️ **Annotation-Based**: Simple opt-in via Kubernetes annotations
+- ⚡ **Zero Overhead**: Lightweight agent with minimal resource usage
+- 🔒 **Secure**: Follows Kubernetes RBAC best practices
+- 📦 **Helm Chart**: Easy installation and configuration
+- 🎯 **Sidecar Pattern**: Optional sidecar for advanced use cases
 
-## Quick Start (Helm)
+## Quick Start
 
-### 1. Install Helm Chart
+### 1. Install via Helm
 
 ```bash
-# Add Tokiflow Helm repository
-helm repo add tokiflow https://charts.tokiflow.co
+# Add Saturn Helm repository
+helm repo add saturn https://charts.saturn.co
 helm repo update
 
-# Create values file
-cat > my-cronjob-values.yaml <<EOF
-tokiflow:
-  token: "tf_your_monitor_token_here"
-  apiUrl: "https://api.tokiflow.co"
-  captureOutput: true
-
-cronjob:
-  name: backup-job
-  schedule: "0 3 * * *"
-  container:
-    name: backup
-    image: your-backup-image:latest
-    command: ["/bin/sh"]
-    args: ["-c", "/scripts/backup.sh"]
-EOF
-
-# Install
-helm install my-backup tokiflow/tokiflow-monitor \
-  -f my-cronjob-values.yaml \
-  -n your-namespace
+# Install the agent
+helm install saturn-agent saturn/saturn-agent \
+  --set saturn.apiKey="sk_live_your_api_key_here" \
+  --namespace saturn-system \
+  --create-namespace
 ```
 
-### 2. Verify Deployment
+### 2. Enable Monitoring for a CronJob
 
-```bash
-# Check CronJob
-kubectl get cronjobs -n your-namespace
-
-# Check if monitor is receiving pings
-# Visit Tokiflow dashboard to see runs
-```
-
-## Quick Start (kubectl)
-
-### 1. Create Secret with Token
-
-```bash
-kubectl create secret generic tokiflow-token \
-  --from-literal=token=tf_your_token_here \
-  -n your-namespace
-```
-
-### 2. Apply RBAC
-
-```bash
-kubectl apply -f - <<EOF
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: tokiflow-monitor
-  namespace: your-namespace
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
-metadata:
-  name: tokiflow-monitor
-  namespace: your-namespace
-rules:
-- apiGroups: [""]
-  resources: ["pods"]
-  verbs: ["get", "list", "watch"]
-- apiGroups: [""]
-  resources: ["pods/log"]
-  verbs: ["get"]
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  name: tokiflow-monitor
-  namespace: your-namespace
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: Role
-  name: tokiflow-monitor
-subjects:
-- kind: ServiceAccount
-  name: tokiflow-monitor
-  namespace: your-namespace
-EOF
-```
-
-### 3. Add Sidecar to Existing CronJob
-
-Add the sidecar container to your CronJob:
+Add the `saturn.co/enabled` annotation to your CronJob:
 
 ```yaml
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: your-cronjob
+  name: daily-backup
+  annotations:
+    saturn.co/enabled: "true"
+    saturn.co/grace-sec: "300"  # Optional: grace period in seconds
+    saturn.co/tags: "production,backup"  # Optional: custom tags
 spec:
-  schedule: "0 3 * * *"
+  schedule: "0 2 * * *"
   jobTemplate:
     spec:
       template:
         spec:
-          serviceAccountName: tokiflow-monitor
           containers:
-          # Your existing main container
-          - name: main
-            image: your-image
-            # ... your config ...
+          - name: backup
+            image: myapp/backup:latest
+            # Your job configuration...
+```
+
+### 3. Verify
+
+Check that the monitor was created:
+
+```bash
+kubectl get cronjob daily-backup -o yaml | grep saturn.co/monitor-id
+```
+
+You should see an annotation like:
+```yaml
+annotations:
+  saturn.co/monitor-id: "mon_abc123xyz"
+```
+
+That's it! Your CronJob is now monitored by Saturn.
+
+## Installation Options
+
+### Helm (Recommended)
+
+**Basic Installation:**
+```bash
+helm install saturn-agent saturn/saturn-agent \
+  --set saturn.apiKey="sk_live_..." \
+  --namespace saturn-system \
+  --create-namespace
+```
+
+**With Custom Configuration:**
+```bash
+helm install saturn-agent saturn/saturn-agent \
+  --namespace saturn-system \
+  --create-namespace \
+  --values custom-values.yaml
+```
+
+**custom-values.yaml:**
+```yaml
+saturn:
+  apiKey: "sk_live_..."
+  endpoint: "https://saturn.co"
+
+agent:
+  namespace: "production"  # Only watch this namespace
+  syncPeriod: "5m"
+  verbosity: 2
+
+resources:
+  limits:
+    cpu: 200m
+    memory: 256Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+```
+
+### Using Existing Secret
+
+If you already have a secret with your API key:
+
+```bash
+kubectl create secret generic saturn-api-key \
+  --from-literal=api-key="sk_live_..." \
+  --namespace saturn-system
+
+helm install saturn-agent saturn/saturn-agent \
+  --set saturn.existingSecret=saturn-api-key \
+  --namespace saturn-system \
+  --create-namespace
+```
+
+### Raw Kubernetes Manifests
+
+See [manifests/](./manifests/) directory for raw YAML files.
+
+## Configuration
+
+### Annotations
+
+Annotate your CronJobs to control Saturn monitoring:
+
+| Annotation | Required | Default | Description |
+|------------|----------|---------|-------------|
+| `saturn.co/enabled` | Yes | - | Set to `"true"` to enable monitoring |
+| `saturn.co/monitor-id` | No | Auto-generated | Monitor ID (set automatically by agent) |
+| `saturn.co/grace-sec` | No | `300` | Grace period before marking as missed (seconds) |
+| `saturn.co/tags` | No | - | Comma-separated tags for organization |
+
+**Example:**
+```yaml
+metadata:
+  annotations:
+    saturn.co/enabled: "true"
+    saturn.co/grace-sec: "600"  # 10 minutes
+    saturn.co/tags: "production,critical,database"
+```
+
+### Agent Configuration
+
+Configure the agent via Helm values:
+
+```yaml
+agent:
+  # Watch specific namespace (empty = all namespaces)
+  namespace: "production"
+  
+  # How often to perform full reconciliation
+  syncPeriod: "5m"
+  
+  # Log verbosity (0-10, higher = more verbose)
+  verbosity: 2
+```
+
+### RBAC
+
+The agent requires the following permissions:
+
+```yaml
+rules:
+- apiGroups: ["batch"]
+  resources: ["cronjobs"]
+  verbs: ["get", "list", "watch", "update", "patch"]
+- apiGroups: ["batch"]
+  resources: ["jobs"]
+  verbs: ["get", "list", "watch"]
+```
+
+These are created automatically when `rbac.create: true` (default).
+
+## Advanced Usage
+
+### Sidecar Pattern
+
+For more control, use the sidecar pattern:
+
+```yaml
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: advanced-job
+  annotations:
+    saturn.co/enabled: "true"
+spec:
+  schedule: "*/15 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          initContainers:
+          # Send start ping
+          - name: saturn-start
+            image: curlimages/curl:latest
+            command:
+            - sh
+            - -c
+            - |
+              MONITOR_TOKEN=$(cat /saturn/token)
+              curl -X POST "https://saturn.co/api/ping/${MONITOR_TOKEN}?state=start"
+            volumeMounts:
+            - name: saturn-token
+              mountPath: /saturn
+              readOnly: true
           
-          # Add Tokiflow sidecar
-          - name: tokiflow-sidecar
-            image: tokiflow/k8s-sidecar:1.0.0
-            env:
-            - name: PULSEGUARD_TOKEN
-              valueFrom:
-                secretKeyRef:
-                  name: tokiflow-token
-                  key: token
-            - name: PULSEGUARD_API
-              value: "https://api.tokiflow.co"
-            - name: CRONJOB_NAME
-              value: "your-cronjob"
-            - name: NAMESPACE
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.namespace
-            - name: POD_NAME
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.name
-            - name: MAIN_CONTAINER_NAME
-              value: "main"
-            - name: CAPTURE_OUTPUT
-              value: "true"
-            resources:
-              limits:
-                cpu: 100m
-                memory: 128Mi
-              requests:
-                cpu: 50m
-                memory: 64Mi
+          containers:
+          # Your main container
+          - name: main
+            image: myapp:latest
+            command: ["/app/run.sh"]
+          
+          # Send completion ping
+          - name: saturn-complete
+            image: curlimages/curl:latest
+            command:
+            - sh
+            - -c
+            - |
+              # Wait for main container
+              while [ ! -f /shared/done ]; do sleep 1; done
+              
+              MONITOR_TOKEN=$(cat /saturn/token)
+              EXIT_CODE=$(cat /shared/exit-code)
+              DURATION=$(cat /shared/duration-ms)
+              
+              if [ $EXIT_CODE -eq 0 ]; then
+                STATE="success"
+              else
+                STATE="fail"
+              fi
+              
+              curl -X POST "https://saturn.co/api/ping/${MONITOR_TOKEN}?state=${STATE}&exitCode=${EXIT_CODE}&durationMs=${DURATION}"
+            volumeMounts:
+            - name: saturn-token
+              mountPath: /saturn
+              readOnly: true
+            - name: shared
+              mountPath: /shared
+          
+          volumes:
+          - name: saturn-token
+            secret:
+              secretName: saturn-monitor-token-advanced-job
+          - name: shared
+            emptyDir: {}
 ```
 
-## How It Works
+See [sidecar/](./sidecar/) directory for more examples.
 
-1. **Job Starts**: Sidecar sends `start` ping to Tokiflow
-2. **Job Runs**: Main container executes your job
-3. **Sidecar Waits**: Monitors main container status
-4. **Job Completes**: Sidecar detects exit code
-5. **Final Ping**: Sends `success` or `fail` with duration and exit code
-6. **Optional**: Captures last 10KB of logs if `CAPTURE_OUTPUT=true`
+### Multi-Cluster Setup
 
-## Configuration Options
-
-### Environment Variables
-
-| Variable | Required | Default | Description |
-|----------|----------|---------|-------------|
-| `PULSEGUARD_TOKEN` | ✅ Yes | - | Monitor token from dashboard |
-| `PULSEGUARD_API` | No | `https://api.tokiflow.co` | API endpoint |
-| `CRONJOB_NAME` | No | `unknown-cronjob` | CronJob name for identification |
-| `NAMESPACE` | No | `default` | Kubernetes namespace |
-| `POD_NAME` | No | Auto-detected | Pod name |
-| `MAIN_CONTAINER_NAME` | No | `main` | Name of main container to monitor |
-| `CAPTURE_OUTPUT` | No | `false` | Capture job output |
-| `MAX_OUTPUT_BYTES` | No | `10240` | Maximum output size (bytes) |
-
-### Helm Values
-
-See `values.yaml` for all configuration options.
-
-## Building the Sidecar Image
-
-### Local Build
+Deploy the agent in each cluster:
 
 ```bash
-cd integrations/kubernetes/sidecar
+# Cluster 1
+kubectl config use-context cluster1
+helm install saturn-agent saturn/saturn-agent \
+  --set saturn.apiKey="sk_live_..." \
+  --set agent.namespace="production" \
+  --namespace saturn-system \
+  --create-namespace
 
-# Build
-docker build -t tokiflow/k8s-sidecar:1.0.0 .
-
-# Push to your registry
-docker tag tokiflow/k8s-sidecar:1.0.0 your-registry/tokiflow-sidecar:1.0.0
-docker push your-registry/tokiflow-sidecar:1.0.0
+# Cluster 2
+kubectl config use-context cluster2
+helm install saturn-agent saturn/saturn-agent \
+  --set saturn.apiKey="sk_live_..." \
+  --set agent.namespace="production" \
+  --namespace saturn-system \
+  --create-namespace
 ```
 
-### Build with Go
+Tag monitors to identify which cluster they're from:
+```yaml
+annotations:
+  saturn.co/tags: "cluster:us-east-1,production"
+```
+
+### Namespace Isolation
+
+Watch only specific namespaces:
 
 ```bash
-cd integrations/kubernetes/sidecar
+# Watch only production namespace
+helm install saturn-agent-prod saturn/saturn-agent \
+  --set saturn.apiKey="sk_live_..." \
+  --set agent.namespace="production" \
+  --namespace saturn-system
 
-# Build binary
-go build -o tokiflow-sidecar .
+# Watch only staging namespace (separate deployment)
+helm install saturn-agent-staging saturn/saturn-agent \
+  --set saturn.apiKey="sk_live_..." \
+  --set agent.namespace="staging" \
+  --namespace saturn-system
+```
 
-# Test locally
-export PULSEGUARD_TOKEN=tf_your_token
-export PULSEGUARD_API=http://localhost:3000
-./tokiflow-sidecar
+## Troubleshooting
+
+### Agent Logs
+
+```bash
+kubectl logs -n saturn-system deployment/saturn-agent -f
+```
+
+### Check Agent Status
+
+```bash
+kubectl get pods -n saturn-system
+kubectl describe pod -n saturn-system -l app.kubernetes.io/name=saturn-agent
+```
+
+### Verify RBAC
+
+```bash
+kubectl auth can-i get cronjobs --as=system:serviceaccount:saturn-system:saturn-agent -A
+kubectl auth can-i update cronjobs --as=system:serviceaccount:saturn-system:saturn-agent -A
+```
+
+### Common Issues
+
+**Issue: CronJob not monitored**
+
+Check if the annotation is present:
+```bash
+kubectl get cronjob <name> -o yaml | grep saturn.co
+```
+
+Ensure the annotation is `saturn.co/enabled: "true"` (string, not boolean).
+
+**Issue: Permission denied**
+
+Ensure RBAC is properly configured:
+```bash
+helm upgrade saturn-agent saturn/saturn-agent \
+  --set rbac.create=true \
+  --reuse-values
+```
+
+**Issue: API key invalid**
+
+Verify the secret:
+```bash
+kubectl get secret -n saturn-system saturn-agent -o jsonpath='{.data.api-key}' | base64 -d
+```
+
+## Uninstallation
+
+```bash
+# Remove the agent
+helm uninstall saturn-agent --namespace saturn-system
+
+# (Optional) Remove the namespace
+kubectl delete namespace saturn-system
+```
+
+**Note:** Monitors in Saturn will remain. Delete them manually if needed:
+```bash
+# Via Saturn CLI
+saturn monitors delete --tag kubernetes
+
+# Or via Dashboard
+https://saturn.co/app/monitors
+```
+
+## Development
+
+### Building the Agent
+
+```bash
+cd agent/
+go build -o saturn-k8s-agent .
+```
+
+### Running Locally
+
+```bash
+# Ensure you have kubeconfig set up
+export SATURN_API_KEY="sk_live_..."
+./saturn-k8s-agent --kubeconfig ~/.kube/config --namespace default
+```
+
+### Testing
+
+```bash
+go test ./...
+```
+
+### Building Docker Image
+
+```bash
+docker build -t saturn/k8s-agent:latest .
+docker push saturn/k8s-agent:latest
 ```
 
 ## Examples
 
-See `examples/` directory for:
-- `basic-cronjob-with-sidecar.yaml` - Complete example with RBAC
-- `helm-example-values.yaml` - Helm chart configuration examples
+See [examples/](./examples/) directory for:
+- Basic CronJob with annotations
+- Advanced sidecar pattern
+- Multi-container jobs
+- Output capture
+- Custom error handling
 
-## Troubleshooting
+## Architecture
 
-### Sidecar Not Sending Pings
+```
+┌─────────────────────────────────────────────────┐
+│           Kubernetes Cluster                     │
+│                                                  │
+│  ┌─────────────┐          ┌──────────────┐     │
+│  │  CronJob    │          │ Saturn Agent │     │
+│  │  (annotated)│          │  Deployment  │     │
+│  └──────┬──────┘          └───────┬──────┘     │
+│         │                         │             │
+│         │  1. Watch              │             │
+│         │◄────────────────────────┘             │
+│         │                                       │
+│         │  2. Create/Update Monitor             │
+│         └────────────────────────┐              │
+│                                  │              │
+└──────────────────────────────────┼──────────────┘
+                                   │
+                                   │ 3. API Call
+                                   ▼
+                          ┌─────────────────┐
+                          │  Saturn API     │
+                          │  (saturn.co)    │
+                          └─────────────────┘
+```
 
-1. Check token is correct:
-   ```bash
-   kubectl get secret tokiflow-token -o yaml
-   ```
+**Flow:**
+1. Agent watches CronJobs with `saturn.co/enabled` annotation
+2. When detected, agent creates/updates monitor in Saturn
+3. Agent stores monitor ID back to CronJob annotation
+4. CronJob sends pings to Saturn using monitor token
 
-2. Check sidecar logs:
-   ```bash
-   kubectl logs <pod-name> -c tokiflow-sidecar
-   ```
+## Security
 
-3. Verify network connectivity:
-   ```bash
-   kubectl exec <pod-name> -c tokiflow-sidecar -- curl https://api.tokiflow.co
-   ```
+### Best Practices
 
-### Permission Errors
+1. **Use Namespace-Scoped Deployment**: Limit agent to specific namespaces
+2. **Rotate API Keys**: Regularly rotate Saturn API keys
+3. **Use Secrets Management**: Never commit API keys to git
+4. **Enable Pod Security**: Use pod security standards/policies
+5. **Resource Limits**: Always set resource limits for the agent
 
-Ensure RBAC is properly configured:
+### Sealed Secrets
+
+For GitOps workflows, use sealed secrets:
+
 ```bash
-kubectl describe serviceaccount tokiflow-monitor
-kubectl describe role tokiflow-monitor
-kubectl describe rolebinding tokiflow-monitor
+# Create secret
+kubectl create secret generic saturn-api-key \
+  --from-literal=api-key="sk_live_..." \
+  --dry-run=client -o yaml | \
+  kubeseal --controller-name=sealed-secrets -o yaml > sealed-secret.yaml
+
+# Commit sealed-secret.yaml to git
+git add sealed-secret.yaml
 ```
-
-### Output Not Captured
-
-- Ensure `CAPTURE_OUTPUT=true` in sidecar env
-- Check main container has logs: `kubectl logs <pod> -c main`
-- Verify sidecar has permission to read logs
-
-## Security Considerations
-
-- **Minimal permissions**: Sidecar only needs pod read and log access
-- **Non-root user**: Sidecar runs as UID 1000
-- **Secret management**: Token stored in Kubernetes Secret
-- **Network isolation**: Only connects to Tokiflow API
-- **Output redaction**: Sensitive data automatically redacted
-
-## Advanced Usage
-
-### Multiple CronJobs
-
-Monitor multiple CronJobs by installing the chart multiple times:
-
-```bash
-helm install backup-monitor tokiflow/tokiflow-monitor -f backup-values.yaml
-helm install sync-monitor tokiflow/tokiflow-monitor -f sync-values.yaml
-```
-
-### Custom API Endpoint (Self-Hosted)
-
-```yaml
-tokiflow:
-  apiUrl: "https://tokiflow.yourcompany.com"
-  token: "tf_your_token"
-```
-
-### Different Schedules
-
-```yaml
-cronjob:
-  schedule: "*/15 * * * *"  # Every 15 minutes
-  # or
-  schedule: "0 */6 * * *"   # Every 6 hours
-  # or
-  schedule: "0 0 * * 0"     # Weekly on Sunday
-```
-
-## Support
-
-- **Documentation**: https://docs.tokiflow.co/kubernetes
-- **Issues**: https://github.com/tokiflow/tokiflow/issues
-- **Email**: support@tokiflow.co
 
 ## License
 
-Copyright © 2025 Tokiflow. All rights reserved.
+MIT License - see LICENSE for details
 
+## Support
 
+- 📧 Email: support@saturn.co
+- 💬 Slack: [Saturn Community](https://saturn.co/slack)
+- 📖 Docs: https://docs.saturn.co/kubernetes
+- 🐛 Issues: https://github.com/saturn/k8s-agent/issues
 
+---
 
-
+**Built with ❤️ by the Saturn team**

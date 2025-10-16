@@ -1,0 +1,364 @@
+---
+id: uptime-sla
+title: Uptime & SLA Tracking
+description: Track 7/30/90 day uptime percentages and generate SLA reports for compliance
+keywords: [uptime, sla, service level agreement, availability, compliance reporting]
+---
+
+# Uptime & SLA Tracking
+
+Saturn calculates uptime percentages and provides SLA reports for compliance and customer commitments.
+
+## Uptime Calculation
+
+```
+Uptime % = (Successful Pings / Total Expected Pings) × 100
+```
+
+### Expected Pings
+
+Based on monitor schedule:
+
+**Interval-based**:
+```
+Daily interval: 3600s (hourly)
+Expected pings per day: 24
+Expected pings per month: 720
+```
+
+**Cron-based**:
+```
+Schedule: "0 3 * * *" (daily at 3 AM)
+Expected pings per day: 1
+Expected pings per month: 30
+```
+
+### Successful Pings
+
+A ping is considered successful if:
+- Received within grace period
+- Exit code 0 (or success ping sent)
+- No MISSED or FAIL incident created
+
+## Time Windows
+
+| Window | Use Case |
+|--------|----------|
+| **7 days** | Weekly reports, recent trends |
+| **30 days** | Monthly SLA, standard reporting |
+| **90 days** | Quarterly reviews |
+| **Year** | Annual compliance |
+
+## Uptime Tiers
+
+### Standard SLA Tiers
+
+| Tier | Uptime % | Downtime/Month | Downtime/Year |
+|------|----------|----------------|---------------|
+| **5 Nines** | 99.999% | 26 seconds | 5.3 minutes |
+| **4 Nines** | 99.99% | 4.3 minutes | 52.6 minutes |
+| **3 Nines** | 99.9% | 43 minutes | 8.8 hours |
+| **2 Nines** | 99% | 7.2 hours | 3.7 days |
+| **1 Nine** | 90% | 3 days | 36.5 days |
+
+### Example Calculations
+
+**Monitor**: Daily Backup (runs daily at 3 AM)
+
+**October 2025** (31 days):
+- Expected: 31 pings
+- Successful: 29 pings
+- Failed: 1 ping
+- Missed: 1 ping
+
+```
+Uptime = 29/31 = 93.55%
+Downtime = 2 days out of 31
+```
+
+## SLA Reports
+
+### Generate Report
+
+**Via Dashboard**:
+1. Go to **Analytics → SLA**
+2. Select monitors
+3. Choose date range
+4. Click **Generate Report**
+5. Download PDF or CSV
+
+**Via API**:
+```bash
+curl -X POST https://api.saturn.example.com/api/reports/sla \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -d '{
+    "monitorIds": ["mon_abc123", "mon_def456"],
+    "startDate": "2025-10-01",
+    "endDate": "2025-10-31",
+    "format": "pdf"
+  }' \
+  --output sla-report.pdf
+```
+
+### Report Contents
+
+```
+═══════════════════════════════════════════════════
+Saturn SLA Report
+═══════════════════════════════════════════════════
+
+Organization: Acme Corp
+Period: October 1-31, 2025
+Generated: November 1, 2025
+
+────────────────────────────────────────────────────
+EXECUTIVE SUMMARY
+────────────────────────────────────────────────────
+
+Overall Uptime: 99.2%
+Total Monitors: 25
+Total Expected Pings: 18,000
+Successful Pings: 17,856
+Incidents: 12
+
+SLA Target: 99% ✓ MET
+Downtime: 14.4 hours (0.8% of month)
+
+────────────────────────────────────────────────────
+MONITOR BREAKDOWN
+────────────────────────────────────────────────────
+
+1. Production API Health Check
+   Uptime: 100% ✓
+   Expected: 744 pings (hourly)
+   Successful: 744
+   Incidents: 0
+   Grade: A+
+
+2. Database Backup
+   Uptime: 96.8% ✓
+   Expected: 31 pings (daily)
+   Successful: 30
+   Incidents: 1 FAIL (Oct 15)
+   Grade: A
+
+3. ETL Pipeline
+   Uptime: 93.5% ⚠
+   Expected: 31 pings
+   Successful: 29
+   Incidents: 2 MISSED (Oct 5, Oct 22)
+   Grade: B+
+
+[... detailed breakdown for all monitors ...]
+
+────────────────────────────────────────────────────
+INCIDENT SUMMARY
+────────────────────────────────────────────────────
+
+Oct 5:  MISSED - ETL Pipeline (12:00 UTC)
+        Duration: 3h 20m
+        Root cause: Server maintenance
+
+Oct 15: FAIL - Database Backup (03:15 UTC)
+        Duration: 45m
+        Root cause: Disk space
+
+Oct 22: MISSED - ETL Pipeline (12:00 UTC)
+        Duration: 2h 10m
+        Root cause: Network outage
+
+────────────────────────────────────────────────────
+RECOMMENDATIONS
+────────────────────────────────────────────────────
+
+1. Review ETL Pipeline reliability (2 incidents)
+2. Implement disk space monitoring for backups
+3. Add redundancy for network-dependent jobs
+
+────────────────────────────────────────────────────
+```
+
+## SLA Commitments
+
+### Defining SLAs
+
+Set SLA targets per monitor:
+
+```json
+{
+  "name": "Production API",
+  "sla": {
+    "target": 99.9,  // 99.9% uptime
+    "window": "30d",
+    "alerts": {
+      "breach": ["email:management"],
+      "atRisk": ["slack:ops"]  // Alert at 99.95% (risk of breach)
+    }
+  }
+}
+```
+
+### SLA Breach Alerts
+
+Get notified when approaching or breaching SLA:
+
+```
+Subject: SLA At Risk - Production API
+Body:
+Current uptime: 99.92% (target: 99.9%)
+Remaining buffer: 0.02% (≈30 minutes downtime)
+Days remaining: 5
+
+Action: Avoid further incidents to meet SLA
+```
+
+## Exclusions
+
+Exclude planned maintenance from SLA calculations:
+
+### Maintenance Windows
+
+```json
+{
+  "name": "Database Backup",
+  "sla": {
+    "target": 99,
+    "excludeMaintenanceWindows": true
+  }
+}
+```
+
+During maintenance windows:
+- Incidents not counted against SLA
+- Uptime calculation adjusted
+- Clearly marked in reports
+
+### Manual Exclusions
+
+Exclude specific incidents:
+
+```bash
+curl -X POST https://api.saturn.example.com/api/incidents/YOUR_INCIDENT_ID/exclude-from-sla \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -d '{"reason": "Third-party service outage beyond our control"}'
+```
+
+## Multi-Monitor SLAs
+
+Track combined SLA for service groups:
+
+```json
+{
+  "name": "Production Services SLA",
+  "type": "group",
+  "monitors": [
+    "mon_api",
+    "mon_worker",
+    "mon_db_backup"
+  ],
+  "sla": {
+    "target": 99.5,
+    "calculation": "any_down"  // or "all_down"
+  }
+}
+```
+
+**Calculation methods**:
+- `any_down`: Service is down if ANY monitor is down
+- `all_down`: Service is down only if ALL monitors are down
+- `weighted`: Weighted average based on criticality
+
+## Credits and Penalties
+
+### SLA Credits
+
+Automatically calculate credits for SLA breaches:
+
+```json
+{
+  "sla": {
+    "target": 99.9,
+    "credits": [
+      {"uptime": 99.0, "credit": 10},   // 10% credit if 99.0-99.9%
+      {"uptime": 95.0, "credit": 25},   // 25% credit if 95.0-99.0%
+      {"uptime": 0, "credit": 100}      // 100% credit if < 95%
+    ]
+  }
+}
+```
+
+Export credit calculations:
+
+```bash
+curl -X GET https://api.saturn.example.com/api/sla/credits?month=2025-10 \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+## Visualizations
+
+### Uptime Chart
+
+```
+Uptime Over Time (30 days)
+100% ┤           ╭─────────────╮
+     │           │             │
+ 99% ┤───────────╯             ╰──────
+     │
+ 98% ┤
+     │
+ 97% ┤
+     └┬────────┬────────┬────────┬───
+      Oct 1   Oct 10   Oct 20   Oct 30
+
+Incidents: ✗ (Oct 5), ✗ (Oct 15)
+```
+
+### Heatmap
+
+```
+Mon ████████████████████████████ 100%
+Tue ██████████████████████████   96%
+Wed ████████████████████████████ 100%
+Thu ████████████████████████████ 100%
+Fri ██████████████████████████   97%
+Sat ████████████████████████████ 100%
+Sun ████████████████████████████ 100%
+```
+
+## Best Practices
+
+### ✅ Do
+
+1. **Set realistic targets**: 99.9% is aggressive, 99% is often sufficient
+2. **Exclude maintenance**: Plan maintenance windows and exclude from SLA
+3. **Review monthly**: Don't wait for breaches
+4. **Automate reports**: Schedule monthly PDF generation
+5. **Track trends**: Is uptime improving or declining?
+
+### ❌ Don't
+
+1. **Over-commit**: 99.99% requires significant investment
+2. **Ignore context**: Not all downtime is equal
+3. **Hide incidents**: Transparency builds trust
+4. **Forget grace periods**: Tight grace = lower uptime
+
+## API Reference
+
+```bash
+# Get current uptime
+GET /api/monitors/YOUR_MONITOR_ID/uptime?window=30d
+
+# Get SLA status
+GET /api/monitors/YOUR_MONITOR_ID/sla
+
+# Generate SLA report
+POST /api/reports/sla
+Body: {monitorIds, startDate, endDate, format}
+```
+
+## Next Steps
+
+- [MTBF/MTTR](./mtbf-mttr) — Mean time between failures and to repair
+- [Health Scores](./health-score) — Overall health grading
+- [Maintenance Windows](../incidents/maintenance-windows) — Schedule planned downtime
+

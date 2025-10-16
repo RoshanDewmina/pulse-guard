@@ -51,7 +51,7 @@ function handleHelp() {
         type: 'header',
         text: {
           type: 'plain_text',
-          text: '🚀 PulseGuard Commands',
+          text: '🚀 Saturn Commands',
         },
       },
       {
@@ -113,7 +113,7 @@ async function handleList(teamId: string) {
   if (!channel) {
     return NextResponse.json({
       response_type: 'ephemeral',
-      text: 'Slack workspace not connected to PulseGuard.',
+      text: 'Slack workspace not connected to Saturn.',
     });
   }
 
@@ -133,7 +133,7 @@ async function handleList(teamId: string) {
   if (monitors.length === 0) {
     return NextResponse.json({
       response_type: 'ephemeral',
-      text: 'No monitors found. Create your first monitor at https://app.pulseguard.com',
+      text: 'No monitors found. Create your first monitor at https://app.saturn.com',
     });
   }
 
@@ -197,7 +197,7 @@ async function handleStatus(teamId: string, monitorName: string) {
   if (!channel) {
     return NextResponse.json({
       response_type: 'ephemeral',
-      text: 'Slack workspace not connected to PulseGuard.',
+      text: 'Slack workspace not connected to Saturn.',
     });
   }
 
@@ -368,7 +368,7 @@ async function handleAck(teamId: string, incidentId: string, userId?: string | n
   if (!channel) {
     return NextResponse.json({
       response_type: 'ephemeral',
-      text: 'Slack workspace not connected to PulseGuard.',
+      text: 'Slack workspace not connected to Saturn.',
     });
   }
 

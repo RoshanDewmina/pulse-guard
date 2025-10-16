@@ -16,7 +16,7 @@ async function sendEmail(to: string, subject: string, html: string) {
     const resend = new Resend(process.env.RESEND_API_KEY);
     
     return await resend.emails.send({
-      from: 'Tokiflow <alerts@tokiflow.co>',
+      from: 'Saturn <alerts@saturn.co>',
       to,
       subject,
       html,
@@ -75,6 +75,7 @@ export function startEmailWorker() {
         LATE: '🕐',
         FAIL: '❌',
         ANOMALY: '📊',
+        DEGRADED: '⚠️',
       }[incident.kind] || '⚠️';
 
       const recentRuns = incident.monitor.runs
@@ -120,13 +121,13 @@ export function startEmailWorker() {
       try {
         await sendEmail(
           email,
-          `[PulseGuard] ${incident.kind} — ${incident.monitor.name}`,
+          `[Saturn] ${incident.kind} — ${incident.monitor.name}`,
           html
         );
 
         logger.info(`Email sent to ${email} for incident ${incidentId}`);
       } catch (error) {
-        logger.error(`Failed to send email:`, error);
+        logger.error({ err: error }, `Failed to send email`);
         throw error;
       }
     },
@@ -138,7 +139,7 @@ export function startEmailWorker() {
   });
 
   worker.on('failed', (job, err) => {
-    logger.error(`Job ${job?.id} failed:`, err);
+    logger.error({ err, jobId: job?.id }, `Job ${job?.id} failed`);
   });
 
   return worker;

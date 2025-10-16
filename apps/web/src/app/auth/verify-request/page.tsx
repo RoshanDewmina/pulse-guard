@@ -1,47 +1,50 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { 
+  SaturnCard, 
+  SaturnCardHeader, 
+  SaturnCardTitle, 
+  SaturnCardDescription, 
+  SaturnCardContent, 
+  SaturnButton 
+} from '@/components/saturn';
 import { Mail } from 'lucide-react';
 import Link from 'next/link';
 
 export default function VerifyRequestPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[#F7F5F3] flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <Card>
-          <CardHeader className="text-center">
+        <SaturnCard>
+          <SaturnCardHeader className="text-center">
             <div className="flex justify-center mb-4">
               <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
                 <Mail className="w-8 h-8 text-blue-600" />
               </div>
             </div>
-            <CardTitle>Check your email</CardTitle>
-            <CardDescription>
+            <SaturnCardTitle as="h2">Check your email</SaturnCardTitle>
+            <SaturnCardDescription>
               We&apos;ve sent you a magic link to sign in
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="text-center space-y-2">
-              <p className="text-sm text-gray-600">
-                Click the link in the email to sign in to your account.
-              </p>
-              <p className="text-sm text-gray-600">
-                The link will expire in 24 hours.
-              </p>
-            </div>
+            </SaturnCardDescription>
+          </SaturnCardHeader>
+          <SaturnCardContent>
+            <div className="space-y-4">
+              <div className="text-center space-y-2">
+                <p className="text-sm text-[rgba(55,50,47,0.80)] font-sans">
+                  Click the link in the email to sign in to your account.
+                </p>
+                <p className="text-sm text-[rgba(55,50,47,0.80)] font-sans">
+                  The link will expire in 24 hours.
+                </p>
+              </div>
 
-            <div className="pt-4 text-center">
-              <Link href="/auth/signin">
-                <Button variant="outline">Back to sign in</Button>
-              </Link>
+              <div className="pt-4 text-center">
+                <Link href="/auth/signin">
+                  <SaturnButton variant="secondary" fullWidth>Back to sign in</SaturnButton>
+                </Link>
+              </div>
             </div>
-          </CardContent>
-        </Card>
+          </SaturnCardContent>
+        </SaturnCard>
       </div>
     </div>
   );
 }
-
-
-
-
-

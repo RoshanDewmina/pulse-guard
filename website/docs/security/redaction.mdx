@@ -1,0 +1,55 @@
+---
+id: redaction
+title: Output Redaction
+description: Patterns for automatically redacting sensitive data in job output
+keywords: [redaction, security, sensitive data, passwords, api keys]
+---
+
+# Output Redaction
+
+Saturn automatically redacts sensitive patterns from captured output.
+
+## Redacted Patterns
+
+| Pattern | Example | Redacted |
+|---------|---------|----------|
+| **Passwords** | `password=secret123` | `password=***REDACTED***` |
+| **API Keys** | `api_key: abc123def` | `api_key: ***REDACTED***` |
+| **Bearer Tokens** | `Bearer eyJ0eXAi...` | `Bearer ***REDACTED***` |
+| **AWS Credentials** | `AWS_SECRET_ACCESS_KEY=...` | `AWS_SECRET_ACCESS_KEY=***REDACTED***` |
+| **Private Keys** | `-----BEGIN PRIVATE KEY-----` | `***REDACTED***` |
+| **Credit Cards** | `4532-1234-5678-9010` | `****-****-****-9010` |
+| **SSH Keys** | `ssh-rsa AAAAB3NzaC1...` | `***REDACTED***` |
+| **JWTs** | `eyJhbGciOiJIUzI1NiI...` | `***REDACTED***` |
+
+## Custom Patterns
+
+Add custom redaction patterns (Enterprise):
+
+\`\`\`json
+{
+  "redactionPatterns": [
+    {
+      "name": "Internal IDs",
+      "pattern": "ID:\\s*\\d{8}",
+      "replacement": "ID: ***REDACTED***"
+    }
+  ]
+}
+\`\`\`
+
+## Disabling Redaction
+
+Not recommended, but possible:
+
+\`\`\`json
+{
+  "captureOutput": true,
+  "redactOutput": false  // ⚠️ Use with caution
+}
+\`\`\`
+
+## Next Steps
+
+- [Security Overview](./overview) — Full security model
+- [Output Capture](../output-capture/overview) — Capture configuration

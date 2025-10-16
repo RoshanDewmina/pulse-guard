@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next';
 
 export default function robots(): MetadataRoute.Robots {
-  const base = process.env.SITE_URL ?? 'https://tokiflow.co';
+  const base = process.env.SITE_URL ?? 'https://Saturn.co';
   
   return {
     rules: [
@@ -13,5 +13,6 @@ export default function robots(): MetadataRoute.Robots {
     sitemap: [`${base}/sitemap.xml`],
   };
 }
+
 
 

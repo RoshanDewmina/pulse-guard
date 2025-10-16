@@ -1,0 +1,228 @@
+---
+id: discord
+title: Discord Alerts
+description: Discord webhook notifications with embeds, rate limits, and exponential backoff
+keywords: [discord, discord webhooks, embeds, notifications, rate limiting]
+---
+
+# Discord Alerts
+
+Saturn sends rich embed notifications to Discord via webhooks.
+
+## Setup
+
+### 1. Create Webhook
+
+In your Discord server:
+
+1. Server Settings → Integrations → Webhooks
+2. Click **New Webhook**
+3. Name it "Saturn"
+4. Choose channel
+5. Copy webhook URL
+
+### 2. Add to Saturn
+
+1. Go to **Settings → Integrations → Discord**
+2. Click **Add Webhook**
+3. Paste webhook URL
+4. Test connection
+5. Configure routing rules
+
+## Message Format
+
+Saturn uses Discord embeds:
+
+```json
+{
+  "embeds": [{
+    "title": "🔴 FAIL: Database Backup",
+    "color": 15548997,
+    "fields": [
+      {"name": "Monitor", "value": "Database Backup", "inline": true},
+      {"name": "Status", "value": "OPEN", "inline": true},
+      {"name": "Severity", "value": "HIGH", "inline": true},
+      {"name": "Exit Code", "value": "1", "inline": true},
+      {"name": "Duration", "value": "3.2s", "inline": true},
+      {"name": "Expected", "value": "~12 minutes", "inline": true},
+      {
+        "name": "Error Output",
+        "value": "```\nERROR: Connection to database failed\nHost: db.prod.example.com:5432\n```",
+        "inline": false
+      }
+    ],
+    "timestamp": "2025-10-14T03:15:23Z",
+    "footer": {"text": "Saturn Monitoring"}
+  }],
+  "components": [{
+    "type": 1,
+    "components": [
+      {
+        "type": 2,
+        "style": 5,
+        "label": "View Incident",
+        "url": "https://saturn.example.com/incidents/inc_abc123"
+      },
+      {
+        "type": 2,
+        "style": 5,
+        "label": "View Monitor",
+        "url": "https://saturn.example.com/monitors/mon_xyz789"
+      }
+    ]
+  }]
+}
+```
+
+## Color Coding
+
+| Incident Type | Color | Hex |
+|---------------|-------|-----|
+| FAIL | 🔴 Red | `#ED4245` (15548997) |
+| MISSED | 🟠 Orange | `#F26522` (15877410) |
+| LATE | 🟡 Yellow | `#FEE75C` (16705372) |
+| ANOMALY | 🟣 Purple | `#5865F2` (5793522) |
+| RESOLVED | 🟢 Green | `#57F287` (5763719) |
+
+## Rate Limiting
+
+Discord webhook rate limits:
+
+- **30 requests per minute** per webhook
+- **429 status** if exceeded
+- **Retry-After** header indicates wait time
+
+Saturn handles this automatically:
+- Queues messages if rate limited
+- Exponential backoff: 1s, 2s, 4s, 8s, 16s
+- Batches rapid incidents
+
+## Multiple Webhooks
+
+Route to different channels:
+
+```json
+{
+  "discord": {
+    "webhooks": [
+      {
+        "url": "https://discord.com/api/webhooks/123/abc",
+        "name": "#alerts-critical",
+        "rules": {
+          "severity": ["HIGH"],
+          "types": ["MISSED", "FAIL"]
+        }
+      },
+      {
+        "url": "https://discord.com/api/webhooks/456/def",
+        "name": "#alerts-warnings",
+        "rules": {
+          "severity": ["MEDIUM", "LOW"],
+          "types": ["LATE", "ANOMALY"]
+        }
+      }
+    ]
+  }
+}
+```
+
+## @mentions
+
+Mention roles or users:
+
+```json
+{
+  "content": "<@&ROLE_ID> Database backup failed",
+  "embeds": [...]
+}
+```
+
+**Get Role ID**:
+1. Enable Developer Mode (User Settings → Advanced)
+2. Right-click role → Copy ID
+
+## Thread Support
+
+Post to threads:
+
+```
+Webhook URL:
+https://discord.com/api/webhooks/123/abc?thread_id=456
+```
+
+Add `?thread_id=THREAD_ID` to webhook URL.
+
+## Testing
+
+```bash
+curl -X POST https://api.saturn.example.com/api/alerts/discord/test \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -d '{"webhookId": "webhook_abc123"}'
+```
+
+## Troubleshooting
+
+### Webhook Invalid
+
+**Error**: `404 Not Found` or `401 Unauthorized`
+
+**Fix**: Regenerate webhook in Discord and update in Saturn
+
+### Rate Limited
+
+**Error**: `429 Too Many Requests`
+
+**Fix**: Saturn automatically retries. If persistent, add more webhooks or increase queue delay.
+
+### Messages Not Appearing
+
+**Check**:
+1. Webhook URL correct?
+2. Channel permissions allow webhooks?
+3. Routing rules match?
+4. Server/channel not deleted?
+
+## Best Practices
+
+### ✅ Do
+
+1. **Separate webhooks** for different severity levels
+2. **Test before deploying** to production channels
+3. **Use role mentions** sparingly
+4. **Monitor rate limits** in Saturn logs
+5. **Regenerate webhooks** if compromised
+
+### ❌ Don't
+
+1. **Share webhook URLs** publicly
+2. **Delete webhooks** without removing from Saturn
+3. **@everyone** for every alert
+4. **Ignore rate limits** - messages will be delayed
+
+## API Reference
+
+```bash
+# Add webhook
+POST /api/alerts/discord/webhooks
+Body: {
+  "url": "https://discord.com/api/webhooks/...",
+  "rules": {...}
+}
+
+# Update rules
+PATCH /api/alerts/discord/webhooks/YOUR_WEBHOOK_ID
+
+# Remove webhook
+DELETE /api/alerts/discord/webhooks/YOUR_WEBHOOK_ID
+
+# Test webhook
+POST /api/alerts/discord/test
+Body: {"webhookId": "webhook_abc123"}
+```
+
+## Next Steps
+
+- [Email Alerts](./email) — Email notifications
+- [Slack Alerts](./slack) — Slack integration
+- [Webhooks](./webhooks) — Custom integrations
+

@@ -1,0 +1,51 @@
+---
+id: overview
+title: Security Overview
+description: Token hashing, RLS, CSRF protection, rate limiting, and HTTPS
+keywords: [security, authentication, authorization, csrf, rate limiting]
+---
+
+# Security Overview
+
+Saturn employs multiple layers of security to protect your data.
+
+## Authentication
+
+### Token Hashing
+
+All tokens hashed with SHA-256 before storage.
+
+### Session Management
+
+- HTTP-only cookies
+- Secure flag in production
+- SameSite=Lax for CSRF protection
+
+## Authorization
+
+### Row-Level Security (RLS)
+
+Every query filtered by `orgId`:
+
+\`\`\`sql
+SELECT * FROM monitors WHERE org_id = current_org_id();
+\`\`\`
+
+### RBAC
+
+Role-based access control (Owner, Admin, Member, Viewer).
+
+## Rate Limiting
+
+- **Ping API**: 60 req/min per monitor
+- **Auth**: 5 login attempts per 15 min
+- **API**: 1000 req/hour per org
+
+## HTTPS Everywhere
+
+All traffic encrypted with TLS 1.3.
+
+## Next Steps
+
+- [Redaction](./redaction) — Sensitive data patterns
+- [Tokens & RBAC](../monitors/tokens-rbac) — Access control

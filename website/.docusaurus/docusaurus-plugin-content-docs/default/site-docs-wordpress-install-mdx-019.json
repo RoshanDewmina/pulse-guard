@@ -1,0 +1,35 @@
+{
+  "id": "wordpress/install",
+  "title": "WordPress Plugin Installation",
+  "description": "Install and configure the Saturn WordPress plugin for wp-cron monitoring",
+  "source": "@site/docs/wordpress/install.mdx",
+  "sourceDirName": "wordpress",
+  "slug": "/wordpress/install",
+  "permalink": "/wordpress/install",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/saturn/saturn/tree/main/website/docs/wordpress/install.mdx",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "install",
+    "title": "WordPress Plugin Installation",
+    "description": "Install and configure the Saturn WordPress plugin for wp-cron monitoring",
+    "keywords": [
+      "wordpress",
+      "plugin",
+      "wp-cron",
+      "install",
+      "configuration"
+    ]
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Kubernetes CronJob Examples",
+    "permalink": "/kubernetes/examples"
+  },
+  "next": {
+    "title": "Bulk Agency Rollout",
+    "permalink": "/wordpress/bulk-agency"
+  }
+}

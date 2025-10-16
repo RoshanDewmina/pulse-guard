@@ -1,0 +1,35 @@
+{
+  "id": "anomalies/tuning",
+  "title": "Anomaly Tuning",
+  "description": "Reduce false positives and optimize anomaly detection for your specific workloads",
+  "source": "@site/docs/anomalies/tuning.mdx",
+  "sourceDirName": "anomalies",
+  "slug": "/anomalies/tuning",
+  "permalink": "/anomalies/tuning",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/saturn/saturn/tree/main/website/docs/anomalies/tuning.mdx",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "tuning",
+    "title": "Anomaly Tuning",
+    "description": "Reduce false positives and optimize anomaly detection for your specific workloads",
+    "keywords": [
+      "anomaly tuning",
+      "false positives",
+      "threshold tuning",
+      "sensitivity",
+      "optimization"
+    ]
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Welford's Online Algorithm",
+    "permalink": "/anomalies/welford"
+  },
+  "next": {
+    "title": "Health Scores",
+    "permalink": "/analytics/health-score"
+  }
+}

@@ -63,9 +63,11 @@ export function startEvaluator() {
           const recentRun = await prisma.run.findFirst({
             where: {
               monitorId: monitor.id,
-              startedAt: {
-                gte: monitor.nextDueAt,
-              },
+              ...(monitor.nextDueAt && {
+                startedAt: {
+                  gte: monitor.nextDueAt,
+                },
+              }),
               outcome: {
                 in: ['SUCCESS', 'FAIL', 'LATE'],
               },
@@ -148,7 +150,7 @@ export function startEvaluator() {
   });
 
   worker.on('failed', (job, err) => {
-    logger.error(`Job ${job?.id} failed:`, err);
+    logger.error({ err, jobId: job?.id }, `Job ${job?.id} failed`);
   });
 
   return worker;

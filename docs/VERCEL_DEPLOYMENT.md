@@ -1,507 +1,280 @@
-# Vercel Deployment Guide
+# Production Deployment
 
-Deploy Tokiflow to Vercel in under 15 minutes.
+Deploy Saturn to production in 15 minutes.
+
+## Stack
+
+- **Web App**: Vercel
+- **Worker**: Fly.io / Render / Railway
+- **Database**: Neon / Supabase PostgreSQL
+- **Redis**: Upstash
+- **Storage**: Cloudflare R2 / AWS S3
 
 ## Prerequisites
 
-- Vercel account (free tier works)
-- GitHub repository with Tokiflow code
-- Database (Supabase recommended)
-- Email service (Resend recommended)
+- GitHub repository
+- Vercel account
+- Database (Neon/Supabase)
+- Redis instance (Upstash)
+- Email service (Resend)
+- Storage (R2/S3)
 
-## Step 1: Prepare Your Repository
+## Step 1: Deploy Web App (Vercel)
 
-```bash
-# Ensure your code is pushed to GitHub
-git add .
-git commit -m "Prepare for Vercel deployment"
-git push origin main
-```
-
-## Step 2: Import Project to Vercel
-
-### Via Vercel Dashboard
+### Import to Vercel
 
 1. Go to https://vercel.com/new
-2. Click "Import" next to your GitHub repository
-3. Select "pulse-guard" repository
-4. Framework Preset: **Next.js** (auto-detected)
-5. Root Directory: `apps/web`
-6. Click **"Deploy"** (first deployment will fail - that's okay, we need to add env vars)
+2. Import your GitHub repository
+3. Framework: **Next.js** (auto-detected)
+4. Root Directory: `apps/web`
+5. Click **Deploy** (will fail initially - add env vars next)
 
-### Via Vercel CLI (Alternative)
+### Configure Environment Variables
 
-```bash
-# Install Vercel CLI
-npm i -g vercel
-
-# Login
-vercel login
-
-# Deploy
-cd apps/web
-vercel
-
-# Follow prompts:
-# - Set up and deploy? Yes
-# - Which scope? Your username/org
-# - Link to existing project? No
-# - Project name: tokiflow (or your choice)
-# - Directory: ./
-# - Override settings? No
-```
-
-## Step 3: Configure Environment Variables
-
-Go to Vercel Dashboard → Your Project → Settings → Environment Variables
-
-### Required Variables
+In Vercel Dashboard → Settings → Environment Variables:
 
 ```env
-# Database (Supabase)
-DATABASE_URL=postgresql://postgres:[PASSWORD]@aws-1-us-east-2.pooler.supabase.com:6543/postgres?pgbouncer=true
-DIRECT_URL=postgresql://postgres:[PASSWORD]@aws-1-us-east-2.pooler.supabase.com:5432/postgres
+# Database (Neon/Supabase)
+DATABASE_URL=postgresql://user:pass@host:6543/db?pgbouncer=true
+DIRECT_URL=postgresql://user:pass@host:5432/db
 
 # NextAuth
-NEXTAUTH_URL=https://your-domain.vercel.app
-NEXTAUTH_SECRET=<generate with: openssl rand -base64 32>
+NEXTAUTH_URL=https://your-app.vercel.app
+NEXTAUTH_SECRET=<openssl rand -base64 32>
 
-# Google OAuth
-GOOGLE_CLIENT_ID=your_google_client_id_here
-GOOGLE_CLIENT_SECRET=your_google_client_secret_here
+# Google OAuth (optional)
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_secret
 
 # Email (Resend)
-RESEND_API_KEY=re_your_api_key_here
+RESEND_API_KEY=re_your_key
 EMAIL_FROM=noreply@yourdomain.com
 
-# Storage (S3/R2/Supabase)
-S3_REGION=us-east-1
-S3_ENDPOINT=https://your-project.supabase.co/storage/v1/s3
-S3_ACCESS_KEY_ID=your_access_key
-S3_SECRET_ACCESS_KEY=your_secret_key
-S3_BUCKET=pulseguard-outputs
-S3_FORCE_PATH_STYLE=true
-
 # Redis (Upstash)
-REDIS_URL=redis://default:[PASSWORD]@your-host.upstash.io:6379
+REDIS_URL=rediss://default:pass@host:6379
 
-# Sentry (Error Tracking)
-SENTRY_DSN=https://[key]@[org].ingest.sentry.io/[project]
-NEXT_PUBLIC_SENTRY_DSN=https://[key]@[org].ingest.sentry.io/[project]
-SENTRY_ORG=your-org-slug
-SENTRY_PROJECT=tokiflow-web
-SENTRY_AUTH_TOKEN=your_auth_token
+# Storage (R2/S3)
+S3_REGION=auto
+S3_ENDPOINT=https://account.r2.cloudflarestorage.com
+S3_BUCKET=saturn-outputs
+S3_ACCESS_KEY_ID=your_key
+S3_SECRET_ACCESS_KEY=your_secret
+S3_FORCE_PATH_STYLE=false
 
-# Stripe (Billing)
-STRIPE_SECRET_KEY=sk_test_your_key_here
-STRIPE_PUBLISHABLE_KEY=pk_test_your_key_here
-STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret
-STRIPE_PRICE_PRO=price_your_pro_price_id
-STRIPE_PRICE_BUSINESS=price_your_business_price_id
+# Stripe (optional, for billing)
+STRIPE_SECRET_KEY=sk_live_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+STRIPE_PRICE_PRO=price_...
+STRIPE_PRICE_BUSINESS=price_...
 
-# Slack (Optional)
+# Slack (optional, for alerts)
 SLACK_CLIENT_ID=your_client_id
-SLACK_CLIENT_SECRET=your_client_secret
+SLACK_CLIENT_SECRET=your_secret
 SLACK_SIGNING_SECRET=your_signing_secret
 
-# Site
-SITE_URL=https://your-domain.vercel.app
+# Sentry (optional, for monitoring)
+SENTRY_DSN=https://key@org.ingest.sentry.io/project
+NEXT_PUBLIC_SENTRY_DSN=https://key@org.ingest.sentry.io/project
 ```
 
-### Add Variables in Vercel
-
-1. Click "Add New" for each variable
-2. Select environments: **Production**, **Preview**, **Development**
-3. Save
-
-### Quick Add Script
+### Run Migrations
 
 ```bash
-# Using Vercel CLI (faster)
-vercel env add NEXTAUTH_SECRET
-# Paste value when prompted
-# Select: Production, Preview, Development
+# Set DATABASE_URL to production database
+export DATABASE_URL="postgresql://..."
 
-# Repeat for all variables...
-```
-
-## Step 4: Run Database Migrations
-
-```bash
-# Install dependencies
+# Run migrations
 cd packages/db
-npm install
-
-# Run migrations against Supabase
-DATABASE_URL="your-supabase-url" npx prisma migrate deploy
-
-# Seed database
-DATABASE_URL="your-supabase-url" npx prisma db seed
+npx prisma migrate deploy
 ```
 
-## Step 5: Redeploy
+### Redeploy
 
-After adding environment variables:
-
-### Via Dashboard
-1. Go to Deployments tab
-2. Click "..." on latest deployment
-3. Click "Redeploy"
-
-### Via CLI
+After adding env vars, trigger a new deployment in Vercel or:
 ```bash
 cd apps/web
 vercel --prod
 ```
 
-## Step 6: Configure Custom Domain (Optional)
+## Step 2: Deploy Worker
 
-### Add Domain
-
-1. Go to Project Settings → Domains
-2. Add your domain: `tokiflow.co`
-3. Configure DNS:
-
-```
-# For root domain
-A     @     76.76.21.21
-
-# Or use CNAME
-CNAME @     cname.vercel-dns.com
-
-# For www subdomain
-CNAME www   cname.vercel-dns.com
-```
-
-### Update Environment Variables
-
-After domain is configured:
+### Option A: Fly.io
 
 ```bash
-vercel env rm NEXTAUTH_URL production
-vercel env add NEXTAUTH_URL production
-# Enter: https://tokiflow.co
-
-vercel env rm SITE_URL production
-vercel env add SITE_URL production
-# Enter: https://tokiflow.co
-
-# Redeploy
-vercel --prod
-```
-
-### Update OAuth Redirect URIs
-
-1. Google OAuth Console:
-   - Add redirect URI: `https://tokiflow.co/api/auth/callback/google`
-
-2. Slack App Settings (if using):
-   - Add redirect URI: `https://tokiflow.co/api/slack/callback`
-   - Update request URLs
-
-3. Stripe Webhook:
-   - Add endpoint: `https://tokiflow.co/api/stripe/webhook`
-
-## Step 7: Deploy Worker
-
-The worker handles background jobs (alerts, emails, etc.)
-
-### Option A: Railway
-
-```bash
-# Install Railway CLI
-npm i -g @railway/cli
-
-# Login
-railway login
-
-# Create project
-railway init
-
-# Link to project
-cd apps/worker
-
-# Add environment variables (same as web app)
-railway variables set DATABASE_URL="your-db-url"
-railway variables set REDIS_URL="your-redis-url"
-railway variables set RESEND_API_KEY="your-api-key"
-railway variables set SENTRY_DSN="your-sentry-dsn"
-# ... add all required variables
-
-# Deploy
-railway up
-```
-
-### Option B: Render
-
-1. Go to https://render.com/dashboard
-2. Click "New +" → "Web Service"
-3. Connect GitHub repository
-4. Settings:
-   - Name: `tokiflow-worker`
-   - Root Directory: `apps/worker`
-   - Build Command: `bun install`
-   - Start Command: `bun run src/index.ts`
-5. Add environment variables (same as Vercel)
-6. Click "Create Web Service"
-
-### Option C: Fly.io
-
-```bash
-# Install Fly CLI
+# Install flyctl
 curl -L https://fly.io/install.sh | sh
 
 # Login
 fly auth login
 
-# Create app
+# Initialize (from apps/worker directory)
 cd apps/worker
-fly launch --name tokiflow-worker
+fly launch
 
-# Set secrets
-fly secrets set DATABASE_URL="your-db-url"
-fly secrets set REDIS_URL="your-redis-url"
-fly secrets set RESEND_API_KEY="your-api-key"
-# ... add all required variables
+# Configure secrets
+fly secrets set DATABASE_URL="postgresql://..."
+fly secrets set REDIS_URL="rediss://..."
+fly secrets set RESEND_API_KEY="re_..."
+# ... add all required env vars
 
 # Deploy
 fly deploy
 ```
 
-## Step 8: Verify Deployment
+### Option B: Render
+
+1. Go to https://render.com/new
+2. Choose "Background Worker"
+3. Connect GitHub repository
+4. Build Command: `cd apps/worker && npm install && npm run build`
+5. Start Command: `cd apps/worker && npm start`
+6. Add environment variables (same as Vercel)
+7. Deploy
+
+### Option C: Railway
+
+1. Go to https://railway.app/new
+2. Deploy from GitHub repo
+3. Root Directory: `apps/worker`
+4. Add environment variables
+5. Deploy
+
+## Step 3: External Services Setup
+
+### Neon (Database)
+
+1. Sign up at https://neon.tech
+2. Create project
+3. Copy connection strings (pooled & direct)
+4. Add to Vercel/Worker env vars
+
+### Upstash (Redis)
+
+1. Sign up at https://upstash.com
+2. Create Redis database
+3. Copy connection string (starts with `rediss://`)
+4. Add as REDIS_URL
+
+### Cloudflare R2 (Storage)
+
+1. Go to Cloudflare Dashboard → R2
+2. Create bucket: `saturn-outputs`
+3. Create API token with R2 access
+4. Add credentials to env vars
+
+### Resend (Email)
+
+1. Sign up at https://resend.com
+2. Get API key from dashboard
+3. Add to env vars as RESEND_API_KEY
+4. Verify domain (optional but recommended)
+
+### Stripe (Billing - Optional)
+
+1. Sign up at https://stripe.com
+2. Get API keys from dashboard
+3. Create products/prices
+4. Configure webhook endpoint: `https://your-app.vercel.app/api/webhooks/stripe`
+5. Add env vars
+
+## Verification
 
 ### Check Web App
-
 ```bash
-# Visit your deployment
-open https://your-app.vercel.app
-
-# Test pages
-# - Homepage: /
-# - Sign in: /auth/signin
-# - Dashboard: /app
-```
-
-### Check API
-
-```bash
-# Health check
 curl https://your-app.vercel.app/api/health
-
-# Test ping endpoint
-curl https://your-app.vercel.app/api/ping/test
+# Should return: {"status":"ok"}
 ```
 
 ### Check Worker
-
-```bash
-# View logs
-# Railway:
-railway logs
-
-# Render:
-# View in dashboard
-
-# Fly.io:
-fly logs
+View logs in Fly.io/Render/Railway dashboard. Should see:
+```
+Worker started
+Connected to Redis
+Connected to PostgreSQL
 ```
 
-### Test Alert Delivery
+### Test Ping API
+```bash
+# Create a monitor in dashboard, get token
+curl https://your-app.vercel.app/api/ping/YOUR_TOKEN
+# Should return: {"ok":true}
+```
 
-1. Create a test monitor in the dashboard
-2. Send a failing ping:
-   ```bash
-   curl "https://your-app.vercel.app/api/ping/YOUR_TOKEN?state=fail&exitCode=1"
-   ```
-3. Check email for alert
-4. Check Slack (if configured)
+## Post-Deployment
+
+### Security
+- [ ] Enable Vercel authentication (if needed)
+- [ ] Configure custom domain with SSL
+- [ ] Set up firewall rules
+- [ ] Enable rate limiting (configured in code)
+
+### Monitoring
+- [ ] Set up Sentry (see [SENTRY_SETUP.md](SENTRY_SETUP.md))
+- [ ] Configure uptime monitoring
+- [ ] Set up log aggregation
+- [ ] Create alerts for critical errors
+
+### Backups
+- [ ] Enable automated database backups (Neon/Supabase)
+- [ ] Configure R2 bucket lifecycle rules
+- [ ] Export and save environment variables
 
 ## Troubleshooting
 
-### Build Fails
+**Build fails on Vercel:**
+- Check build logs for specific errors
+- Ensure all dependencies are in package.json
+- Verify TypeScript builds locally: `npm run build`
 
-```
-Error: Module not found
-```
+**Database connection errors:**
+- Use pooled connection string for Vercel (port 6543)
+- Use direct connection string for migrations (port 5432)
+- Check firewall rules allow Vercel/Worker IPs
 
-**Solution:**
-- Verify `package.json` in `apps/web`
-- Run `npm install` locally to test
-- Check Vercel build logs for specific error
+**Worker not processing jobs:**
+- Verify REDIS_URL is correct
+- Check worker logs for connection errors
+- Ensure database migrations are applied
 
-### Environment Variables Not Working
+**Emails not sending:**
+- Verify RESEND_API_KEY is correct
+- Check domain verification status
+- Review Resend dashboard for errors
 
-```
-Error: NEXTAUTH_SECRET is not defined
-```
+## Scaling
 
-**Solution:**
-- Verify all variables are added in Vercel dashboard
-- Check variable names match exactly (case-sensitive)
-- Redeploy after adding variables
+### Horizontal Scaling
+- Web: Vercel scales automatically
+- Worker: Increase instance count in Fly.io/Render
+- Database: Upgrade Neon/Supabase plan
 
-### Database Connection Error
+### Performance Optimization
+- Enable Redis caching for monitor lookups
+- Add database read replicas (Neon/Supabase)
+- Configure CDN for static assets (Vercel handles this)
+- Optimize database queries with indexes
 
-```
-Error: Can't reach database server
-```
+## Cost Estimate (Monthly)
 
-**Solution:**
-- Verify DATABASE_URL is correct
-- Check Supabase firewall (should allow all IPs)
-- Use pooling URL (`pgbouncer=true`)
+**Small scale** (< 100 monitors):
+- Vercel: $0 (Hobby) or $20 (Pro)
+- Fly.io: $5-10 (256MB RAM)
+- Neon: $0 (Free) or $19 (Launch)
+- Upstash: $0 (Free tier)
+- R2: ~$1 (10GB storage)
+**Total: ~$0-50/month**
 
-### Prisma Migration Fails
+**Medium scale** (100-1000 monitors):
+- Vercel: $20 (Pro)
+- Fly.io: $20-40 (512MB-1GB RAM)
+- Neon: $69 (Scale)
+- Upstash: $10 (Pay-as-you-go)
+- R2: ~$5 (50GB storage)
+**Total: ~$124-144/month**
 
-```
-Error: Migration failed
-```
-
-**Solution:**
-```bash
-# Reset database (WARNING: deletes data)
-DATABASE_URL="your-url" npx prisma migrate reset
-
-# Or manually run migrations
-DATABASE_URL="your-url" npx prisma migrate deploy
-```
-
-### Worker Not Processing Jobs
-
-**Check:**
-1. Worker is running (check platform logs)
-2. REDIS_URL is correct
-3. Queue names match (`alerts`, `email`, `slack`)
-4. Test Redis connection:
-   ```bash
-   redis-cli -u $REDIS_URL ping
-   ```
-
-### Stripe Webhook Not Working
-
-```
-Error: No signatures found matching the expected signature
-```
-
-**Solution:**
-1. Verify webhook endpoint in Stripe dashboard
-2. Update STRIPE_WEBHOOK_SECRET
-3. Test webhook:
-   ```bash
-   stripe trigger payment_intent.succeeded
-   ```
-
-## Performance Optimization
-
-### Enable Caching
-
-Add to `vercel.json` in `apps/web`:
-
-```json
-{
-  "crons": [
-    {
-      "path": "/api/cron/evaluate",
-      "schedule": "* * * * *"
-    }
-  ],
-  "headers": [
-    {
-      "source": "/api/(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=60, stale-while-revalidate=120"
-        }
-      ]
-    }
-  ]
-}
-```
-
-### Enable Edge Functions
-
-For better performance, use Edge Runtime for API routes:
-
-```typescript
-// apps/web/src/app/api/your-route/route.ts
-export const runtime = 'edge';
-```
-
-### Database Query Optimization
-
-```bash
-# Add indexes
-# Check EXPLAIN ANALYZE for slow queries
-# Use connection pooling
-```
-
-## Monitoring
-
-### Vercel Analytics
-
-1. Go to Project → Analytics
-2. Enable Web Analytics
-3. View:
-   - Page views
-   - User geography
-   - Device breakdown
-
-### Sentry Error Tracking
-
-1. Errors automatically reported to Sentry
-2. View dashboard: https://sentry.io
-3. Set up alerts for critical errors
-
-### Uptime Monitoring
-
-Use Tokiflow to monitor itself!
-
-1. Create monitor in dashboard
-2. Ping URL: Your health check endpoint
-3. Get alerts if your app goes down
-
-## Cost Estimate
-
-### Free Tier (MVP)
-
-- Vercel: FREE (Pro: $20/mo)
-- Supabase: FREE (Pro: $25/mo)
-- Upstash Redis: FREE (Pro: $10/mo)
-- Resend: FREE (100 emails/day)
-- Sentry: FREE (5k errors/month)
-- Railway/Render Worker: FREE tier available
-- **Total: $0/month**
-
-### Paid Tier (Scale)
-
-- Vercel Pro: $20/mo
-- Supabase Pro: $25/mo
-- Upstash: $10/mo
-- Resend: $20/mo (unlimited)
-- Sentry Team: $26/mo
-- Railway: $10/mo (worker)
-- **Total: $111/month**
-
-## Next Steps
-
-After successful deployment:
-
-1. ✅ Set up custom domain
-2. ✅ Enable SSL/TLS (automatic on Vercel)
-3. ✅ Configure monitoring
-4. ✅ Set up Sentry alerts
-5. ✅ Test all features end-to-end
-6. ✅ Invite team members
-7. ✅ Launch! 🚀
-
-## Support
-
-Need help?
+## Resources
 
 - Vercel Docs: https://vercel.com/docs
-- Tokiflow Issues: https://github.com/your-repo/issues
-- Email: support@tokiflow.co
-
-Happy deploying! 🎉
-
+- Fly.io Docs: https://fly.io/docs
+- Neon Docs: https://neon.tech/docs
+- Upstash Docs: https://upstash.com/docs

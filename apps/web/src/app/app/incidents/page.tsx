@@ -1,18 +1,24 @@
 import { getServerSession } from 'next-auth';
 import { authOptions, getUserPrimaryOrg } from '@/lib/auth';
 import { prisma } from '@tokiflow/db';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+  SaturnCard,
+  SaturnCardHeader,
+  SaturnCardTitle,
+  SaturnCardDescription,
+  SaturnCardContent,
+  SaturnBadge,
+  SaturnTable,
+  SaturnTableHeader,
+  SaturnTableBody,
+  SaturnTableRow,
+  SaturnTableHead,
+  SaturnTableCell,
+  PageHeader,
+} from '@/components/saturn';
 import { format } from 'date-fns';
 import Link from 'next/link';
+import { PageHeaderWithBreadcrumbs } from '@/components/page-header-with-breadcrumbs';
 import { AcknowledgeButton } from '@/components/acknowledge-button';
 import { ResolveButton } from '@/components/resolve-button';
 
@@ -21,7 +27,12 @@ export default async function IncidentsPage() {
   const org = await getUserPrimaryOrg(session!.user.id);
 
   if (!org) {
-    return <div>No organization found</div>;
+    return (
+      <div className="text-center py-20">
+        <h1 className="text-2xl font-bold mb-4 text-[#37322F] font-serif">No Organization Found</h1>
+        <p className="text-[rgba(55,50,47,0.80)] font-sans">Please contact support.</p>
+      </div>
+    );
   }
 
   const incidents = await prisma.incident.findMany({
@@ -43,111 +54,112 @@ export default async function IncidentsPage() {
   const ackedIncidents = incidents.filter(i => i.status === 'ACKED');
   const resolvedIncidents = incidents.filter(i => i.status === 'RESOLVED');
 
-  const statusVariant = {
-    OPEN: 'destructive' as const,
-    ACKED: 'secondary' as const,
-    RESOLVED: 'default' as const,
+  const statusVariant = (status: string): 'error' | 'warning' | 'success' => {
+    if (status === 'OPEN') return 'error';
+    if (status === 'ACKED') return 'warning';
+    return 'success';
   };
 
-  const kindEmoji = {
+  const kindEmoji: Record<string, string> = {
     MISSED: '⏰',
     LATE: '🕐',
     FAIL: '❌',
     ANOMALY: '📊',
+    DEGRADED: '⚠️',
   };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Incidents</h1>
-        <p className="text-gray-600">Track and manage issues with your monitors</p>
-      </div>
+    <div className="space-y-8 sm:space-y-10 md:space-y-12">
+      <PageHeaderWithBreadcrumbs
+        title="Incidents"
+        description="Track and manage issues with your monitors"
+        breadcrumbs={[
+          { label: 'Dashboard', href: '/app' },
+          { label: 'Incidents' },
+        ]}
+      />
 
       {/* Status Overview */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-gray-600">Open</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-red-600">{openIncidents.length}</div>
-            <p className="text-xs text-gray-500 mt-1">Requiring attention</p>
-          </CardContent>
-        </Card>
+        <SaturnCard>
+          <div className="p-6">
+            <div className="text-[rgba(55,50,47,0.80)] text-sm font-medium font-sans mb-3">Open</div>
+            <div className="text-3xl font-bold text-red-600 font-sans">{openIncidents.length}</div>
+            <p className="text-xs text-[rgba(55,50,47,0.60)] font-sans mt-1">Requiring attention</p>
+          </div>
+        </SaturnCard>
 
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-gray-600">Acknowledged</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-yellow-600">{ackedIncidents.length}</div>
-            <p className="text-xs text-gray-500 mt-1">Being worked on</p>
-          </CardContent>
-        </Card>
+        <SaturnCard>
+          <div className="p-6">
+            <div className="text-[rgba(55,50,47,0.80)] text-sm font-medium font-sans mb-3">Acknowledged</div>
+            <div className="text-3xl font-bold text-yellow-600 font-sans">{ackedIncidents.length}</div>
+            <p className="text-xs text-[rgba(55,50,47,0.60)] font-sans mt-1">Being worked on</p>
+          </div>
+        </SaturnCard>
 
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-gray-600">Resolved</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-green-600">{resolvedIncidents.length}</div>
-            <p className="text-xs text-gray-500 mt-1">Fixed and closed</p>
-          </CardContent>
-        </Card>
+        <SaturnCard>
+          <div className="p-6">
+            <div className="text-[rgba(55,50,47,0.80)] text-sm font-medium font-sans mb-3">Resolved</div>
+            <div className="text-3xl font-bold text-green-600 font-sans">{resolvedIncidents.length}</div>
+            <p className="text-xs text-[rgba(55,50,47,0.60)] font-sans mt-1">Fixed and closed</p>
+          </div>
+        </SaturnCard>
       </div>
 
       {/* Incidents Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>All Incidents ({incidents.length})</CardTitle>
-          <CardDescription>Chronological list of all detected issues</CardDescription>
-        </CardHeader>
-        <CardContent>
+      <SaturnCard padding="none">
+        <SaturnCardHeader>
+          <SaturnCardTitle as="h2">All Incidents ({incidents.length})</SaturnCardTitle>
+          <SaturnCardDescription>Chronological list of all detected issues</SaturnCardDescription>
+        </SaturnCardHeader>
+        <SaturnCardContent>
           {incidents.length === 0 ? (
             <div className="text-center py-12">
               <div className="text-4xl mb-4">🎉</div>
-              <h3 className="text-lg font-semibold mb-2">No Incidents!</h3>
-              <p className="text-gray-600">All your monitors are running smoothly.</p>
+              <h3 className="text-lg font-semibold mb-2 text-[#37322F] font-serif">No Incidents!</h3>
+              <p className="text-[rgba(55,50,47,0.80)] font-sans">All your monitors are running smoothly.</p>
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Kind</TableHead>
-                  <TableHead>Monitor</TableHead>
-                  <TableHead>Summary</TableHead>
-                  <TableHead>Opened</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+            <SaturnTable>
+              <SaturnTableHeader>
+                <SaturnTableRow>
+                  <SaturnTableHead>Kind</SaturnTableHead>
+                  <SaturnTableHead>Monitor</SaturnTableHead>
+                  <SaturnTableHead>Summary</SaturnTableHead>
+                  <SaturnTableHead>Opened</SaturnTableHead>
+                  <SaturnTableHead>Status</SaturnTableHead>
+                  <SaturnTableHead className="text-right">Actions</SaturnTableHead>
+                </SaturnTableRow>
+              </SaturnTableHeader>
+              <SaturnTableBody>
                 {incidents.map((incident) => (
-                  <TableRow key={incident.id}>
-                    <TableCell>
+                  <SaturnTableRow key={incident.id}>
+                    <SaturnTableCell>
                       <div className="flex items-center gap-2">
                         <span>{kindEmoji[incident.kind]}</span>
-                        <Badge variant="destructive">{incident.kind}</Badge>
+                        <SaturnBadge variant="error" size="sm">{incident.kind}</SaturnBadge>
                       </div>
-                    </TableCell>
-                    <TableCell>
+                    </SaturnTableCell>
+                    <SaturnTableCell>
                       <Link
                         href={`/app/monitors/${incident.monitorId}`}
-                        className="hover:underline font-medium"
+                        className="hover:underline font-medium text-[#37322F]"
                       >
                         {incident.monitor.name}
                       </Link>
-                    </TableCell>
-                    <TableCell className="max-w-md truncate">{incident.summary}</TableCell>
-                    <TableCell className="text-sm">
+                    </SaturnTableCell>
+                    <SaturnTableCell className="max-w-md truncate text-[rgba(55,50,47,0.80)]">
+                      {incident.summary}
+                    </SaturnTableCell>
+                    <SaturnTableCell className="text-[#37322F]">
                       {format(incident.openedAt, 'MMM d, HH:mm')}
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={statusVariant[incident.status]}>
+                    </SaturnTableCell>
+                    <SaturnTableCell>
+                      <SaturnBadge variant={statusVariant(incident.status)} size="sm">
                         {incident.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
+                      </SaturnBadge>
+                    </SaturnTableCell>
+                    <SaturnTableCell className="text-right">
                       <div className="flex gap-2 justify-end">
                         {incident.status === 'OPEN' && (
                           <AcknowledgeButton incidentId={incident.id} />
@@ -156,15 +168,14 @@ export default async function IncidentsPage() {
                           <ResolveButton incidentId={incident.id} />
                         )}
                       </div>
-                    </TableCell>
-                  </TableRow>
+                    </SaturnTableCell>
+                  </SaturnTableRow>
                 ))}
-              </TableBody>
-            </Table>
+              </SaturnTableBody>
+            </SaturnTable>
           )}
-        </CardContent>
-      </Card>
+        </SaturnCardContent>
+      </SaturnCard>
     </div>
   );
 }
-

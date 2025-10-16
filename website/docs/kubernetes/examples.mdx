@@ -1,0 +1,235 @@
+---
+id: examples
+title: Kubernetes CronJob Examples
+description: Real-world examples of monitored CronJobs for backups, ETL, cleanup, and more
+keywords: [kubernetes examples, cronjob examples, backups, etl, cleanup]
+---
+
+# Kubernetes CronJob Examples
+
+Real-world examples of Saturn-monitored CronJobs.
+
+## Database Backup
+
+\`\`\`yaml
+# Daily PostgreSQL backup at 3 AM
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: postgres-backup
+spec:
+  schedule: "0 3 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: backup
+            image: postgres:15
+            command: ["sh", "-c"]
+            args:
+            - |
+              pg_dump -h $DB_HOST -U $DB_USER $DB_NAME | gzip > /backup/$(date +%Y%m%d).sql.gz
+              echo "Backup size: $(du -h /backup/*.sql.gz | tail -1)"
+            env:
+            - name: DB_HOST
+              value: "postgres.default.svc.cluster.local"
+            - name: DB_USER
+              value: "backup_user"
+            - name: DB_NAME
+              value: "production"
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secrets
+                  key: password
+            volumeMounts:
+            - name: backup-storage
+              mountPath: /backup
+          
+          - name: saturn-sidecar
+            image: saturn/k8s-sidecar:1.0.0
+            env:
+            - name: SATURN_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: saturn-secrets
+                  key: token
+            - name: SATURN_MONITOR_ID
+              value: "mon_postgres_backup"
+            - name: SATURN_CAPTURE_OUTPUT
+              value: "true"
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          
+          volumes:
+          - name: backup-storage
+            persistentVolumeClaim:
+              claimName: postgres-backups
+          
+          restartPolicy: OnFailure
+          serviceAccountName: saturn-monitor
+\`\`\`
+
+## ETL Pipeline
+
+\`\`\`yaml
+# Hourly data sync
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: data-sync
+spec:
+  schedule: "0 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: sync
+            image: company/data-sync:latest
+            command: ["python3", "sync.py"]
+            env:
+            - name: SOURCE_DB
+              value: "mysql://source/db"
+            - name: TARGET_DB
+              value: "postgres://target/db"
+            resources:
+              limits:
+                cpu: 2000m
+                memory: 2Gi
+              requests:
+                cpu: 1000m
+                memory: 1Gi
+          
+          - name: saturn-sidecar
+            image: saturn/k8s-sidecar:1.0.0
+            env:
+            - name: SATURN_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: saturn-secrets
+                  key: token
+            - name: SATURN_MONITOR_ID
+              value: "mon_data_sync"
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          
+          restartPolicy: OnFailure
+          serviceAccountName: saturn-monitor
+\`\`\`
+
+## Log Cleanup
+
+\`\`\`yaml
+# Daily cleanup at midnight
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: log-cleanup
+spec:
+  schedule: "0 0 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: cleanup
+            image: busybox
+            command: ["sh", "-c"]
+            args:
+            - |
+              find /logs -name "*.log" -mtime +30 -delete
+              echo "Deleted logs older than 30 days"
+            volumeMounts:
+            - name: logs
+              mountPath: /logs
+          
+          - name: saturn-sidecar
+            image: saturn/k8s-sidecar:1.0.0
+            env:
+            - name: SATURN_TOKEN
+              value: "pg_your_token"
+            - name: SATURN_MONITOR_ID
+              value: "mon_log_cleanup"
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          
+          volumes:
+          - name: logs
+            hostPath:
+              path: /var/log/app
+          
+          restartPolicy: OnFailure
+          serviceAccountName: saturn-monitor
+\`\`\`
+
+## Certificate Renewal
+
+\`\`\`yaml
+# Weekly cert-manager renewal check
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: cert-renewal-check
+spec:
+  schedule: "0 0 * * 0"  # Sunday midnight
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: check
+            image: bitnami/kubectl:latest
+            command: ["sh", "-c"]
+            args:
+            - |
+              kubectl get certificates -A -o json | \
+                jq '.items[] | select(.status.renewalTime) | 
+                    {name: .metadata.name, renewalTime: .status.renewalTime}'
+          
+          - name: saturn-sidecar
+            image: saturn/k8s-sidecar:1.0.0
+            env:
+            - name: SATURN_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: saturn-secrets
+                  key: token
+            - name: SATURN_MONITOR_ID
+              value: "mon_cert_renewal"
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          
+          restartPolicy: OnFailure
+          serviceAccountName: saturn-monitor-admin
+\`\`\`
+
+## Next Steps
+
+- [Sidecar Architecture](./sidecar) — How the sidecar works
+- [Helm Values](./helm-values) — Configuration reference

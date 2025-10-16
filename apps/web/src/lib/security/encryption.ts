@@ -1,134 +1,126 @@
 /**
- * Secret Encryption Service
- * 
- * Encrypts sensitive data at rest (API keys, tokens, credentials)
- * Uses AES-256-GCM for authenticated encryption
+ * Security encryption utilities
+ * Implements AES-256-GCM encryption for secrets and bcrypt for passwords
  */
 
 import crypto from 'crypto';
+import bcrypt from 'bcryptjs';
 
+// Encryption settings
 const ALGORITHM = 'aes-256-gcm';
-const IV_LENGTH = 16; // 128-bit IV
-const AUTH_TAG_LENGTH = 16; // 128-bit auth tag
-const SALT_LENGTH = 32; // 256-bit salt
+const IV_LENGTH = 16;
+const SALT_ROUNDS = 12;
+const TAG_LENGTH = 16;
 
 /**
- * Get encryption key from environment
- * Should be a 32-byte (256-bit) hex string
+ * Get encryption key from environment or generate one
+ * In production, this should come from a secure key management service
  */
 function getEncryptionKey(): Buffer {
-  const keyHex = process.env.ENCRYPTION_KEY;
+  const key = process.env.ENCRYPTION_KEY;
   
-  if (!keyHex) {
-    if (process.env.NODE_ENV === 'production') {
-      throw new Error('ENCRYPTION_KEY environment variable is required in production');
-    }
-    // Development fallback (DO NOT use in production)
-    console.warn('⚠️  Using fallback encryption key. Set ENCRYPTION_KEY in production!');
-    return crypto.scryptSync('dev-secret-key-change-in-prod', 'salt', 32);
+  if (!key) {
+    // For development/testing only - generate a key
+    console.warn('ENCRYPTION_KEY not set, using generated key (NOT FOR PRODUCTION)');
+    return crypto.randomBytes(32);
   }
   
-  // Derive key using PBKDF2
-  return crypto.scryptSync(keyHex, 'tokiflow-salt-v1', 32);
+  // Key should be 32 bytes for AES-256
+  return Buffer.from(key, 'hex');
 }
 
 /**
- * Encrypt a secret value
- * 
- * @param plaintext - The secret to encrypt
- * @returns Encrypted value as base64 string (format: iv:authTag:ciphertext)
+ * Encrypt sensitive data using AES-256-GCM
+ * Returns base64-encoded string with format: iv:authTag:encrypted
  */
-export function encryptSecret(plaintext: string): string {
-  if (!plaintext) return '';
+export function encrypt(text: string): string {
+  const key = getEncryptionKey();
+  const iv = crypto.randomBytes(IV_LENGTH);
   
-  try {
-    const key = getEncryptionKey();
-    const iv = crypto.randomBytes(IV_LENGTH);
-    
-    const cipher = crypto.createCipheriv(ALGORITHM, key, iv);
-    
-    let ciphertext = cipher.update(plaintext, 'utf8', 'base64');
-    ciphertext += cipher.final('base64');
-    
-    const authTag = cipher.getAuthTag();
-    
-    // Format: iv:authTag:ciphertext (all base64)
-    return `${iv.toString('base64')}:${authTag.toString('base64')}:${ciphertext}`;
-  } catch (error) {
-    console.error('Encryption error:', error);
-    throw new Error('Failed to encrypt secret');
-  }
+  const cipher = crypto.createCipheriv(ALGORITHM, key, iv);
+  
+  let encrypted = cipher.update(text, 'utf8', 'hex');
+  encrypted += cipher.final('hex');
+  
+  const authTag = cipher.getAuthTag();
+  
+  // Format: iv:authTag:encrypted (all hex-encoded)
+  return `${iv.toString('hex')}:${authTag.toString('hex')}:${encrypted}`;
 }
 
 /**
- * Decrypt a secret value
- * 
- * @param encrypted - Encrypted value from encryptSecret()
- * @returns Decrypted plaintext
+ * Decrypt data encrypted with encrypt()
  */
-export function decryptSecret(encrypted: string): string {
-  if (!encrypted) return '';
-  
+export function decrypt(encryptedData: string): string {
   try {
     const key = getEncryptionKey();
-    const parts = encrypted.split(':');
+    const parts = encryptedData.split(':');
     
     if (parts.length !== 3) {
-      throw new Error('Invalid encrypted format');
+      throw new Error('Invalid encrypted data format');
     }
     
-    const [ivBase64, authTagBase64, ciphertext] = parts;
-    const iv = Buffer.from(ivBase64, 'base64');
-    const authTag = Buffer.from(authTagBase64, 'base64');
+    const [ivHex, authTagHex, encrypted] = parts;
+    const iv = Buffer.from(ivHex, 'hex');
+    const authTag = Buffer.from(authTagHex, 'hex');
     
     const decipher = crypto.createDecipheriv(ALGORITHM, key, iv);
     decipher.setAuthTag(authTag);
     
-    let plaintext = decipher.update(ciphertext, 'base64', 'utf8');
-    plaintext += decipher.final('utf8');
+    let decrypted = decipher.update(encrypted, 'hex', 'utf8');
+    decrypted += decipher.final('utf8');
     
-    return plaintext;
+    return decrypted;
   } catch (error) {
-    console.error('Decryption error:', error);
-    throw new Error('Failed to decrypt secret');
+    throw new Error('Failed to decrypt data');
   }
 }
 
 /**
- * Hash a value (one-way)
- * Useful for storing API key hashes for validation
+ * Hash password using bcrypt
  */
-export function hashSecret(secret: string): string {
-  return crypto
-    .createHash('sha256')
-    .update(secret)
-    .digest('hex');
+export async function hashPassword(password: string): Promise<string> {
+  return bcrypt.hash(password, SALT_ROUNDS);
+}
+
+/**
+ * Verify password against hash
+ */
+export async function verifyPassword(password: string, hash: string): Promise<boolean> {
+  try {
+    return await bcrypt.compare(password, hash);
+  } catch (error) {
+    return false;
+  }
 }
 
 /**
  * Generate a secure random token
- * 
- * @param length - Length in bytes (default 32)
- * @returns Base64url-encoded random token
  */
 export function generateSecureToken(length: number = 32): string {
-  return crypto
-    .randomBytes(length)
-    .toString('base64url'); // URL-safe base64
+  return crypto.randomBytes(length).toString('hex');
 }
 
 /**
- * Generate an API key with prefix
- * Format: prefix_randomBase64
+ * Generate API key with prefix
  */
-export function generateApiKey(prefix: string = 'tk'): string {
-  const random = generateSecureToken(24);
-  return `${prefix}_${random}`;
+export function generateApiKey(prefix: string = 'sk'): string {
+  const randomPart = generateSecureToken(32);
+  return `${prefix}_${randomPart}`;
 }
 
 /**
- * Constant-time string comparison
- * Prevents timing attacks
+ * Hash sensitive data for deduplication (one-way)
+ */
+export function hashForDeduplication(data: string): string {
+  return crypto
+    .createHash('sha256')
+    .update(data)
+    .digest('hex');
+}
+
+/**
+ * Constant-time string comparison to prevent timing attacks
  */
 export function constantTimeCompare(a: string, b: string): boolean {
   if (a.length !== b.length) {
@@ -142,56 +134,39 @@ export function constantTimeCompare(a: string, b: string): boolean {
 }
 
 /**
- * Encrypt sensitive JSON object
- */
-export function encryptJSON(obj: any): string {
-  return encryptSecret(JSON.stringify(obj));
-}
-
-/**
- * Decrypt sensitive JSON object
- */
-export function decryptJSON<T = any>(encrypted: string): T {
-  const decrypted = decryptSecret(encrypted);
-  return JSON.parse(decrypted);
-}
-
-/**
- * Mask sensitive value for logging
- * Shows first 4 and last 4 characters
+ * Mask sensitive string for display (e.g., API keys)
  */
 export function maskSecret(secret: string, visibleChars: number = 4): string {
-  if (!secret || secret.length <= visibleChars * 2) {
-    return '***';
+  if (secret.length <= visibleChars) {
+    return '*'.repeat(secret.length);
   }
   
-  const start = secret.substring(0, visibleChars);
-  const end = secret.substring(secret.length - visibleChars);
-  const masked = '*'.repeat(Math.max(8, secret.length - visibleChars * 2));
+  const prefix = secret.substring(0, Math.floor(visibleChars / 2));
+  const suffix = secret.substring(secret.length - Math.floor(visibleChars / 2));
+  const masked = '*'.repeat(Math.min(secret.length - visibleChars, 12));
   
-  return `${start}${masked}${end}`;
+  return `${prefix}${masked}${suffix}`;
 }
 
 /**
- * Generate encryption key (run once, store in env)
+ * Generate HMAC signature for webhook verification
  */
-export function generateEncryptionKey(): string {
-  return crypto.randomBytes(32).toString('hex');
+export function generateHmacSignature(payload: string, secret: string): string {
+  return crypto
+    .createHmac('sha256', secret)
+    .update(payload)
+    .digest('hex');
 }
 
 /**
- * Check if value is encrypted (has correct format)
+ * Verify HMAC signature
  */
-export function isEncrypted(value: string): boolean {
-  if (!value) return false;
-  const parts = value.split(':');
-  return parts.length === 3 && parts.every(part => {
-    try {
-      Buffer.from(part, 'base64');
-      return true;
-    } catch {
-      return false;
-    }
-  });
+export function verifyHmacSignature(
+  payload: string,
+  signature: string,
+  secret: string
+): boolean {
+  const expectedSignature = generateHmacSignature(payload, secret);
+  return constantTimeCompare(signature, expectedSignature);
 }
 

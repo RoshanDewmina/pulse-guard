@@ -8,6 +8,7 @@ import { calculateHealthScore, calculateUptime, calculateMTBF, calculateMTTR, ge
 import { calculatePercentile } from '@/lib/analytics/welford';
 import { TrendingUp, TrendingDown, Activity, Clock, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
+import { PageHeaderWithBreadcrumbs } from '@/components/page-header-with-breadcrumbs';
 
 export default async function MonitorAnalyticsPage({
   params,
@@ -82,14 +83,17 @@ export default async function MonitorAnalyticsPage({
   }
 
   return (
-    <div className="container mx-auto p-6">
-      <div className="mb-6">
-        <Link href={`/app/monitors/${monitor.id}`} className="text-sm text-gray-600 hover:text-gray-900 mb-2 inline-block">
-          ← Back to Monitor
-        </Link>
-        <h1 className="text-3xl font-bold">{monitor.name}</h1>
-        <p className="text-gray-600 mt-1">Performance Analytics & Insights</p>
-      </div>
+    <div className="container mx-auto p-6 space-y-8">
+      <PageHeaderWithBreadcrumbs
+        title="Analytics & Insights"
+        description={`Performance metrics for ${monitor.name}`}
+        breadcrumbs={[
+          { label: 'Dashboard', href: '/app' },
+          { label: 'Monitors', href: '/app/monitors' },
+          { label: monitor.name, href: `/app/monitors/${monitor.id}` },
+          { label: 'Analytics' },
+        ]}
+      />
 
       {/* Health Score */}
       <Card className="mb-6">
@@ -315,7 +319,7 @@ export default async function MonitorAnalyticsPage({
 
             <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-md">
               <p className="text-sm text-blue-900">
-                <strong>Anomaly Detection Active:</strong> Tokiflow automatically detects when this job runs unusually slow (&gt;3σ from mean).
+                <strong>Anomaly Detection Active:</strong> Saturn automatically detects when this job runs unusually slow (&gt;3σ from mean).
                 {monitor.durationCount < 10 && ` Needs ${10 - monitor.durationCount} more runs to establish baseline.`}
               </p>
             </div>

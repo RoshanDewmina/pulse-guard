@@ -1,16 +1,16 @@
 // Server-side JSON-LD structured data components for SEO
 
 export function OrganizationJsonLd() {
-  const site = process.env.SITE_URL ?? 'https://tokiflow.co';
+  const site = process.env.SITE_URL ?? 'https://Saturn.co';
   const json = {
     '@context': 'https://schema.org',
     '@type': 'Organization',
-    name: 'Tokiflow',
+    name: 'Saturn',
     url: site,
     logo: `${site}/icons/icon-512.png`,
     sameAs: [
-      'https://x.com/tokiflow',
-      'https://github.com/tokiflow'
+      'https://x.com/Saturn',
+      'https://github.com/Saturn'
     ]
   };
   
@@ -23,11 +23,11 @@ export function OrganizationJsonLd() {
 }
 
 export function SoftwareApplicationJsonLd() {
-  const site = process.env.SITE_URL ?? 'https://tokiflow.co';
+  const site = process.env.SITE_URL ?? 'https://Saturn.co';
   const json = {
     '@context': 'https://schema.org',
     '@type': 'SoftwareApplication',
-    name: 'Tokiflow',
+    name: 'Saturn',
     applicationCategory: 'DeveloperApplication',
     operatingSystem: 'Web',
     url: site,
@@ -68,5 +68,6 @@ export function FAQJsonLd({ faqs }: { faqs: Array<{ question: string; answer: st
     />
   );
 }
+
 
 

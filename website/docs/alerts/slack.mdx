@@ -1,0 +1,322 @@
+---
+id: slack
+title: Slack Alerts
+description: Rich Block Kit notifications with OAuth, slash commands, and threaded updates
+keywords: [slack, slack bot, block kit, oauth, slash commands, notifications]
+---
+
+# Slack Alerts
+
+Saturn integrates with Slack using OAuth for rich, interactive notifications with Block Kit formatting and slash commands.
+
+## Setup
+
+### 1. Install Slack App
+
+1. Go to **Settings → Integrations → Slack**
+2. Click **Add to Slack**
+3. Choose workspace and channel
+4. Authorize permissions
+5. Test connection
+
+### 2. Required Scopes
+
+Saturn requests these OAuth scopes:
+
+- `chat:write` - Send messages
+- `chat:write.public` - Post to any channel
+- `channels:read` - List channels
+- `users:read` - Display user names
+- `commands` - Slash commands (optional)
+
+## Message Format
+
+Saturn uses Block Kit for rich formatting:
+
+```
+🔴 FAIL: Database Backup
+
+Monitor: Database Backup
+Status: OPEN • Severity: HIGH
+Time: 2025-10-14 03:15:23 UTC
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+💥 Exit Code: 1
+⏱ Duration: 3.2s (expected: ~12m)
+
+Error Output:
+```
+ERROR: Connection to database failed
+Host: db.prod.example.com:5432
+Reason: Connection timeout
+```
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[View Incident] [Acknowledge] [View Monitor]
+```
+
+## Threaded Updates
+
+Incident updates are posted as thread replies:
+
+```
+Initial Message:
+┌─────────────────────────────────────┐
+│ 🔴 FAIL: Database Backup            │
+│ Time: 03:15 UTC                     │
+│ [View] [Acknowledge]                │
+└─────────────────────────────────────┘
+  └─ 💬 3 replies
+
+Thread Replies:
+┌─────────────────────────────────────┐
+│ 👤 Alice acknowledged at 03:17      │
+└─────────────────────────────────────┘
+┌─────────────────────────────────────┐
+│ 📝 Note added: Checking DB logs     │
+└─────────────────────────────────────┘
+┌─────────────────────────────────────┐
+│ ✅ Incident resolved at 03:28       │
+│ MTTR: 13 minutes                    │
+└─────────────────────────────────────┘
+```
+
+## Slash Commands
+
+Use Saturn commands in Slack:
+
+### `/saturn status`
+
+```
+/saturn status
+
+Response:
+═══════════════════════════════════════
+Saturn Status
+═══════════════════════════════════════
+
+📊 Overall Health: 87 (B+)
+✓ Healthy: 42 monitors
+⚠ Warning: 3 monitors
+✗ Critical: 0 monitors
+
+🚨 Open Incidents: 2
+- LATE: API Sync (5 min ago)
+- ANOMALY: ETL Pipeline (12 min ago)
+
+[View Dashboard]
+```
+
+### `/saturn ack <incident_id>`
+
+```
+/saturn ack inc_abc123
+
+Response: ✓ Acknowledged incident inc_abc123
+```
+
+### `/saturn monitors`
+
+```
+/saturn monitors
+
+Response:
+Recent Monitors:
+1. Database Backup - ✓ OK (A, 95)
+2. API Health Check - ✓ OK (A+, 98)
+3. ETL Pipeline - ⚠ ANOMALY (B, 84)
+
+[View All Monitors]
+```
+
+## Interactive Buttons
+
+Click buttons directly in Slack:
+
+```json
+{
+  "type": "actions",
+  "elements": [
+    {
+      "type": "button",
+      "text": {"type": "plain_text", "text": "Acknowledge"},
+      "action_id": "ack_incident",
+      "value": "inc_abc123",
+      "style": "primary"
+    },
+    {
+      "type": "button",
+      "text": {"type": "plain_text", "text": "View Incident"},
+      "url": "https://saturn.example.com/incidents/inc_abc123"
+    },
+    {
+      "type": "button",
+      "text": {"type": "plain_text", "text": "Suppress 1h"},
+      "action_id": "suppress_incident",
+      "value": "inc_abc123:3600"
+    }
+  ]
+}
+```
+
+## Multiple Channels
+
+Route different incidents to different channels:
+
+```json
+{
+  "slack": {
+    "channels": [
+      {
+        "name": "#alerts-critical",
+        "channelId": "C01ABC123",
+        "rules": {
+          "severity": ["HIGH"],
+          "types": ["MISSED", "FAIL"]
+        }
+      },
+      {
+        "name": "#alerts-warnings",
+        "channelId": "C02DEF456",
+        "rules": {
+          "severity": ["MEDIUM", "LOW"],
+          "types": ["LATE", "ANOMALY"]
+        }
+      }
+    ]
+  }
+}
+```
+
+## Mentions and Notifications
+
+### @mentions
+
+```json
+{
+  "slack": {
+    "mentions": {
+      "FAIL": ["@oncall"],
+      "MISSED": ["@oncall"],
+      "LATE": [],
+      "ANOMALY": []
+    }
+  }
+}
+```
+
+### User Group Mentions
+
+```
+🔴 FAIL: Production API
+
+<!subteam^S01ABC123|@oncall> Database backup failed
+```
+
+### @channel / @here
+
+```json
+{
+  "slack": {
+    "channelMentions": {
+      "enabled": true,
+      "severity": ["HIGH"]  // Only for critical
+    }
+  }
+}
+```
+
+## Rate Limiting
+
+Slack enforces rate limits:
+
+- **1 message/second** per channel
+- **Tier 2 methods**: 20 req/min
+- **Tier 3 methods**: 50 req/min
+
+Saturn automatically:
+- Queues messages if rate limited
+- Retries with exponential backoff
+- Batches updates when possible
+
+## Testing
+
+Send test message:
+
+```bash
+curl -X POST https://api.saturn.example.com/api/alerts/slack/test \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -d '{"channelId": "C01ABC123"}'
+```
+
+## Troubleshooting
+
+### Not Receiving Messages
+
+**Check**:
+1. Slack app installed?
+2. Bot invited to channel? (`/invite @Saturn`)
+3. Routing rules match?
+4. Channel ID correct?
+
+### Permission Errors
+
+**Error**: `not_in_channel`
+
+**Fix**: Invite bot to channel:
+```
+/invite @Saturn
+```
+
+### Messages Not Threaded
+
+**Cause**: Original message deleted or thread limit reached
+
+**Solution**: Messages fall back to new top-level messages
+
+## Best Practices
+
+### ✅ Do
+
+1. **Separate channels** by severity
+2. **Use threads** to reduce noise
+3. **Invite bot** to all alert channels
+4. **Test routing** before going live
+5. **Document escalation** in channel topic
+
+### ❌ Don't
+
+1. **@channel everything** - alert fatigue
+2. **Mix priorities** in one channel
+3. **Delete bot messages** - breaks threading
+4. **Ignore rate limits** - messages will queue
+
+## API Reference
+
+```bash
+# Add Slack channel
+POST /api/alerts/slack/channels
+Body: {
+  "channelId": "C01ABC123",
+  "rules": {...}
+}
+
+# Update routing
+PATCH /api/alerts/slack/channels/<CHANNEL_ID>
+
+# Remove channel
+DELETE /api/alerts/slack/channels/<CHANNEL_ID>
+
+# Send test
+POST /api/alerts/slack/test
+Body: {"channelId": "C01ABC123"}
+```
+
+## Next Steps
+
+- [Discord Alerts](./discord) — Discord webhook integration
+- [Email Alerts](./email) — Email notifications
+- [Webhooks](./webhooks) — Custom integrations
+

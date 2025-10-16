@@ -1,11 +1,10 @@
 import { getServerSession } from 'next-auth';
 import { authOptions, getUserPrimaryOrg } from '@/lib/auth';
 import { prisma } from '@tokiflow/db';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
-import { Activity, AlertCircle, CheckCircle2, Clock, Plus } from 'lucide-react';
+import { Activity, AlertCircle, CheckCircle2, Clock, Plus, BarChart3, Bell, Settings } from 'lucide-react';
+import { PageHeaderWithBreadcrumbs } from '@/components/page-header-with-breadcrumbs';
+import { SaturnCard, SaturnButton } from '@/components/saturn';
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
@@ -14,8 +13,8 @@ export default async function DashboardPage() {
   if (!org) {
     return (
       <div className="text-center py-20">
-        <h1 className="text-2xl font-bold mb-4">No Organization Found</h1>
-        <p className="text-gray-600">Please contact support.</p>
+        <h1 className="text-2xl font-bold mb-4 text-[#37322F] font-serif">No Organization Found</h1>
+        <p className="text-[rgba(55,50,47,0.80)] font-sans">Please contact support.</p>
       </div>
     );
   }
@@ -65,151 +64,219 @@ export default async function DashboardPage() {
   });
 
   return (
-    <div className="space-y-8">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold">{org.name}</h1>
-          <p className="text-gray-600">Monitor your jobs and get instant alerts</p>
-        </div>
-        <Link href="/app/monitors/new">
-          <Button>
-            <Plus className="w-4 h-4 mr-2" />
-            Create Monitor
-          </Button>
+    <div className="space-y-8 sm:space-y-10 md:space-y-12">
+      <PageHeaderWithBreadcrumbs
+        title={org.name}
+        description="Monitor your jobs and get instant alerts"
+        breadcrumbs={[
+          { label: 'Dashboard' },
+        ]}
+        action={
+          <Link href="/app/monitors/new" className="w-full sm:w-auto">
+            <SaturnButton className="w-full sm:w-auto sm:min-w-[160px] whitespace-nowrap">
+            icon={<Plus className="w-4 h-4" />}
+              Create Monitor
+            </SaturnButton>
+          </Link>
+        }
+      />
+
+      {/* Quick Navigation */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Link href="/app/monitors" className="group">
+          <SaturnCard className="hover:shadow-md transition-all cursor-pointer">
+            <div className="p-6">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 bg-[#37322F] rounded-lg flex items-center justify-center">
+                  <Activity className="h-5 w-5 text-white" />
+                </div>
+                <div className="text-lg font-semibold text-[#37322F] font-sans">Monitors</div>
+              </div>
+              <div className="text-sm text-[rgba(55,50,47,0.70)] font-sans">View and manage all your monitors</div>
+            </div>
+          </SaturnCard>
+        </Link>
+
+        <Link href="/app/analytics" className="group">
+          <SaturnCard className="hover:shadow-md transition-all cursor-pointer">
+            <div className="p-6">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 bg-[#37322F] rounded-lg flex items-center justify-center">
+                  <BarChart3 className="h-5 w-5 text-white" />
+                </div>
+                <div className="text-lg font-semibold text-[#37322F] font-sans">Analytics</div>
+              </div>
+              <div className="text-sm text-[rgba(55,50,47,0.70)] font-sans">View performance insights and metrics</div>
+            </div>
+          </SaturnCard>
+        </Link>
+
+        <Link href="/app/incidents" className="group">
+          <SaturnCard className="hover:shadow-md transition-all cursor-pointer">
+            <div className="p-6">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 bg-[#37322F] rounded-lg flex items-center justify-center">
+                  <Bell className="h-5 w-5 text-white" />
+                </div>
+                <div className="text-lg font-semibold text-[#37322F] font-sans">Incidents</div>
+              </div>
+              <div className="text-sm text-[rgba(55,50,47,0.70)] font-sans">Track and resolve issues</div>
+            </div>
+          </SaturnCard>
+        </Link>
+
+        <Link href="/app/settings" className="group">
+          <SaturnCard className="hover:shadow-md transition-all cursor-pointer">
+            <div className="p-6">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 bg-[#37322F] rounded-lg flex items-center justify-center">
+                  <Settings className="h-5 w-5 text-white" />
+                </div>
+                <div className="text-lg font-semibold text-[#37322F] font-sans">Settings</div>
+              </div>
+              <div className="text-sm text-[rgba(55,50,47,0.70)] font-sans">Configure your account</div>
+            </div>
+          </SaturnCard>
         </Link>
       </div>
 
       {/* Status Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Healthy</CardTitle>
-            <CheckCircle2 className="h-4 w-4 text-green-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{statusCounts.ok}</div>
-            <p className="text-xs text-muted-foreground">monitors running smoothly</p>
-          </CardContent>
-        </Card>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Healthy Card */}
+        <SaturnCard>
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="text-[rgba(55,50,47,0.80)] text-sm font-medium font-sans">Healthy</div>
+              <CheckCircle2 className="h-5 w-5 text-green-600" />
+            </div>
+            <div className="text-3xl font-bold text-[#37322F] font-sans">{statusCounts.ok}</div>
+            <div className="text-xs text-[rgba(55,50,47,0.60)] font-sans mt-2">monitors running smoothly</div>
+          </div>
+        </SaturnCard>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Late</CardTitle>
-            <Clock className="h-4 w-4 text-yellow-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{statusCounts.late}</div>
-            <p className="text-xs text-muted-foreground">jobs completed late</p>
-          </CardContent>
-        </Card>
+        {/* Late Card */}
+        <SaturnCard>
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="text-[rgba(55,50,47,0.80)] text-sm font-medium font-sans">Late</div>
+              <Clock className="h-5 w-5 text-yellow-600" />
+            </div>
+            <div className="text-3xl font-bold text-[#37322F] font-sans">{statusCounts.late}</div>
+            <div className="text-xs text-[rgba(55,50,47,0.60)] font-sans mt-2">jobs completed late</div>
+          </div>
+        </SaturnCard>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Missed</CardTitle>
-            <AlertCircle className="h-4 w-4 text-orange-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{statusCounts.missed}</div>
-            <p className="text-xs text-muted-foreground">jobs didn&apos;t run</p>
-          </CardContent>
-        </Card>
+        {/* Missed Card */}
+        <SaturnCard>
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="text-[rgba(55,50,47,0.80)] text-sm font-medium font-sans">Missed</div>
+              <AlertCircle className="h-5 w-5 text-orange-600" />
+            </div>
+            <div className="text-3xl font-bold text-[#37322F] font-sans">{statusCounts.missed}</div>
+            <div className="text-xs text-[rgba(55,50,47,0.60)] font-sans mt-2">jobs didn&apos;t run</div>
+          </div>
+        </SaturnCard>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Failing</CardTitle>
-            <Activity className="h-4 w-4 text-red-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{statusCounts.failing}</div>
-            <p className="text-xs text-muted-foreground">jobs with failures</p>
-          </CardContent>
-        </Card>
+        {/* Failing Card */}
+        <SaturnCard>
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="text-[rgba(55,50,47,0.80)] text-sm font-medium font-sans">Failing</div>
+              <AlertCircle className="h-5 w-5 text-red-600" />
+            </div>
+            <div className="text-3xl font-bold text-[#37322F] font-sans">{statusCounts.failing}</div>
+            <div className="text-xs text-[rgba(55,50,47,0.60)] font-sans mt-2">monitors with errors</div>
+          </div>
+        </SaturnCard>
       </div>
 
       {/* Recent Monitors */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Monitors</CardTitle>
-          <CardDescription>Your most recently updated monitors</CardDescription>
-        </CardHeader>
-        <CardContent>
+      <SaturnCard>
+        <div className="p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-semibold text-[#37322F] font-serif">Recent Monitors</h2>
+            <Link href="/app/monitors">
+              <SaturnButton variant="ghost" size="sm">View All</SaturnButton>
+            </Link>
+          </div>
+          
           {monitors.length === 0 ? (
-            <div className="text-center py-8 text-gray-600">
-              <p className="mb-4">No monitors yet. Create your first one!</p>
+            <div className="text-center py-8">
+              <p className="text-[rgba(55,50,47,0.60)] font-sans mb-4">No monitors yet</p>
               <Link href="/app/monitors/new">
-                <Button>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Create Monitor
-                </Button>
+                <SaturnButton>Create Your First Monitor</SaturnButton>
               </Link>
             </div>
           ) : (
             <div className="space-y-4">
-              {monitors.map(monitor => (
-                <Link
-                  key={monitor.id}
-                  href={`/app/monitors/${monitor.id}`}
-                  className="flex items-center justify-between p-4 rounded-lg border hover:bg-gray-50 transition-colors"
-                >
-                  <div>
-                    <div className="font-medium">{monitor.name}</div>
-                    <div className="text-sm text-gray-600">
-                      Last run: {monitor.lastRunAt ? new Date(monitor.lastRunAt).toLocaleString() : 'Never'}
+              {monitors.map((monitor) => (
+                <Link key={monitor.id} href={`/app/monitors/${monitor.id}`}>
+                  <div className="flex items-center justify-between p-4 border border-[rgba(55,50,47,0.08)] rounded-lg hover:bg-[#F7F5F3] transition-colors">
+                    <div className="flex-1">
+                      <div className="font-medium text-[#37322F] font-sans">{monitor.name}</div>
+                      <div className="text-sm text-[rgba(55,50,47,0.60)] font-sans">
+                        {monitor.scheduleType === 'CRON' ? monitor.cronExpr : `Every ${monitor.intervalSec}s`}
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    {monitor._count.incidents > 0 && (
-                      <Badge variant="destructive">{monitor._count.incidents} incident{monitor._count.incidents !== 1 ? 's' : ''}</Badge>
-                    )}
-                    <Badge
-                      variant={
-                        monitor.status === 'OK' ? 'default' :
-                        monitor.status === 'LATE' ? 'secondary' :
-                        'destructive'
-                      }
-                    >
-                      {monitor.status}
-                    </Badge>
+                    <div className="flex items-center gap-3">
+                      {monitor._count.incidents > 0 && (
+                        <span className="text-xs text-red-600 font-medium font-sans">
+                          {monitor._count.incidents} incident{monitor._count.incidents !== 1 ? 's' : ''}
+                        </span>
+                      )}
+                      <div className={`px-2 py-1 rounded-full text-xs font-medium font-sans ${
+                        monitor.status === 'OK' ? 'bg-green-100 text-green-800' :
+                        monitor.status === 'LATE' ? 'bg-yellow-100 text-yellow-800' :
+                        monitor.status === 'MISSED' ? 'bg-orange-100 text-orange-800' :
+                        'bg-red-100 text-red-800'
+                      }`}>
+                        {monitor.status}
+                      </div>
+                    </div>
                   </div>
                 </Link>
               ))}
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </SaturnCard>
 
-      {/* Open Incidents */}
+      {/* Recent Incidents */}
       {incidents.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Open Incidents</CardTitle>
-            <CardDescription>Incidents requiring attention</CardDescription>
-          </CardHeader>
-          <CardContent>
+        <SaturnCard>
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-semibold text-[#37322F] font-serif">Active Incidents</h2>
+              <Link href="/app/incidents">
+                <SaturnButton variant="ghost" size="sm">View All</SaturnButton>
+              </Link>
+            </div>
+            
             <div className="space-y-4">
-              {incidents.map(incident => (
-                <Link
-                  key={incident.id}
-                  href={`/app/incidents/${incident.id}`}
-                  className="flex items-center justify-between p-4 rounded-lg border border-red-200 bg-red-50 hover:bg-red-100 transition-colors"
-                >
-                  <div>
-                    <div className="font-medium">{incident.monitor.name}</div>
-                    <div className="text-sm text-gray-600">{incident.summary}</div>
-                    <div className="text-xs text-gray-500 mt-1">
-                      Opened {new Date(incident.openedAt).toLocaleString()}
+              {incidents.map((incident) => (
+                <Link key={incident.id} href={`/app/incidents/${incident.id}`}>
+                  <div className="flex items-center justify-between p-4 border border-[rgba(55,50,47,0.08)] rounded-lg hover:bg-[#F7F5F3] transition-colors">
+                    <div className="flex-1">
+                      <div className="font-medium text-[#37322F] font-sans">{incident.monitor.name}</div>
+                      <div className="text-sm text-[rgba(55,50,47,0.60)] font-sans">
+                        {incident.kind} • Opened {new Date(incident.openedAt).toLocaleDateString()}
+                      </div>
+                    </div>
+                    <div className={`px-2 py-1 rounded-full text-xs font-medium font-sans ${
+                      incident.status === 'OPEN' ? 'bg-red-100 text-red-800' :
+                      incident.status === 'ACKED' ? 'bg-yellow-100 text-yellow-800' :
+                      'bg-green-100 text-green-800'
+                    }`}>
+                      {incident.status}
                     </div>
                   </div>
-                  <Badge variant={incident.status === 'ACKED' ? 'secondary' : 'destructive'}>
-                    {incident.kind}
-                  </Badge>
                 </Link>
               ))}
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </SaturnCard>
       )}
     </div>
   );
 }
-

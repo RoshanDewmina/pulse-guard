@@ -1,0 +1,36 @@
+{
+  "id": "wordpress/bulk-agency",
+  "title": "Bulk Agency Rollout",
+  "description": "Deploy Saturn to 200+ WordPress sites with WP-CLI and management tools",
+  "source": "@site/docs/wordpress/bulk-agency.mdx",
+  "sourceDirName": "wordpress",
+  "slug": "/wordpress/bulk-agency",
+  "permalink": "/wordpress/bulk-agency",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/saturn/saturn/tree/main/website/docs/wordpress/bulk-agency.mdx",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "bulk-agency",
+    "title": "Bulk Agency Rollout",
+    "description": "Deploy Saturn to 200+ WordPress sites with WP-CLI and management tools",
+    "keywords": [
+      "wordpress",
+      "agency",
+      "bulk",
+      "wp-cli",
+      "mainwp",
+      "managewp"
+    ]
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "WordPress Plugin Installation",
+    "permalink": "/wordpress/install"
+  },
+  "next": {
+    "title": "WordPress Troubleshooting",
+    "permalink": "/wordpress/troubleshooting"
+  }
+}

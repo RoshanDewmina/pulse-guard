@@ -1,0 +1,36 @@
+{
+  "id": "alerts/slack",
+  "title": "Slack Alerts",
+  "description": "Rich Block Kit notifications with OAuth, slash commands, and threaded updates",
+  "source": "@site/docs/alerts/slack.mdx",
+  "sourceDirName": "alerts",
+  "slug": "/alerts/slack",
+  "permalink": "/alerts/slack",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/saturn/saturn/tree/main/website/docs/alerts/slack.mdx",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "slack",
+    "title": "Slack Alerts",
+    "description": "Rich Block Kit notifications with OAuth, slash commands, and threaded updates",
+    "keywords": [
+      "slack",
+      "slack bot",
+      "block kit",
+      "oauth",
+      "slash commands",
+      "notifications"
+    ]
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Email Alerts",
+    "permalink": "/alerts/email"
+  },
+  "next": {
+    "title": "Discord Alerts",
+    "permalink": "/alerts/discord"
+  }
+}

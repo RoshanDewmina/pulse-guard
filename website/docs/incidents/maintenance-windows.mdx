@@ -1,0 +1,417 @@
+---
+id: maintenance-windows
+title: Maintenance Windows
+description: Schedule one-time and recurring maintenance windows with RRULE support to suppress alerts during planned downtime
+keywords: [maintenance windows, planned downtime, RRULE, recurring maintenance, alert suppression]
+---
+
+# Maintenance Windows
+
+Maintenance windows let you suppress incidents and alerts during planned downtime without disabling monitors.
+
+## What are Maintenance Windows?
+
+**Purpose**: Prevent false positive alerts during:
+- Scheduled server maintenance
+- Database migrations
+- Planned deployments
+- Infrastructure upgrades
+- Third-party service maintenance
+
+**Behavior during window**:
+- Monitors continue tracking pings
+- Incidents are **not created**
+- Alerts are **not sent**
+- Historical data is **still recorded**
+- Dashboard shows "In Maintenance" badge
+
+## Creating Maintenance Windows
+
+### One-Time Window
+
+For a single maintenance event:
+
+```json
+{
+  "name": "Database Migration",
+  "monitorIds": ["mon_abc123", "mon_def456"],
+  "start": "2025-10-20T02:00:00Z",
+  "end": "2025-10-20T06:00:00Z",
+  "reason": "PostgreSQL upgrade from v14 to v15"
+}
+```
+
+### Recurring Window
+
+For regular maintenance periods:
+
+```json
+{
+  "name": "Weekly Maintenance",
+  "monitorIds": ["mon_abc123"],
+  "rrule": "FREQ=WEEKLY;BYDAY=SU;BYHOUR=2;BYMINUTE=0",
+  "duration": 14400,  // 4 hours in seconds
+  "reason": "Weekly backup window"
+}
+```
+
+## RRULE Syntax
+
+Saturn uses **RFC 5545** (iCalendar) RRULE for recurring events.
+
+### Basic Structure
+
+```
+FREQ=DAILY|WEEKLY|MONTHLY;BYDAY=MO,TU;BYHOUR=3;BYMINUTE=0
+```
+
+### Common Patterns
+
+#### Every Night (2 AM - 4 AM)
+
+```
+FREQ=DAILY;BYHOUR=2;BYMINUTE=0
+Duration: 7200 (2 hours)
+```
+
+#### Weekends Only
+
+```
+FREQ=WEEKLY;BYDAY=SA,SU;BYHOUR=0;BYMINUTE=0
+Duration: 86400 (24 hours)
+```
+
+#### First Sunday of Every Month
+
+```
+FREQ=MONTHLY;BYDAY=1SU;BYHOUR=3;BYMINUTE=0
+Duration: 14400 (4 hours)
+```
+
+#### Business Hours (9 AM - 5 PM, Weekdays)
+
+```
+FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR;BYHOUR=9;BYMINUTE=0
+Duration: 28800 (8 hours)
+```
+
+#### Every 6 Hours
+
+```
+FREQ=HOURLY;INTERVAL=6
+Duration: 1800 (30 minutes)
+```
+
+#### Last Day of Every Month
+
+```
+FREQ=MONTHLY;BYMONTHDAY=-1;BYHOUR=23;BYMINUTE=0
+Duration: 3600 (1 hour)
+```
+
+### RRULE Components
+
+| Component | Description | Example |
+|-----------|-------------|---------|
+| `FREQ` | Frequency | `DAILY`, `WEEKLY`, `MONTHLY`, `YEARLY` |
+| `INTERVAL` | Every N periods | `INTERVAL=2` (every 2 weeks) |
+| `BYDAY` | Days of week | `MO,TU,WE,TH,FR` |
+| `BYHOUR` | Hour (0-23) | `BYHOUR=3` (3 AM) |
+| `BYMINUTE` | Minute (0-59) | `BYMINUTE=30` |
+| `BYMONTHDAY` | Day of month | `BYMONTHDAY=1,15` (1st & 15th) |
+| `BYMONTH` | Month | `BYMONTH=1,7` (Jan & July) |
+| `COUNT` | Limit occurrences | `COUNT=5` (only 5 times) |
+| `UNTIL` | End date | `UNTIL=20251231T235959Z` |
+
+:::tip RRULE Tester
+Use [rrule.js demo](https://jakubroztocil.github.io/rrule/) or [iCalendar.org](https://icalendar.org/rrule-tool.html) to test your RRULE expressions.
+:::
+
+## Examples
+
+### Scenario 1: Weekend Deployments
+
+**Requirement**: Deploy every Saturday at 11 PM for 3 hours
+
+```json
+{
+  "name": "Saturday Deployments",
+  "monitorIds": ["mon_prod_api", "mon_prod_worker"],
+  "rrule": "FREQ=WEEKLY;BYDAY=SA;BYHOUR=23;BYMINUTE=0",
+  "duration": 10800,  // 3 hours
+  "timezone": "America/New_York",
+  "reason": "Production deployment window"
+}
+```
+
+### Scenario 2: Monthly Database Maintenance
+
+**Requirement**: First Sunday of every month, 3 AM - 7 AM
+
+```json
+{
+  "name": "Monthly DB Maintenance",
+  "monitorIds": ["mon_db_backup", "mon_db_reindex"],
+  "rrule": "FREQ=MONTHLY;BYDAY=1SU;BYHOUR=3;BYMINUTE=0",
+  "duration": 14400,  // 4 hours
+  "timezone": "UTC",
+  "reason": "Database reindexing and optimization"
+}
+```
+
+### Scenario 3: Daily Backup Window
+
+**Requirement**: Every night 2 AM - 4 AM, but only on production monitors
+
+```json
+{
+  "name": "Nightly Backup Window",
+  "monitorIds": ["mon_backup_prod", "mon_archive_prod"],
+  "rrule": "FREQ=DAILY;BYHOUR=2;BYMINUTE=0",
+  "duration": 7200,  // 2 hours
+  "timezone": "America/Los_Angeles",
+  "reason": "Backup to S3 Glacier"
+}
+```
+
+### Scenario 4: Business Hours Suppression
+
+**Requirement**: Suppress low-priority alerts during business hours
+
+```json
+{
+  "name": "Business Hours - No Alerts",
+  "monitorIds": ["mon_non_critical"],
+  "rrule": "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR;BYHOUR=9;BYMINUTE=0",
+  "duration": 28800,  // 8 hours (9 AM - 5 PM)
+  "timezone": "America/New_York",
+  "reason": "Suppress non-critical alerts during work hours"
+}
+```
+
+### Scenario 5: Quarterly Maintenance
+
+**Requirement**: Every 3 months on the 15th, midnight to 6 AM
+
+```json
+{
+  "name": "Quarterly Maintenance",
+  "monitorIds": ["mon_all_prod"],
+  "rrule": "FREQ=MONTHLY;INTERVAL=3;BYMONTHDAY=15;BYHOUR=0;BYMINUTE=0",
+  "duration": 21600,  // 6 hours
+  "timezone": "UTC",
+  "reason": "Quarterly infrastructure updates"
+}
+```
+
+## Timezone Support
+
+Maintenance windows respect timezones:
+
+```json
+{
+  "name": "Tokyo Office Hours",
+  "rrule": "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR;BYHOUR=9;BYMINUTE=0",
+  "duration": 28800,
+  "timezone": "Asia/Tokyo",  // JST
+  "reason": "Suppress during Tokyo business hours"
+}
+```
+
+**Daylight Saving Time**: Automatically handled. Window follows local time.
+
+## Managing Windows
+
+### Via Dashboard
+
+1. Go to **Settings → Maintenance Windows**
+2. Click **Create Window**
+3. Fill form:
+   - Name
+   - Select monitors
+   - Choose one-time or recurring
+   - Set schedule (date/time or RRULE)
+   - Add reason
+4. Click **Save**
+
+### Via API
+
+**Create one-time window**:
+
+```bash
+curl -X POST https://api.saturn.example.com/api/maintenance-windows \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Emergency Maintenance",
+    "monitorIds": ["mon_abc123"],
+    "start": "2025-10-20T14:00:00Z",
+    "end": "2025-10-20T16:00:00Z",
+    "reason": "Network infrastructure upgrade"
+  }'
+```
+
+**Create recurring window**:
+
+```bash
+curl -X POST https://api.saturn.example.com/api/maintenance-windows \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Weekly Maintenance",
+    "monitorIds": ["mon_abc123", "mon_def456"],
+    "rrule": "FREQ=WEEKLY;BYDAY=SU;BYHOUR=2;BYMINUTE=0",
+    "duration": 7200,
+    "timezone": "America/New_York",
+    "reason": "Weekly server updates"
+  }'
+```
+
+## Active Windows
+
+View currently active maintenance windows:
+
+### Dashboard
+
+**Monitors page**: Shows "In Maintenance" badge  
+**Monitor detail**: Shows maintenance window name and remaining time
+
+### API
+
+```bash
+curl -X GET https://api.saturn.example.com/api/maintenance-windows/active \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+Response:
+
+```json
+[
+  {
+    "id": "mw_abc123",
+    "name": "Weekly Maintenance",
+    "monitorIds": ["mon_xyz789"],
+    "startedAt": "2025-10-14T02:00:00Z",
+    "endsAt": "2025-10-14T04:00:00Z",
+    "remainingSeconds": 3245
+  }
+]
+```
+
+## Editing Windows
+
+### Update Schedule
+
+```bash
+curl -X PATCH https://api.saturn.example.com/api/maintenance-windows/<WINDOW_ID> \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -d '{
+    "rrule": "FREQ=WEEKLY;BYDAY=SA,SU;BYHOUR=0;BYMINUTE=0",
+    "duration": 14400
+  }'
+```
+
+### Add/Remove Monitors
+
+```bash
+curl -X PATCH https://api.saturn.example.com/api/maintenance-windows/<WINDOW_ID> \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -d '{
+    "monitorIds": ["mon_abc123", "mon_new456"]
+  }'
+```
+
+## Deleting Windows
+
+### Via Dashboard
+
+1. Go to **Settings → Maintenance Windows**
+2. Find window
+3. Click **Delete**
+4. Confirm
+
+### Via API
+
+```bash
+curl -X DELETE https://api.saturn.example.com/api/maintenance-windows/<WINDOW_ID> \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+:::warning Active Windows
+Deleting a window immediately ends any active maintenance period. Monitors resume normal alerting.
+:::
+
+## Override Windows
+
+Temporarily disable a maintenance window:
+
+```bash
+curl -X POST https://api.saturn.example.com/api/maintenance-windows/<WINDOW_ID>/override \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -d '{"reason": "Need alerts during emergency", "durationSeconds": 3600}'
+```
+
+Alerts resume for 1 hour, then maintenance window continues as scheduled.
+
+## Best Practices
+
+### ✅ Do
+
+1. **Be specific with names**: "Database Reindex - First Sunday" not "Maintenance"
+2. **Add detailed reasons**: Helps future team members understand
+3. **Test RRULE first**: Use online tools to verify recurrence
+4. **Set appropriate durations**: Better to overestimate than underestimate
+5. **Document in runbooks**: Link maintenance windows to procedures
+
+### ❌ Don't
+
+1. **Create overlapping windows**: Can be confusing
+2. **Use for long-term issues**: Use incident suppression instead
+3. **Forget to clean up**: Delete one-time windows after use
+4. **Over-suppress**: Missing real issues is worse than false positives
+
+## Maintenance History
+
+View past maintenance windows:
+
+```bash
+curl -X GET "https://api.saturn.example.com/api/maintenance-windows/history?from=2025-10-01&to=2025-10-14" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+Useful for:
+- Auditing maintenance schedules
+- Analyzing correlation with incidents
+- Compliance reporting
+
+## Integration with Incidents
+
+During maintenance windows:
+
+- **No incidents created**: Missed/late/fail pings don't trigger incidents
+- **Existing incidents**: Remain open, not auto-resolved
+- **After window**: Normal monitoring resumes immediately
+
+## Notifications
+
+Get notified when maintenance starts/ends:
+
+```json
+{
+  "name": "Critical Production",
+  "rrule": "...",
+  "notifications": {
+    "beforeStart": 3600,  // Alert 1 hour before
+    "onStart": true,
+    "onEnd": true,
+    "channels": ["slack:oncall"]
+  }
+}
+```
+
+## Next Steps
+
+- [Incident Lifecycle](./lifecycle) — Managing incidents outside maintenance
+- [Alert Channels](../alerts/slack) — Configure notifications
+- [Monitor Types](../monitors/types) — Understand scheduling
+

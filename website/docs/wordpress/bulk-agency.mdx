@@ -1,0 +1,59 @@
+---
+id: bulk-agency
+title: Bulk Agency Rollout
+description: Deploy Saturn to 200+ WordPress sites with WP-CLI and management tools
+keywords: [wordpress, agency, bulk, wp-cli, mainwp, managewp]
+---
+
+# Bulk Agency Rollout
+
+Deploy Saturn monitoring across dozens or hundreds of WordPress sites.
+
+## WP-CLI Deployment
+
+\`\`\`bash
+#!/bin/bash
+# deploy-saturn.sh
+
+SITES=(
+  "example1.com"
+  "example2.com"
+  # ... add all sites
+)
+
+ORG_TOKEN="pg_your_token_here"
+
+for site in "${SITES[@]}"; do
+  echo "Deploying to $site..."
+  
+  # Install plugin
+  wp plugin install saturn-watchdog --activate --path="/var/www/$site"
+  
+  # Configure token
+  wp option update saturn_org_token "YOUR_ORG_TOKEN" --path="/var/www/$site"
+  
+  # Test connection
+  wp saturn test --path="/var/www/$site"
+  
+  echo "✓ $site complete"
+done
+\`\`\`
+
+## MainWP Integration
+
+1. Install Saturn extension from MainWP marketplace
+2. Configure org token in Global Settings
+3. Bulk install to all child sites
+4. View aggregated health in MainWP dashboard
+
+## ManageWP Integration
+
+1. Add Saturn to ManageWP favorites
+2. Bulk install across sites
+3. Configure via ManageWP settings sync
+4. Monitor health from central dashboard
+
+## Next Steps
+
+- [Installation](./install) — Single site setup
+- [Troubleshooting](./troubleshooting) — Fix common issues

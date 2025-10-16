@@ -12,7 +12,7 @@ const program = new Command();
 
 program
   .name('pulse')
-  .description('Tokiflow CLI - Monitor your cron jobs and scheduled tasks')
+  .description('Saturn CLI - Monitor your cron jobs and scheduled tasks')
   .version(version);
 
 // Auth commands
@@ -20,7 +20,7 @@ loginCommand(program);
 
 program
   .command('logout')
-  .description('Log out from Tokiflow')
+  .description('Log out from Saturn')
   .action(logoutCommand);
 
 // Monitor commands (full CRUD)

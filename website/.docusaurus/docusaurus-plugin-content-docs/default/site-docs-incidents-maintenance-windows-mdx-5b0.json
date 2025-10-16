@@ -1,0 +1,35 @@
+{
+  "id": "incidents/maintenance-windows",
+  "title": "Maintenance Windows",
+  "description": "Schedule one-time and recurring maintenance windows with RRULE support to suppress alerts during planned downtime",
+  "source": "@site/docs/incidents/maintenance-windows.mdx",
+  "sourceDirName": "incidents",
+  "slug": "/incidents/maintenance-windows",
+  "permalink": "/incidents/maintenance-windows",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/saturn/saturn/tree/main/website/docs/incidents/maintenance-windows.mdx",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "maintenance-windows",
+    "title": "Maintenance Windows",
+    "description": "Schedule one-time and recurring maintenance windows with RRULE support to suppress alerts during planned downtime",
+    "keywords": [
+      "maintenance windows",
+      "planned downtime",
+      "RRULE",
+      "recurring maintenance",
+      "alert suppression"
+    ]
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Incident Lifecycle",
+    "permalink": "/incidents/lifecycle"
+  },
+  "next": {
+    "title": "Anomaly Detection Overview",
+    "permalink": "/anomalies/overview"
+  }
+}

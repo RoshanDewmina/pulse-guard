@@ -1,0 +1,443 @@
+---
+id: webhooks
+title: Webhooks
+description: Custom integrations with HMAC SHA-256 signatures, events, and retry logic
+keywords: [webhooks, hmac, signatures, events, integrations, custom alerts]
+---
+
+# Webhooks
+
+Webhooks allow custom integrations with your own systems using HTTP POST callbacks.
+
+## Events
+
+Saturn sends webhooks for these events:
+
+| Event | Trigger |
+|-------|---------|
+| `incident.opened` | New incident created |
+| `incident.acknowledged` | Incident acknowledged by user |
+| `incident.resolved` | Incident resolved |
+| `incident.note_added` | Note added to incident |
+| `monitor.created` | New monitor created |
+| `monitor.updated` | Monitor settings changed |
+| `monitor.deleted` | Monitor deleted |
+| `ping.received` | Ping received (high volume!) |
+
+## Setup
+
+### 1. Create Webhook
+
+1. Go to **Settings → Integrations → Webhooks**
+2. Click **Add Webhook**
+3. Enter endpoint URL
+4. Select events to receive
+5. Copy signing secret
+6. Test connection
+
+### 2. Configure Routing
+
+```json
+{
+  "url": "https://your-server.com/webhooks/saturn",
+  "secret": "whsec_abc123...",
+  "events": ["incident.opened", "incident.resolved"],
+  "filters": {
+    "monitorIds": ["mon_abc123"],
+    "severity": ["HIGH"]
+  }
+}
+```
+
+## Payload Format
+
+### incident.opened
+
+```json
+{
+  "event": "incident.opened",
+  "id": "evt_abc123",
+  "createdAt": "2025-10-14T03:15:23Z",
+  "data": {
+    "incident": {
+      "id": "inc_abc123",
+      "type": "FAIL",
+      "severity": "HIGH",
+      "status": "OPEN",
+      "monitorId": "mon_xyz789",
+      "monitor": {
+        "id": "mon_xyz789",
+        "name": "Database Backup",
+        "schedule": {"type": "cron", "expression": "0 3 * * *"}
+      },
+      "orgId": "org_def456",
+      "createdAt": "2025-10-14T03:15:23Z",
+      "details": {
+        "exitCode": 1,
+        "durationMs": 3200,
+        "output": "ERROR: Connection to database failed...",
+        "expectedDurationMs": 720000
+      }
+    }
+  }
+}
+```
+
+### incident.acknowledged
+
+```json
+{
+  "event": "incident.acknowledged",
+  "id": "evt_def456",
+  "createdAt": "2025-10-14T03:17:45Z",
+  "data": {
+    "incident": {
+      "id": "inc_abc123",
+      "status": "ACKNOWLEDGED"
+    },
+    "acknowledgedBy": {
+      "userId": "user_abc123",
+      "name": "Alice",
+      "email": "alice@company.com"
+    },
+    "note": "Investigating database connection"
+  }
+}
+```
+
+### incident.resolved
+
+```json
+{
+  "event": "incident.resolved",
+  "id": "evt_ghi789",
+  "createdAt": "2025-10-14T03:28:15Z",
+  "data": {
+    "incident": {
+      "id": "inc_abc123",
+      "status": "RESOLVED",
+      "mttrSeconds": 780
+    },
+    "resolvedBy": {
+      "userId": "user_abc123",
+      "name": "Alice"
+    },
+    "note": "Database credentials rotated"
+  }
+}
+```
+
+## HMAC Signature Verification
+
+Every webhook includes `X-Saturn-Signature` header for verification.
+
+### Algorithm
+
+```
+HMAC-SHA256(payload, secret)
+```
+
+### Node.js Example
+
+```typescript
+import crypto from 'node:crypto';
+import express from 'express';
+
+const app = express();
+
+app.post('/webhooks/saturn',
+  express.raw({type: 'application/json'}),
+  (req, res) => {
+    const signature = req.headers['x-saturn-signature'];
+    const secret = process.env.SATURN_WEBHOOK_SECRET;
+    
+    // Verify signature
+    const hmac = crypto
+      .createHmac('sha256', secret)
+      .update(req.body)
+      .digest('hex');
+    
+    const isValid = crypto.timingSafeEqual(
+      Buffer.from(signature),
+      Buffer.from(hmac)
+    );
+    
+    if (!isValid) {
+      return res.status(401).json({error: 'Invalid signature'});
+    }
+    
+    // Process webhook
+    const payload = JSON.parse(req.body);
+    console.log('Event:', payload.event);
+    
+    res.json({received: true});
+  }
+);
+```
+
+### Python Example
+
+```python
+import hmac
+import hashlib
+from flask import Flask, request
+
+app = Flask(__name__)
+
+@app.route('/webhooks/saturn', methods=['POST'])
+def webhook():
+    signature = request.headers.get('X-Saturn-Signature')
+    secret = os.environ['SATURN_WEBHOOK_SECRET']
+    body = request.get_data()
+    
+    # Verify signature
+    expected = hmac.new(
+        secret.encode(),
+        body,
+        hashlib.sha256
+    ).hexdigest()
+    
+    if not hmac.compare_digest(signature, expected):
+        return {'error': 'Invalid signature'}, 401
+    
+    # Process webhook
+    payload = request.get_json()
+    print(f'Event: {payload["event"]}')
+    
+    return {'received': True}
+```
+
+### Go Example
+
+```go
+package main
+
+import (
+    "crypto/hmac"
+    "crypto/sha256"
+    "encoding/hex"
+    "io"
+    "net/http"
+)
+
+func webhookHandler(w http.ResponseWriter, r *http.Request) {
+    signature := r.Header.Get("X-Saturn-Signature")
+    secret := os.Getenv("SATURN_WEBHOOK_SECRET")
+    
+    body, _ := io.ReadAll(r.Body)
+    
+    // Verify signature
+    mac := hmac.New(sha256.New, []byte(secret))
+    mac.Write(body)
+    expected := hex.EncodeToString(mac.Sum(nil))
+    
+    if !hmac.Equal([]byte(signature), []byte(expected)) {
+        http.Error(w, "Invalid signature", 401)
+        return
+    }
+    
+    // Process webhook
+    log.Printf("Webhook received")
+    w.WriteHeader(200)
+}
+```
+
+## Retry Logic
+
+Saturn retries failed webhooks with exponential backoff:
+
+| Attempt | Delay | Total Time |
+|---------|-------|------------|
+| 1 (initial) | 0s | 0s |
+| 2 | 1s | 1s |
+| 3 | 2s | 3s |
+| 4 | 4s | 7s |
+| 5 | 8s | 15s |
+| 6 | 16s | 31s |
+| 7 | 32s | 63s |
+| 8 | 64s | 127s |
+
+**Retry conditions**:
+- HTTP 5xx status
+- Connection timeout
+- Connection refused
+- No response
+
+**No retry**:
+- HTTP 2xx (success)
+- HTTP 4xx (client error - fix your endpoint)
+
+## Response Requirements
+
+Your endpoint should:
+
+1. **Respond quickly** (< 5 seconds)
+2. **Return 2xx status** (200, 201, 204)
+3. **Process async** (queue for later processing)
+
+### Good Response
+
+```http
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{"received": true, "queued": true}
+```
+
+### Bad Response
+
+```http
+HTTP/1.1 500 Internal Server Error
+
+Error processing webhook
+```
+
+## Rate Limiting
+
+**Limit**: 100 webhooks per minute per endpoint
+
+If exceeded:
+- Webhooks queued
+- Delivered with delay
+- `X-RateLimit-*` headers included
+
+## Testing
+
+### Test Endpoint
+
+Use a service like [webhook.site](https://webhook.site) or [requestbin.com](https://requestbin.com) for testing.
+
+### Send Test Webhook
+
+```bash
+curl -X POST https://api.saturn.example.com/api/webhooks/YOUR_WEBHOOK_ID/test \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+### Verify Signature
+
+```bash
+# Generate expected signature
+echo -n '{"event":"test"}' | \
+  openssl dgst -sha256 -hmac "your_secret" | \
+  awk '{print $2}'
+```
+
+## Debugging
+
+View webhook delivery logs:
+
+1. Go to **Settings → Webhooks**
+2. Click webhook
+3. View **Recent Deliveries**
+
+Each delivery shows:
+- Timestamp
+- Event type
+- HTTP status
+- Response time
+- Retry count
+- Request/response headers
+
+## Example Integrations
+
+### PagerDuty
+
+```typescript
+app.post('/webhooks/saturn', async (req, res) => {
+  const payload = req.body;
+  
+  if (payload.event === 'incident.opened' && 
+      payload.data.incident.severity === 'HIGH') {
+    await axios.post('https://events.pagerduty.com/v2/enqueue', {
+      routing_key: process.env.PAGERDUTY_KEY,
+      event_action: 'trigger',
+      payload: {
+        summary: `${payload.data.incident.type}: ${payload.data.monitor.name}`,
+        severity: 'error',
+        source: 'Saturn',
+        custom_details: payload.data.incident.details
+      }
+    });
+  }
+  
+  res.json({received: true});
+});
+```
+
+### Jira
+
+```typescript
+// Create Jira ticket for failures
+if (payload.event === 'incident.opened' && 
+    payload.data.incident.type === 'FAIL') {
+  await jira.createIssue({
+    fields: {
+      project: {key: 'OPS'},
+      summary: `Saturn: ${payload.data.monitor.name} failed`,
+      description: payload.data.incident.details.output,
+      issuetype: {name: 'Bug'}
+    }
+  });
+}
+```
+
+### Datadog
+
+```typescript
+// Send metrics to Datadog
+const dogapi = require('dogapi');
+
+dogapi.metric.send('saturn.incident.opened', 1, {
+  tags: [
+    `monitor:${payload.data.monitor.name}`,
+    `type:${payload.data.incident.type}`,
+    `severity:${payload.data.incident.severity}`
+  ]
+});
+```
+
+## Best Practices
+
+### ✅ Do
+
+1. **Verify signatures** always
+2. **Respond quickly** (< 1s)
+3. **Process async** (queue webhooks)
+4. **Log deliveries** for debugging
+5. **Handle retries** idempotently
+
+### ❌ Don't
+
+1. **Block on webhook** processing
+2. **Ignore signatures** - security risk
+3. **Return 5xx** for invalid data (use 4xx)
+4. **Store secrets** in code
+5. **Forget timeouts** on your HTTP client
+
+## API Reference
+
+```bash
+# Create webhook
+POST /api/webhooks
+Body: {url, events, filters}
+
+# Update webhook
+PATCH /api/webhooks/YOUR_WEBHOOK_ID
+
+# Delete webhook
+DELETE /api/webhooks/YOUR_WEBHOOK_ID
+
+# Test webhook
+POST /api/webhooks/YOUR_WEBHOOK_ID/test
+
+# List deliveries
+GET /api/webhooks/YOUR_WEBHOOK_ID/deliveries
+```
+
+## Next Steps
+
+- [Email Alerts](./email) — Email notifications
+- [Slack Alerts](./slack) — Slack integration
+- [Discord Alerts](./discord) — Discord webhooks
+

@@ -1,0 +1,35 @@
+{
+  "id": "get-started/quickstart-linux-cron",
+  "title": "Linux Cron with curl or CLI",
+  "description": "Monitor traditional cron jobs on Linux servers using curl or the Saturn CLI",
+  "source": "@site/docs/get-started/quickstart-linux-cron.mdx",
+  "sourceDirName": "get-started",
+  "slug": "/get-started/quickstart-linux-cron",
+  "permalink": "/get-started/quickstart-linux-cron",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/saturn/saturn/tree/main/website/docs/get-started/quickstart-linux-cron.mdx",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "quickstart-linux-cron",
+    "title": "Linux Cron with curl or CLI",
+    "description": "Monitor traditional cron jobs on Linux servers using curl or the Saturn CLI",
+    "keywords": [
+      "linux",
+      "cron",
+      "curl",
+      "cli",
+      "bash"
+    ]
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Reliable wp-cron Monitoring at Scale",
+    "permalink": "/get-started/quickstart-wordpress"
+  },
+  "next": {
+    "title": "CI/CD Pipeline Monitoring",
+    "permalink": "/get-started/quickstart-ci"
+  }
+}

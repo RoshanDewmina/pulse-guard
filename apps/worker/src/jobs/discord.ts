@@ -1,7 +1,7 @@
 import { Worker, Job } from 'bullmq';
 import Redis from 'ioredis';
 import { prisma } from '@tokiflow/db';
-import { sendIncidentAlert, sendIncidentResolution, DiscordConfig } from '../../../web/src/lib/discord';
+import { sendIncidentAlert, sendIncidentResolution, DiscordConfig } from '../lib/discord';
 import { createLogger } from '../logger';
 
 const logger = createLogger('discord');
@@ -78,7 +78,7 @@ export function startDiscordWorker() {
           throw new Error(`Discord webhook failed`);
         }
       } catch (error) {
-        logger.error(`Discord worker error:`, error);
+        logger.error({ err: error }, `Discord worker error`);
         throw error;
       }
     },
@@ -97,7 +97,7 @@ export function startDiscordWorker() {
   });
 
   worker.on('failed', (job, err) => {
-    logger.error(`Discord job ${job?.id} failed:`, err);
+    logger.error({ err, jobId: job?.id }, `Discord job ${job?.id} failed`);
   });
 
   return worker;

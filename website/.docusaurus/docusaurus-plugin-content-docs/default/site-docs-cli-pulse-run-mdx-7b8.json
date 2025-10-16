@@ -1,0 +1,34 @@
+{
+  "id": "cli/pulse-run",
+  "title": "pulse run Wrapper",
+  "description": "Wrap commands with automatic start/success/fail pings and output capture",
+  "source": "@site/docs/cli/pulse-run.mdx",
+  "sourceDirName": "cli",
+  "slug": "/cli/pulse-run",
+  "permalink": "/cli/pulse-run",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/saturn/saturn/tree/main/website/docs/cli/pulse-run.mdx",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "pulse-run",
+    "title": "pulse run Wrapper",
+    "description": "Wrap commands with automatic start/success/fail pings and output capture",
+    "keywords": [
+      "cli",
+      "pulse run",
+      "wrapper",
+      "monitoring"
+    ]
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "CLI Reference",
+    "permalink": "/cli/reference"
+  },
+  "next": {
+    "title": "Maintenance Windows",
+    "permalink": "/maintenance-windows/"
+  }
+}

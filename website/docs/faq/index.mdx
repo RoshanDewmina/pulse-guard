@@ -1,0 +1,76 @@
+---
+id: index
+title: Frequently Asked Questions
+description: Common questions about Saturn monitoring, anomaly detection, and integrations
+keywords: [faq, questions, help, support]
+---
+
+# Frequently Asked Questions
+
+## General
+
+**What is Saturn?**
+Saturn is cron and scheduled job monitoring with anomaly detection, designed for Kubernetes, WordPress, and traditional cron environments.
+
+**How is it different from Cronitor/Healthchecks?**
+Saturn adds statistical anomaly detection, catching performance issues before failures. It also has native Kubernetes and WordPress integrations.
+
+**Do I need to change my cron jobs?**
+No. Just add a ping URL to your existing jobs, or use our Kubernetes sidecar/WordPress plugin for zero-code monitoring.
+
+## Pricing
+
+**Is there a free tier?**
+Yes! 10 monitors, 1 user, 30-day retention, all core features including anomaly detection.
+
+**What happens if I exceed limits?**
+You'll receive warnings at 90% usage and have 7 days grace period before limits are enforced.
+
+## Anomaly Detection
+
+**How many runs needed for baseline?**
+Minimum 10 successful runs to establish statistical baseline.
+
+**Can I adjust sensitivity?**
+Yes, tune Z-Score and median multiplier thresholds per monitor.
+
+**Does it work for variable jobs?**
+Yes, use median multiplier instead of Z-Score for high-variance jobs.
+
+## Integrations
+
+**Which alert channels are supported?**
+Email, Slack, Discord, and custom webhooks.
+
+**Does Kubernetes require code changes?**
+No, our Helm chart deploys a sidecar that monitors automatically.
+
+**Is WordPress wp-cron supported?**
+Yes, dedicated plugin for wp-cron monitoring with bulk management.
+
+## Security
+
+**How are tokens stored?**
+Hashed with SHA-256, never stored in plaintext.
+
+**Is output data encrypted?**
+Yes, encrypted at rest (AES-256) and in transit (TLS 1.3).
+
+**Do you redact sensitive data?**
+Yes, automatic redaction of passwords, API keys, tokens, etc.
+
+## Support
+
+**How do I get help?**
+Email support@saturn.example.com or check the docs.
+
+**Is there a status page?**
+Yes, status.saturn.example.com
+
+**Can I self-host?**
+Enterprise plan includes self-hosted option.
+
+## Next Steps
+
+- [Get Started](../get-started/overview) — Quick setup
+- [Contact](/contact) — Reach our team

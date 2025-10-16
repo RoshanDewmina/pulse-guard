@@ -1,0 +1,36 @@
+{
+  "id": "incidents/lifecycle",
+  "title": "Incident Lifecycle",
+  "description": "Managing incidents from OPEN to ACKNOWLEDGED to RESOLVED with deduplication and suppression",
+  "source": "@site/docs/incidents/lifecycle.mdx",
+  "sourceDirName": "incidents",
+  "slug": "/incidents/lifecycle",
+  "permalink": "/incidents/lifecycle",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/saturn/saturn/tree/main/website/docs/incidents/lifecycle.mdx",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "lifecycle",
+    "title": "Incident Lifecycle",
+    "description": "Managing incidents from OPEN to ACKNOWLEDGED to RESOLVED with deduplication and suppression",
+    "keywords": [
+      "incident lifecycle",
+      "acknowledge",
+      "resolve",
+      "dedupe",
+      "suppression",
+      "incident management"
+    ]
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Incident Types",
+    "permalink": "/incidents/types"
+  },
+  "next": {
+    "title": "Maintenance Windows",
+    "permalink": "/incidents/maintenance-windows"
+  }
+}

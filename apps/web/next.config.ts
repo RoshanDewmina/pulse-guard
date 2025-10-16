@@ -12,11 +12,10 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       // Add any remote asset domains you actually use
-      { protocol: 'https', hostname: 'assets.tokiflow.co' },
+      { protocol: 'https', hostname: 'assets.Saturn.co' },
+      { protocol: 'https', hostname: 'hebbkx1anhila5yf.public.blob.vercel-storage.com' },
+      { protocol: 'https', hostname: 'cdn.jsdelivr.net' },
     ],
-  },
-  experimental: {
-    instrumentationHook: true,
   },
 };
 

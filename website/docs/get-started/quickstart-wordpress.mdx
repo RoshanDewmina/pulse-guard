@@ -1,0 +1,259 @@
+---
+id: quickstart-wordpress
+title: Reliable wp-cron Monitoring at Scale
+description: Install Saturn WordPress plugin for wp-cron monitoring with bulk management for agencies
+keywords: [wordpress, wp-cron, plugin, agency, bulk management]
+---
+
+# Reliable wp-cron Monitoring at Scale
+
+Monitor wp-cron across single sites or hundreds of WordPress installations with the Saturn plugin.
+
+## Why Monitor wp-cron?
+
+WordPress's `wp-cron` is notoriously unreliable:
+- **Visitor-dependent**: Only runs when someone visits your site
+- **Race conditions**: Multiple simultaneous executions
+- **Silent failures**: No built-in alerting when tasks fail
+- **Performance impact**: Can slow down page loads
+
+Saturn provides **visibility and reliability** for wp-cron at any scale.
+
+## Single Site Installation
+
+### Prerequisites
+
+- WordPress 5.8 or higher
+- PHP 7.4 or higher
+- A Saturn organization token
+
+### Step 1: Install Plugin
+
+**Option A: WordPress Admin** (Recommended)
+
+1. Go to **Plugins → Add New**
+2. Search for "Saturn Watchdog"
+3. Click **Install Now**
+4. Click **Activate**
+
+**Option B: Manual Upload**
+
+1. Download `saturn-watchdog.zip` from [WordPress.org](https://wordpress.org/plugins/saturn-watchdog/)
+2. Go to **Plugins → Add New → Upload Plugin**
+3. Choose the ZIP file and click **Install Now**
+4. Click **Activate**
+
+### Step 2: Configure Token
+
+1. Go to **Settings → Saturn Watchdog**
+2. Enter your **Organization Token** (from Saturn dashboard)
+3. Click **Save Settings**
+4. Click **Test Connection** to verify
+
+### Step 3: View Health Dashboard
+
+The plugin adds a **Saturn Health** widget to your admin dashboard showing:
+
+- Active cron events being monitored
+- Last execution times
+- Health status (A-F grade)
+- Recent incidents
+
+:::tip What gets monitored?
+By default, Saturn monitors all recurring wp-cron events. You can exclude specific events in settings.
+:::
+
+## Bulk Agency Rollout
+
+For agencies managing 50-500+ WordPress sites, automate the deployment.
+
+### Prerequisites
+
+- [WP-CLI](https://wp-cli.org/) installed
+- SSH/SFTP access to all sites
+- Same Saturn org token for all sites
+
+### Rollout Strategy
+
+#### 1. Install Plugin via WP-CLI
+
+```bash
+#!/bin/bash
+# deploy-saturn.sh
+
+SITES=(
+  "example1.com"
+  "example2.com"
+  "example3.com"
+  # ... add all your sites
+)
+
+ORG_TOKEN="YOUR_ORG_TOKEN"
+
+for site in "${SITES[@]}"; do
+  echo "Deploying to $site..."
+  
+  # Install plugin
+  wp plugin install saturn-watchdog --activate --path="/var/www/$site"
+  
+  # Configure token
+  wp option update saturn_org_token "YOUR_ORG_TOKEN" --path="/var/www/$site"
+  
+  # Test connection
+  wp saturn test --path="/var/www/$site"
+  
+  echo "✓ $site complete"
+done
+```
+
+#### 2. Using MainWP / ManageWP
+
+If you use a management dashboard:
+
+1. **MainWP**: Install extension from MainWP marketplace
+2. **ManageWP**: Add to favorites, bulk install
+3. Configure token in **Global Settings**
+4. Apply to all sites with one click
+
+#### 3. Docker/Composer for New Sites
+
+Add to your WordPress deployment:
+
+```json title="composer.json"
+{
+  "require": {
+    "wpackagist-plugin/saturn-watchdog": "^1.0"
+  }
+}
+```
+
+Set token via environment variable:
+
+```bash
+SATURN_ORG_TOKEN=YOUR_ORG_TOKEN
+```
+
+### Verification Script
+
+```bash
+#!/bin/bash
+# verify-saturn.sh
+
+for site in "${SITES[@]}"; do
+  STATUS=$(wp option get saturn_connection_status --path="/var/www/$site")
+  
+  if [ "$STATUS" == "connected" ]; then
+    echo "✓ $site: Connected"
+  else
+    echo "✗ $site: Not connected - check logs"
+  fi
+done
+```
+
+## Settings Reference
+
+Navigate to **Settings → Saturn Watchdog**:
+
+| Setting | Description | Default |
+|---------|-------------|---------|
+| **Organization Token** | Your Saturn org token | (required) |
+| **Monitor All Events** | Auto-monitor all recurring cron events | `true` |
+| **Excluded Events** | Comma-separated list of hooks to ignore | (empty) |
+| **Report Interval** | How often to ping Saturn | `5 minutes` |
+| **Capture Output** | Include task output in pings | `false` |
+| **Max Output Size** | Output size limit in KB | `10` |
+
+## Health Dashboard Widgets
+
+After installation, your admin dashboard shows:
+
+### Cron Events Widget
+
+- List of all monitored events
+- Last run time
+- Next scheduled run
+- Current status (✓ Healthy, ⚠ Warning, ✗ Critical)
+
+### Health Score Widget
+
+- Overall site health (0-100)
+- Grade (A-F)
+- 7-day uptime percentage
+- Recent incidents count
+
+## Troubleshooting
+
+### Events Not Running
+
+**Problem**: wp-cron events never trigger
+
+**Solution**: Disable WordPress pseudo-cron and use real cron:
+
+```php title="wp-config.php"
+define('DISABLE_WP_CRON', true);
+```
+
+Then add to system crontab:
+
+```bash
+*/5 * * * * wget -q -O - https://example.com/wp-cron.php?doing_wp_cron > /dev/null 2>&1
+```
+
+Or with WP-CLI:
+
+```bash
+*/5 * * * * cd /var/www/example.com && wp cron event run --due-now > /dev/null 2>&1
+```
+
+### Connection Fails
+
+**Problem**: "Connection test failed"
+
+**Checklist**:
+- [ ] Token is correct (copy-paste from dashboard)
+- [ ] Outbound HTTPS allowed (firewall/hosting provider)
+- [ ] No PHP `disable_functions` blocking `curl` or `file_get_contents`
+- [ ] WordPress site can reach `api.saturn.example.com`
+
+Test manually:
+
+```bash
+curl -H "Authorization: Bearer YOUR_ORG_TOKEN" https://api.saturn.example.com/api/health
+```
+
+### High Memory Usage
+
+**Problem**: Plugin causes memory issues
+
+**Solution**: Disable output capture for large sites:
+
+```php title="wp-config.php"
+define('SATURN_CAPTURE_OUTPUT', false);
+```
+
+## SLA Reporting
+
+For agencies with SLA commitments:
+
+1. Go to Saturn dashboard
+2. Filter by tag (e.g., `client:acme`)
+3. Export **30-day SLA report** (PDF/CSV)
+4. Send to client
+
+Reports include:
+- Uptime percentage
+- Incident count and types
+- MTTR (mean time to repair)
+- Health score trend
+
+## Next Steps
+
+**You should now see your first healthy monitor within 10 minutes.**
+
+Learn more:
+
+- [Bulk Agency Guide](../../wordpress/bulk-agency) for advanced rollout strategies
+- [Troubleshooting](../../wordpress/troubleshooting) for common wp-cron issues
+- [Alert Channels](../../alerts/email) to set up notifications
+- [Health Scores](../../analytics/health-score) to understand the grading system
+

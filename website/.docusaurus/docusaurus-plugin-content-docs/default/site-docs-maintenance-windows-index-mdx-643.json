@@ -1,0 +1,33 @@
+{
+  "id": "maintenance-windows/index",
+  "title": "Maintenance Windows",
+  "description": "Schedule planned downtime to suppress alerts",
+  "source": "@site/docs/maintenance-windows/index.mdx",
+  "sourceDirName": "maintenance-windows",
+  "slug": "/maintenance-windows/",
+  "permalink": "/maintenance-windows/",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/saturn/saturn/tree/main/website/docs/maintenance-windows/index.mdx",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "index",
+    "title": "Maintenance Windows",
+    "description": "Schedule planned downtime to suppress alerts",
+    "keywords": [
+      "maintenance",
+      "planned downtime",
+      "suppression"
+    ]
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "pulse run Wrapper",
+    "permalink": "/cli/pulse-run"
+  },
+  "next": {
+    "title": "Output Capture",
+    "permalink": "/output-capture/overview"
+  }
+}

@@ -365,3 +365,22 @@ model MaintenanceWindow {
   @@index([enabled])
 }
 
+
+model StatusPage {
+  id            String   @id @default(cuid())
+  orgId         String
+  slug          String   @unique
+  title         String
+  isPublic      Boolean  @default(true)
+  customDomain  String?
+  accessToken   String
+  components    Json     @default("[]")
+  theme         Json     @default("{}")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  org Org @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@index([orgId])
+  @@index([slug])
+}

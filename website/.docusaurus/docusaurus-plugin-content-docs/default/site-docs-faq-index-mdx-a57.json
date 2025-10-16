@@ -1,0 +1,34 @@
+{
+  "id": "faq/index",
+  "title": "Frequently Asked Questions",
+  "description": "Common questions about Saturn monitoring, anomaly detection, and integrations",
+  "source": "@site/docs/faq/index.mdx",
+  "sourceDirName": "faq",
+  "slug": "/faq/",
+  "permalink": "/faq/",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/saturn/saturn/tree/main/website/docs/faq/index.mdx",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "index",
+    "title": "Frequently Asked Questions",
+    "description": "Common questions about Saturn monitoring, anomaly detection, and integrations",
+    "keywords": [
+      "faq",
+      "questions",
+      "help",
+      "support"
+    ]
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Usage Enforcement",
+    "permalink": "/billing/usage-enforcement"
+  },
+  "next": {
+    "title": "Changelog",
+    "permalink": "/changelog/"
+  }
+}

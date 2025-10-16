@@ -1,0 +1,35 @@
+{
+  "id": "anomalies/overview",
+  "title": "Anomaly Detection Overview",
+  "description": "Understand how Saturn uses statistical analysis to detect performance issues before they become failures",
+  "source": "@site/docs/anomalies/overview.mdx",
+  "sourceDirName": "anomalies",
+  "slug": "/anomalies/overview",
+  "permalink": "/anomalies/overview",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/saturn/saturn/tree/main/website/docs/anomalies/overview.mdx",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "overview",
+    "title": "Anomaly Detection Overview",
+    "description": "Understand how Saturn uses statistical analysis to detect performance issues before they become failures",
+    "keywords": [
+      "anomaly detection",
+      "statistics",
+      "baseline",
+      "performance monitoring",
+      "predictive alerts"
+    ]
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Maintenance Windows",
+    "permalink": "/incidents/maintenance-windows"
+  },
+  "next": {
+    "title": "Anomaly Detection Rules",
+    "permalink": "/anomalies/rules"
+  }
+}

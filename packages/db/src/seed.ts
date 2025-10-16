@@ -4,19 +4,15 @@ import bcrypt from 'bcryptjs';
 async function main() {
   console.log('🌱 Seeding database...');
 
-  // Hash password for testing: test123
-  const hashedPassword = await bcrypt.hash('test123', 10);
-
-  // Create a dev user with password
+  // Create a dev user (using magic link auth, no password needed)
   const user = await prisma.user.upsert({
     where: { email: 'dewminaimalsha2003@gmail.com' },
     update: {
-      password: hashedPassword,
+      name: 'Dev User',
     },
     create: {
       email: 'dewminaimalsha2003@gmail.com',
       name: 'Dev User',
-      password: hashedPassword,
     },
   });
 

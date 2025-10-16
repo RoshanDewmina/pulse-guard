@@ -1,0 +1,369 @@
+---
+id: quickstart-ci
+title: CI/CD Pipeline Monitoring
+description: Monitor GitHub Actions, GitLab CI, Jenkins, and other CI/CD pipelines with Saturn
+keywords: [ci/cd, github actions, gitlab ci, jenkins, pipeline monitoring]
+---
+
+# CI/CD Pipeline Monitoring
+
+Monitor scheduled CI/CD jobs and pipelines to catch failures in automated builds, deployments, and maintenance tasks.
+
+## Use Cases
+
+- **Nightly builds**: Catch build failures overnight
+- **Scheduled deployments**: Monitor production releases
+- **Database migrations**: Track long-running migration jobs
+- **Security scans**: Alert on failed vulnerability checks
+- **Backup jobs**: Ensure automated backups complete
+- **Cache warming**: Monitor cache rebuild tasks
+
+## GitHub Actions
+
+### Basic Setup
+
+Add Saturn CLI to your workflow:
+
+```yaml title=".github/workflows/nightly-build.yml"
+name: Nightly Build
+
+on:
+  schedule:
+    - cron: '0 3 * * *'  # Daily at 3 AM UTC
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install Saturn CLI
+        run: |
+          curl -fsSL https://get.saturn.example.com | sh
+          echo "$HOME/.saturn/bin" >> $GITHUB_PATH
+      
+      - name: Run Build with Monitoring
+        env:
+          SATURN_TOKEN: ${{ secrets.SATURN_TOKEN }}
+        run: |
+          pulse run --monitor ${{ secrets.SATURN_MONITOR_ID }} -- make build
+```
+
+### With Explicit Start/Fail Pings
+
+For more control over when pings are sent:
+
+```yaml title=".github/workflows/deploy.yml"
+name: Production Deploy
+
+on:
+  schedule:
+    - cron: '0 0 * * 1'  # Weekly on Monday
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Notify Saturn - Start
+        run: |
+          curl -X POST https://api.saturn.example.com/api/ping/${{ secrets.SATURN_MONITOR_ID }}/start \
+            -H "Authorization: Bearer ${{ secrets.SATURN_TOKEN }}"
+      
+      - name: Deploy
+        id: deploy
+        run: ./deploy.sh
+      
+      - name: Notify Saturn - Success
+        if: success()
+        run: |
+          curl -X POST https://api.saturn.example.com/api/ping/${{ secrets.SATURN_MONITOR_ID }}/success \
+            -H "Authorization: Bearer ${{ secrets.SATURN_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d "{\"durationMs\": ${{ github.event.workflow_run.run_duration_ms }}}"
+      
+      - name: Notify Saturn - Failure
+        if: failure()
+        run: |
+          curl -X POST https://api.saturn.example.com/api/ping/${{ secrets.SATURN_MONITOR_ID }}/fail \
+            -H "Authorization: Bearer ${{ secrets.SATURN_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d "{\"exitCode\": 1}"
+```
+
+### Setup Secrets
+
+Add to your repository secrets:
+
+1. Go to **Settings → Secrets → Actions**
+2. Add `SATURN_TOKEN` (your org or monitor token)
+3. Add `SATURN_MONITOR_ID` (e.g., `mon_abc123`)
+
+## GitLab CI
+
+### Basic Setup
+
+```yaml title=".gitlab-ci.yml"
+nightly-tests:
+  stage: test
+  only:
+    - schedules
+  before_script:
+    - curl -fsSL https://get.saturn.example.com | sh
+    - export PATH="$HOME/.saturn/bin:$PATH"
+  script:
+    - pulse run --monitor $SATURN_MONITOR_ID -- make test
+  variables:
+    SATURN_TOKEN: $SATURN_TOKEN  # Set in CI/CD settings
+```
+
+### With Anchors for Reusability
+
+```yaml title=".gitlab-ci.yml"
+.saturn_before: &saturn_before
+  - curl -X POST https://api.saturn.example.com/api/ping/$SATURN_MONITOR_ID/start
+    -H "Authorization: Bearer $SATURN_TOKEN"
+
+.saturn_after_success: &saturn_after_success
+  - curl -X POST https://api.saturn.example.com/api/ping/$SATURN_MONITOR_ID/success
+    -H "Authorization: Bearer $SATURN_TOKEN"
+
+.saturn_after_failure: &saturn_after_failure
+  - curl -X POST https://api.saturn.example.com/api/ping/$SATURN_MONITOR_ID/fail
+    -H "Authorization: Bearer $SATURN_TOKEN"
+
+nightly-deploy:
+  stage: deploy
+  only:
+    - schedules
+  before_script:
+    - *saturn_before
+  script:
+    - ./deploy.sh
+  after_script:
+    - if [ $CI_JOB_STATUS == 'success' ]; then *saturn_after_success; else *saturn_after_failure; fi
+```
+
+## Jenkins
+
+### Pipeline Script
+
+```groovy title="Jenkinsfile"
+pipeline {
+    agent any
+    
+    triggers {
+        cron('0 3 * * *')
+    }
+    
+    environment {
+        SATURN_MONITOR_ID = credentials('saturn-monitor-id')
+        SATURN_TOKEN = credentials('saturn-token')
+    }
+    
+    stages {
+        stage('Notify Start') {
+            steps {
+                sh '''
+                    curl -X POST https://api.saturn.example.com/api/ping/${SATURN_MONITOR_ID}/start \
+                        -H "Authorization: Bearer ${SATURN_TOKEN}"
+                '''
+            }
+        }
+        
+        stage('Build') {
+            steps {
+                sh 'make build'
+            }
+        }
+        
+        stage('Test') {
+            steps {
+                sh 'make test'
+            }
+        }
+    }
+    
+    post {
+        success {
+            sh '''
+                curl -X POST https://api.saturn.example.com/api/ping/${SATURN_MONITOR_ID}/success \
+                    -H "Authorization: Bearer ${SATURN_TOKEN}" \
+                    -H "Content-Type: application/json" \
+                    -d "{\\"durationMs\\": $(($(date +%s) - ${BUILD_TIMESTAMP}/1000) * 1000)}"
+            '''
+        }
+        failure {
+            sh '''
+                curl -X POST https://api.saturn.example.com/api/ping/${SATURN_MONITOR_ID}/fail \
+                    -H "Authorization: Bearer ${SATURN_TOKEN}" \
+                    -H "Content-Type: application/json" \
+                    -d "{\\"exitCode\\": 1}"
+            '''
+        }
+    }
+}
+```
+
+## CircleCI
+
+```yaml title=".circleci/config.yml"
+version: 2.1
+
+workflows:
+  nightly:
+    triggers:
+      - schedule:
+          cron: "0 3 * * *"
+          filters:
+            branches:
+              only:
+                - main
+    jobs:
+      - build-and-test
+
+jobs:
+  build-and-test:
+    docker:
+      - image: cimg/node:20.0
+    steps:
+      - checkout
+      
+      - run:
+          name: Install Saturn CLI
+          command: curl -fsSL https://get.saturn.example.com | sh
+      
+      - run:
+          name: Run Tests with Monitoring
+          command: |
+            export PATH="$HOME/.saturn/bin:$PATH"
+            pulse run --monitor $SATURN_MONITOR_ID -- npm test
+```
+
+## Azure Pipelines
+
+```yaml title="azure-pipelines.yml"
+schedules:
+  - cron: "0 3 * * *"
+    displayName: Nightly Build
+    branches:
+      include:
+        - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+  - script: curl -fsSL https://get.saturn.example.com | sh
+    displayName: 'Install Saturn CLI'
+  
+  - script: |
+      export PATH="$HOME/.saturn/bin:$PATH"
+      pulse run --monitor $(SATURN_MONITOR_ID) -- make build
+    displayName: 'Build with Monitoring'
+    env:
+      SATURN_TOKEN: $(SATURN_TOKEN)
+```
+
+## Best Practices
+
+### 1. Use Organization Tokens
+
+For CI/CD, use **org-wide tokens** instead of monitor-specific tokens:
+
+```bash
+pulse run --monitor YOUR_MONITOR_ID --token YOUR_ORG_TOKEN -- command
+```
+
+This allows rotation without updating every pipeline.
+
+### 2. Separate Monitors per Environment
+
+Create different monitors for different environments:
+
+- `nightly-build-staging`
+- `nightly-build-production`
+- `deploy-prod`
+- `deploy-staging`
+
+### 3. Tag Monitors
+
+Use tags for filtering and organization:
+
+```bash
+# In dashboard, tag monitors with:
+# - pipeline:github-actions
+# - env:production
+# - team:backend
+```
+
+### 4. Set Appropriate Grace Periods
+
+CI jobs can vary in duration. Set grace periods generously:
+
+- Short builds (< 5 min): 2-3 min grace
+- Medium builds (5-20 min): 5-10 min grace
+- Long builds (> 20 min): 15-30 min grace
+
+## Validation
+
+Test your setup before relying on scheduled runs:
+
+### GitHub Actions
+
+```bash
+# Trigger manually
+gh workflow run nightly-build.yml
+```
+
+### GitLab CI
+
+Use the **CI/CD → Schedules** page to trigger a test run.
+
+### Jenkins
+
+Click **Build Now** on the job to test.
+
+## Troubleshooting
+
+### Secrets Not Available
+
+**GitHub Actions**: Ensure secrets are set at the right level (repo vs. organization)
+
+**GitLab**: Check **Settings → CI/CD → Variables** and ensure they're not protected if running on branches
+
+**Jenkins**: Verify credentials are bound correctly in the pipeline
+
+### Network Restrictions
+
+If your CI environment blocks external requests:
+
+1. Whitelist `api.saturn.example.com`
+2. Or use a self-hosted Saturn instance within your network
+
+### Duration Not Tracked
+
+Some CI systems don't expose workflow duration easily. Use manual timing:
+
+```bash
+START=$(date +%s)
+# ... your job ...
+END=$(date +%s)
+DURATION=$(( (END - START) * 1000 ))
+
+curl -X POST ... -d "{\"durationMs\": $DURATION}"
+```
+
+## Next Steps
+
+**You should now see your first healthy monitor within 10 minutes.**
+
+Learn more:
+
+- [Monitor Types](../../monitors/types) for scheduling options
+- [Anomaly Detection](../../anomalies/overview) to catch slow builds
+- [Webhooks](../../alerts/webhooks) to trigger actions on failures
+- [CLI Reference](../../cli/reference) for advanced CLI options
+

@@ -6,7 +6,7 @@ import {
   sendIncidentAcknowledgedWebhook,
   sendIncidentResolvedWebhook,
   WebhookConfig
-} from '../../../web/src/lib/webhook';
+} from '../lib/webhook';
 import { createLogger } from '../logger';
 
 const logger = createLogger('webhook');
@@ -91,18 +91,13 @@ export function startWebhookWorker() {
           throw new Error(`Webhook failed`);
         }
       } catch (error) {
-        logger.error(`Webhook worker error:`, error);
+        logger.error({ err: error }, `Webhook worker error`);
         throw error;
       }
     },
     {
       connection,
       concurrency: 10, // Can handle more concurrent webhooks
-      attempts: 3, // Retry failed webhooks
-      backoff: {
-        type: 'exponential',
-        delay: 2000,
-      },
     }
   );
 
@@ -111,7 +106,7 @@ export function startWebhookWorker() {
   });
 
   worker.on('failed', (job, err) => {
-    logger.error(`Webhook job ${job?.id} failed after retries:`, err);
+    logger.error({ err, jobId: job?.id }, `Webhook job ${job?.id} failed after retries`);
   });
 
   return worker;

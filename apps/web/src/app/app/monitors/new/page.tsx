@@ -2,20 +2,22 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+  SaturnCard,
+  SaturnCardHeader,
+  SaturnCardTitle,
+  SaturnCardDescription,
+  SaturnCardContent,
+  SaturnButton,
+  SaturnInput,
+  SaturnLabel,
+  SaturnSelect,
+  SaturnTabs,
+  PageHeader,
+} from '@/components/saturn';
 import { Copy, CheckCircle2 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+import { PageHeaderWithBreadcrumbs } from '@/components/page-header-with-breadcrumbs';
 
 export default function NewMonitorPage() {
   const router = useRouter();
@@ -37,8 +39,6 @@ export default function NewMonitorPage() {
     setLoading(true);
 
     try {
-      // For now, we'll get the orgId from the first org
-      // In a real app, this would come from session/context
       const orgsResponse = await fetch('/api/org');
       const { org } = await orgsResponse.json();
 
@@ -49,7 +49,7 @@ export default function NewMonitorPage() {
         },
         body: JSON.stringify({
           ...formData,
-          orgId: org?.id || 'cmgnwj2kd0001ns6jnw8h5cxe', // Fallback to seed org ID
+          orgId: org?.id || 'cmgnwj2kd0001ns6jnw8h5cxe',
           intervalSec: formData.scheduleType === 'INTERVAL' ? formData.intervalSec : undefined,
           cronExpr: formData.scheduleType === 'CRON' ? formData.cronExpr : undefined,
         }),
@@ -90,64 +90,62 @@ export default function NewMonitorPage() {
     const pingUrl = `${window.location.origin}/api/ping/${createdMonitor.token}`;
     
     return (
-      <div className="max-w-4xl mx-auto space-y-6">
-        <div className="text-center py-6">
+      <div className="max-w-4xl mx-auto space-y-8">
+        <div className="text-center py-8">
           <CheckCircle2 className="w-16 h-16 text-green-600 mx-auto mb-4" />
-          <h1 className="text-3xl font-bold mb-2">Monitor Created!</h1>
-          <p className="text-gray-600">Your monitor is now active and ready to receive pings</p>
+          <h1 className="text-3xl sm:text-4xl font-normal text-[#37322F] font-serif mb-2">Monitor Created!</h1>
+          <p className="text-[rgba(55,50,47,0.80)] font-sans">Your monitor is now active and ready to receive pings</p>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>{createdMonitor.name}</CardTitle>
-            <CardDescription>Use this token to start monitoring your job</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div>
-              <Label>Monitor Token</Label>
-              <div className="flex items-center gap-2 mt-2">
-                <code className="flex-1 bg-gray-100 px-4 py-2 rounded font-mono text-sm">
-                  {createdMonitor.token}
-                </code>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => copyToClipboard(createdMonitor.token)}
-                >
-                  <Copy className="w-4 h-4" />
-                </Button>
-              </div>
-            </div>
-
-            <Tabs defaultValue="bash">
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="bash">Bash</TabsTrigger>
-                <TabsTrigger value="python">Python</TabsTrigger>
-                <TabsTrigger value="cli">CLI</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="bash" className="space-y-3">
-                <div>
-                  <Label className="text-xs text-gray-600">Simple heartbeat (add to your cron job)</Label>
-                  <div className="relative mt-2">
-                    <pre className="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm">
-{`curl ${pingUrl}`}
-                    </pre>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="absolute top-2 right-2"
-                      onClick={() => copyToClipboard(`curl ${pingUrl}`)}
-                    >
-                      <Copy className="w-4 h-4" />
-                    </Button>
-                  </div>
+        <SaturnCard>
+          <SaturnCardHeader>
+            <SaturnCardTitle as="h2">{createdMonitor.name}</SaturnCardTitle>
+            <SaturnCardDescription>Use this token to start monitoring your job</SaturnCardDescription>
+          </SaturnCardHeader>
+          <SaturnCardContent>
+            <div className="space-y-6">
+              <div>
+                <SaturnLabel>Monitor Token</SaturnLabel>
+                <div className="flex items-center gap-2 mt-2">
+                  <code className="flex-1 bg-gray-100 px-4 py-2 rounded-lg font-mono text-sm text-[#37322F] border border-[rgba(55,50,47,0.12)]">
+                    {createdMonitor.token}
+                  </code>
+                  <SaturnButton
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => copyToClipboard(createdMonitor.token)}
+                  >
+                    <Copy className="w-4 h-4" />
+                  </SaturnButton>
                 </div>
+              </div>
 
-                <div>
-                  <Label className="text-xs text-gray-600">With start/finish tracking</Label>
-                  <div className="relative mt-2">
-                    <pre className="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm whitespace-pre">
+              <SaturnTabs
+                tabs={[
+                  {
+                    id: 'bash',
+                    label: 'Bash',
+                    content: (
+                      <div className="space-y-4">
+                        <div>
+                          <SaturnLabel className="text-xs text-[rgba(55,50,47,0.60)]">Simple heartbeat (add to your cron job)</SaturnLabel>
+                          <div className="relative mt-2">
+                            <pre className="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm">
+{`curl ${pingUrl}`}
+                            </pre>
+                            <button
+                              onClick={() => copyToClipboard(`curl ${pingUrl}`)}
+                              className="absolute top-2 right-2 p-1 hover:bg-gray-800 rounded transition-colors"
+                            >
+                              <Copy className="w-4 h-4 text-gray-400" />
+                            </button>
+                          </div>
+                        </div>
+
+                        <div>
+                          <SaturnLabel className="text-xs text-[rgba(55,50,47,0.60)]">With start/finish tracking</SaturnLabel>
+                          <div className="relative mt-2">
+                            <pre className="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm whitespace-pre">
 {`TOKEN="${createdMonitor.token}"
 curl "${pingUrl}?state=start"
 
@@ -156,24 +154,26 @@ your_job_command
 
 # Send success
 curl "${pingUrl}?state=success&exitCode=0"`}
-                    </pre>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="absolute top-2 right-2"
-                      onClick={() => copyToClipboard(`TOKEN="${createdMonitor.token}"\ncurl "${pingUrl}?state=start"\n\n# Your job here\nyour_job_command\n\n# Send success\ncurl "${pingUrl}?state=success&exitCode=0"`)}
-                    >
-                      <Copy className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
-              </TabsContent>
-
-              <TabsContent value="python" className="space-y-3">
-                <div>
-                  <Label className="text-xs text-gray-600">Python wrapper</Label>
-                  <div className="relative mt-2">
-                    <pre className="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm whitespace-pre">
+                            </pre>
+                            <button
+                              onClick={() => copyToClipboard(`TOKEN="${createdMonitor.token}"\ncurl "${pingUrl}?state=start"\n\n# Your job here\nyour_job_command\n\n# Send success\ncurl "${pingUrl}?state=success&exitCode=0"`)}
+                              className="absolute top-2 right-2 p-1 hover:bg-gray-800 rounded transition-colors"
+                            >
+                              <Copy className="w-4 h-4 text-gray-400" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ),
+                  },
+                  {
+                    id: 'python',
+                    label: 'Python',
+                    content: (
+                      <div>
+                        <SaturnLabel className="text-xs text-[rgba(55,50,47,0.60)]">Python wrapper</SaturnLabel>
+                        <div className="relative mt-2">
+                          <pre className="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm whitespace-pre">
 {`import requests, subprocess, sys
 
 TOKEN = "${createdMonitor.token}"
@@ -188,196 +188,203 @@ result = subprocess.run(sys.argv[1:], capture_output=True)
 # Finish ping
 state = "success" if result.returncode == 0 else "fail"
 requests.get(f"{URL}?state={state}&exitCode={result.returncode}", timeout=5)`}
-                    </pre>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="absolute top-2 right-2"
-                      onClick={() => copyToClipboard(`import requests, subprocess, sys\n\nTOKEN = "${createdMonitor.token}"\nURL = "${pingUrl}"\n\n# Start ping\nrequests.get(f"{URL}?state=start", timeout=5)\n\n# Run your job\nresult = subprocess.run(sys.argv[1:], capture_output=True)\n\n# Finish ping\nstate = "success" if result.returncode == 0 else "fail"\nrequests.get(f"{URL}?state={state}&exitCode={result.returncode}", timeout=5)`)}
-                    >
-                      <Copy className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
-              </TabsContent>
-
-              <TabsContent value="cli" className="space-y-3">
-                <div>
-                  <Label className="text-xs text-gray-600">Using PulseGuard CLI (recommended)</Label>
-                  <div className="relative mt-2">
-                    <pre className="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm">
+                          </pre>
+                          <button
+                            onClick={() => copyToClipboard(`import requests, subprocess, sys\n\nTOKEN = "${createdMonitor.token}"\nURL = "${pingUrl}"\n\n# Start ping\nrequests.get(f"{URL}?state=start", timeout=5)\n\n# Run your job\nresult = subprocess.run(sys.argv[1:], capture_output=True)\n\n# Finish ping\nstate = "success" if result.returncode == 0 else "fail"\nrequests.get(f"{URL}?state={state}&exitCode={result.returncode}", timeout=5)`)}
+                            className="absolute top-2 right-2 p-1 hover:bg-gray-800 rounded transition-colors"
+                          >
+                            <Copy className="w-4 h-4 text-gray-400" />
+                          </button>
+                        </div>
+                      </div>
+                    ),
+                  },
+                  {
+                    id: 'cli',
+                    label: 'CLI',
+                    content: (
+                      <div>
+                        <SaturnLabel className="text-xs text-[rgba(55,50,47,0.60)]">Using Saturn CLI (recommended)</SaturnLabel>
+                        <div className="relative mt-2">
+                          <pre className="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm">
 {`npx tsx packages/cli/src/index.ts run --token ${createdMonitor.token} -- your-command`}
-                    </pre>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="absolute top-2 right-2"
-                      onClick={() => copyToClipboard(`npx tsx packages/cli/src/index.ts run --token ${createdMonitor.token} -- your-command`)}
-                    >
-                      <Copy className="w-4 h-4" />
-                    </Button>
-                  </div>
-                  <p className="text-xs text-gray-500 mt-2">
-                    The CLI automatically sends start/success pings and captures exit codes.
-                  </p>
-                </div>
-              </TabsContent>
-            </Tabs>
+                          </pre>
+                          <button
+                            onClick={() => copyToClipboard(`npx tsx packages/cli/src/index.ts run --token ${createdMonitor.token} -- your-command`)}
+                            className="absolute top-2 right-2 p-1 hover:bg-gray-800 rounded transition-colors"
+                          >
+                            <Copy className="w-4 h-4 text-gray-400" />
+                          </button>
+                        </div>
+                        <p className="text-xs text-[rgba(55,50,47,0.60)] mt-2 font-sans">
+                          The CLI automatically sends start/success pings and captures exit codes.
+                        </p>
+                      </div>
+                    ),
+                  },
+                ]}
+                defaultTab="bash"
+              />
 
-            <div className="flex gap-3 pt-4">
-              <Button onClick={() => router.push(`/app/monitors/${createdMonitor.id}`)}>
-                View Monitor
-              </Button>
-              <Button variant="outline" onClick={() => router.push('/app/monitors')}>
-                All Monitors
-              </Button>
-              <Button variant="ghost" onClick={() => setCreatedMonitor(null)}>
-                Create Another
-              </Button>
+              <div className="flex flex-wrap gap-3 pt-4">
+                <SaturnButton onClick={() => router.push(`/app/monitors/${createdMonitor.id}`)}>
+                  View Monitor
+                </SaturnButton>
+                <SaturnButton variant="secondary" onClick={() => router.push('/app/monitors')}>
+                  All Monitors
+                </SaturnButton>
+                <SaturnButton variant="ghost" onClick={() => setCreatedMonitor(null)}>
+                  Create Another
+                </SaturnButton>
+              </div>
             </div>
-          </CardContent>
-        </Card>
+          </SaturnCardContent>
+        </SaturnCard>
       </div>
     );
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Create Monitor</h1>
-        <p className="text-gray-600">Set up monitoring for a cron job or scheduled task</p>
-      </div>
+    <div className="max-w-2xl mx-auto space-y-8">
+      <PageHeaderWithBreadcrumbs
+        title="Create Monitor"
+        description="Set up monitoring for a cron job or scheduled task"
+        breadcrumbs={[
+          { label: 'Dashboard', href: '/app' },
+          { label: 'Monitors', href: '/app/monitors' },
+          { label: 'New Monitor' },
+        ]}
+      />
 
       <form onSubmit={handleSubmit}>
-        <Card>
-          <CardHeader>
-            <CardTitle>Monitor Configuration</CardTitle>
-            <CardDescription>Configure how often your job should run</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="name">Monitor Name *</Label>
-              <Input
-                id="name"
-                placeholder="e.g., Daily Backup Job"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                required
-              />
-              <p className="text-xs text-gray-500">
-                A descriptive name to identify this monitor
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Schedule Type *</Label>
-              <Select
-                value={formData.scheduleType}
-                onValueChange={(value) =>
-                  setFormData({ ...formData, scheduleType: value as 'INTERVAL' | 'CRON' })
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="INTERVAL">Interval (every X seconds/minutes/hours)</SelectItem>
-                  <SelectItem value="CRON">Cron Expression (advanced)</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {formData.scheduleType === 'INTERVAL' ? (
+        <SaturnCard>
+          <SaturnCardHeader>
+            <SaturnCardTitle as="h2">Monitor Configuration</SaturnCardTitle>
+            <SaturnCardDescription>Configure how often your job should run</SaturnCardDescription>
+          </SaturnCardHeader>
+          <SaturnCardContent>
+            <div className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="interval">Interval (seconds) *</Label>
-                <Input
-                  id="interval"
-                  type="number"
-                  min="60"
-                  value={formData.intervalSec}
-                  onChange={(e) =>
-                    setFormData({ ...formData, intervalSec: parseInt(e.target.value) })
+                <SaturnLabel htmlFor="name" required>Monitor Name</SaturnLabel>
+                <SaturnInput
+                  id="name"
+                  placeholder="e.g., Daily Backup Job"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  required
+                  fullWidth
+                />
+                <p className="text-xs text-[rgba(55,50,47,0.60)] font-sans">
+                  A descriptive name to identify this monitor
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <SaturnLabel required>Schedule Type</SaturnLabel>
+                <SaturnSelect
+                  value={formData.scheduleType}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, scheduleType: value as 'INTERVAL' | 'CRON' })
                   }
-                  required
+                  options={[
+                    { value: 'INTERVAL', label: 'Interval (every X seconds/minutes/hours)' },
+                    { value: 'CRON', label: 'Cron Expression (advanced)' },
+                  ]}
+                  fullWidth
                 />
-                <p className="text-xs text-gray-500">
-                  How often the job runs (minimum 60 seconds)
-                  {formData.intervalSec >= 3600 ? ` = ${Math.floor(formData.intervalSec / 3600)}h` :
-                   formData.intervalSec >= 60 ? ` = ${Math.floor(formData.intervalSec / 60)}m` : ''}
-                </p>
               </div>
-            ) : (
-              <div className="space-y-2">
-                <Label htmlFor="cron">Cron Expression *</Label>
-                <Input
-                  id="cron"
-                  placeholder="0 3 * * *"
-                  value={formData.cronExpr}
-                  onChange={(e) => setFormData({ ...formData, cronExpr: e.target.value })}
-                  required
-                />
-                <p className="text-xs text-gray-500">
-                  Example: &quot;0 3 * * *&quot; runs daily at 3:00 AM
-                </p>
-              </div>
-            )}
 
-            {formData.scheduleType === 'CRON' && (
+              {formData.scheduleType === 'INTERVAL' ? (
+                <div className="space-y-2">
+                  <SaturnLabel htmlFor="interval" required>Interval (seconds)</SaturnLabel>
+                  <SaturnInput
+                    id="interval"
+                    type="number"
+                    min="60"
+                    value={formData.intervalSec}
+                    onChange={(e) =>
+                      setFormData({ ...formData, intervalSec: parseInt(e.target.value) })
+                    }
+                    required
+                    fullWidth
+                  />
+                  <p className="text-xs text-[rgba(55,50,47,0.60)] font-sans">
+                    How often the job runs (minimum 60 seconds)
+                    {formData.intervalSec >= 3600 ? ` = ${Math.floor(formData.intervalSec / 3600)}h` :
+                     formData.intervalSec >= 60 ? ` = ${Math.floor(formData.intervalSec / 60)}m` : ''}
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <SaturnLabel htmlFor="cron" required>Cron Expression</SaturnLabel>
+                  <SaturnInput
+                    id="cron"
+                    placeholder="0 3 * * *"
+                    value={formData.cronExpr}
+                    onChange={(e) => setFormData({ ...formData, cronExpr: e.target.value })}
+                    required
+                    fullWidth
+                  />
+                  <p className="text-xs text-[rgba(55,50,47,0.60)] font-sans">
+                    Example: &quot;0 3 * * *&quot; runs daily at 3:00 AM
+                  </p>
+                </div>
+              )}
+
+              {formData.scheduleType === 'CRON' && (
+                <div className="space-y-2">
+                  <SaturnLabel htmlFor="timezone">Timezone</SaturnLabel>
+                  <SaturnSelect
+                    value={formData.timezone}
+                    onValueChange={(value) => setFormData({ ...formData, timezone: value })}
+                    options={[
+                      { value: 'UTC', label: 'UTC' },
+                      { value: 'America/New_York', label: 'America/New_York (EST/EDT)' },
+                      { value: 'America/Chicago', label: 'America/Chicago (CST/CDT)' },
+                      { value: 'America/Denver', label: 'America/Denver (MST/MDT)' },
+                      { value: 'America/Los_Angeles', label: 'America/Los_Angeles (PST/PDT)' },
+                      { value: 'America/Toronto', label: 'America/Toronto (EST/EDT)' },
+                      { value: 'Europe/London', label: 'Europe/London (GMT/BST)' },
+                      { value: 'Europe/Paris', label: 'Europe/Paris (CET/CEST)' },
+                      { value: 'Asia/Tokyo', label: 'Asia/Tokyo (JST)' },
+                      { value: 'Australia/Sydney', label: 'Australia/Sydney (AEDT/AEST)' },
+                    ]}
+                    fullWidth
+                  />
+                </div>
+              )}
+
               <div className="space-y-2">
-                <Label htmlFor="timezone">Timezone</Label>
-                <Select
-                  value={formData.timezone}
-                  onValueChange={(value) => setFormData({ ...formData, timezone: value })}
+                <SaturnLabel htmlFor="grace">Grace Period (seconds)</SaturnLabel>
+                <SaturnInput
+                  id="grace"
+                  type="number"
+                  min="0"
+                  value={formData.graceSec}
+                  onChange={(e) => setFormData({ ...formData, graceSec: parseInt(e.target.value) })}
+                  fullWidth
+                />
+                <p className="text-xs text-[rgba(55,50,47,0.60)] font-sans">
+                  How long to wait before marking a job as missed (default: 300s = 5 minutes)
+                </p>
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <SaturnButton type="submit" disabled={loading || !formData.name} loading={loading}>
+                  Create Monitor
+                </SaturnButton>
+                <SaturnButton
+                  type="button"
+                  variant="secondary"
+                  onClick={() => router.push('/app/monitors')}
                 >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="UTC">UTC</SelectItem>
-                    <SelectItem value="America/New_York">America/New_York (EST/EDT)</SelectItem>
-                    <SelectItem value="America/Chicago">America/Chicago (CST/CDT)</SelectItem>
-                    <SelectItem value="America/Denver">America/Denver (MST/MDT)</SelectItem>
-                    <SelectItem value="America/Los_Angeles">America/Los_Angeles (PST/PDT)</SelectItem>
-                    <SelectItem value="America/Toronto">America/Toronto (EST/EDT)</SelectItem>
-                    <SelectItem value="Europe/London">Europe/London (GMT/BST)</SelectItem>
-                    <SelectItem value="Europe/Paris">Europe/Paris (CET/CEST)</SelectItem>
-                    <SelectItem value="Asia/Tokyo">Asia/Tokyo (JST)</SelectItem>
-                    <SelectItem value="Australia/Sydney">Australia/Sydney (AEDT/AEST)</SelectItem>
-                  </SelectContent>
-                </Select>
+                  Cancel
+                </SaturnButton>
               </div>
-            )}
-
-            <div className="space-y-2">
-              <Label htmlFor="grace">Grace Period (seconds)</Label>
-              <Input
-                id="grace"
-                type="number"
-                min="0"
-                value={formData.graceSec}
-                onChange={(e) => setFormData({ ...formData, graceSec: parseInt(e.target.value) })}
-              />
-              <p className="text-xs text-gray-500">
-                How long to wait before marking a job as missed (default: 300s = 5 minutes)
-              </p>
             </div>
-
-            <div className="flex gap-3 pt-4">
-              <Button type="submit" disabled={loading || !formData.name}>
-                {loading ? 'Creating...' : 'Create Monitor'}
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => router.push('/app/monitors')}
-              >
-                Cancel
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+          </SaturnCardContent>
+        </SaturnCard>
       </form>
     </div>
   );
 }
-

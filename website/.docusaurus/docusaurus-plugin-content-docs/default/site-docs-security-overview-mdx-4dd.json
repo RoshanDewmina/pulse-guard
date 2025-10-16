@@ -1,0 +1,35 @@
+{
+  "id": "security/overview",
+  "title": "Security Overview",
+  "description": "Token hashing, RLS, CSRF protection, rate limiting, and HTTPS",
+  "source": "@site/docs/security/overview.mdx",
+  "sourceDirName": "security",
+  "slug": "/security/overview",
+  "permalink": "/security/overview",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/saturn/saturn/tree/main/website/docs/security/overview.mdx",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "overview",
+    "title": "Security Overview",
+    "description": "Token hashing, RLS, CSRF protection, rate limiting, and HTTPS",
+    "keywords": [
+      "security",
+      "authentication",
+      "authorization",
+      "csrf",
+      "rate limiting"
+    ]
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Output Capture",
+    "permalink": "/output-capture/overview"
+  },
+  "next": {
+    "title": "Output Redaction",
+    "permalink": "/security/redaction"
+  }
+}

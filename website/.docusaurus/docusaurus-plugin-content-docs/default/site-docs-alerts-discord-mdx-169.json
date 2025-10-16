@@ -1,0 +1,35 @@
+{
+  "id": "alerts/discord",
+  "title": "Discord Alerts",
+  "description": "Discord webhook notifications with embeds, rate limits, and exponential backoff",
+  "source": "@site/docs/alerts/discord.mdx",
+  "sourceDirName": "alerts",
+  "slug": "/alerts/discord",
+  "permalink": "/alerts/discord",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/saturn/saturn/tree/main/website/docs/alerts/discord.mdx",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "discord",
+    "title": "Discord Alerts",
+    "description": "Discord webhook notifications with embeds, rate limits, and exponential backoff",
+    "keywords": [
+      "discord",
+      "discord webhooks",
+      "embeds",
+      "notifications",
+      "rate limiting"
+    ]
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Slack Alerts",
+    "permalink": "/alerts/slack"
+  },
+  "next": {
+    "title": "Webhooks",
+    "permalink": "/alerts/webhooks"
+  }
+}

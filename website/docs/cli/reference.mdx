@@ -1,0 +1,58 @@
+---
+id: reference
+title: CLI Reference
+description: Complete command reference for the Saturn CLI
+keywords: [cli, commands, reference, pulse]
+---
+
+# CLI Reference
+
+Complete reference for the `pulse` CLI.
+
+## Commands
+
+### pulse login
+
+Authenticate with Saturn.
+
+\`\`\`bash
+pulse login                  # Device flow
+pulse login --token YOUR_TOKEN  # Direct token
+\`\`\`
+
+### pulse run
+
+Wrap and monitor a command.
+
+\`\`\`bash
+pulse run --monitor <ID> -- <command>
+pulse run --monitor <ID> --capture-output -- <command>
+pulse run --monitor <ID> --timeout 3600 -- <command>
+\`\`\`
+
+### pulse monitors
+
+List and manage monitors.
+
+\`\`\`bash
+pulse monitors list
+pulse monitors create --name "Backup" --interval 3600
+pulse monitors get YOUR_MONITOR_ID
+pulse monitors delete YOUR_MONITOR_ID
+\`\`\`
+
+### pulse incidents
+
+View incidents.
+
+\`\`\`bash
+pulse incidents list
+pulse incidents get YOUR_INCIDENT_ID
+pulse incidents ack YOUR_INCIDENT_ID
+pulse incidents resolve YOUR_INCIDENT_ID
+\`\`\`
+
+## Next Steps
+
+- [Installation](./install) — Install the CLI
+- [pulse run](./pulse-run) — Detailed wrapper guide

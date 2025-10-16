@@ -1,5 +1,5 @@
 /**
- * Tokiflow Admin JavaScript
+ * Saturn Admin JavaScript
  */
 
 (function($) {
@@ -7,15 +7,15 @@
     
     $(document).ready(function() {
         // Test connection button
-        $('#tokiflow-test-connection').on('click', function(e) {
+        $('#Saturn-test-connection').on('click', function(e) {
             e.preventDefault();
             
             var $button = $(this);
-            var $result = $('#tokiflow-test-result');
+            var $result = $('#Saturn-test-result');
             
             // Get current values from form
-            var token = $('#tokiflow_token').val();
-            var apiUrl = $('#tokiflow_api_url').val();
+            var token = $('#Saturn_token').val();
+            var apiUrl = $('#Saturn_api_url').val();
             
             if (!token) {
                 $result.html('<div class="notice notice-error inline"><p>Please enter a monitor token first.</p></div>');
@@ -24,14 +24,14 @@
             
             // Disable button and show loading
             $button.prop('disabled', true).text('Testing...');
-            $result.html('<div class="notice notice-info inline"><p>Testing connection to Tokiflow...</p></div>');
+            $result.html('<div class="notice notice-info inline"><p>Testing connection to Saturn...</p></div>');
             
             // Send AJAX request
             $.ajax({
                 url: pulseGuardAdmin.ajaxUrl,
                 type: 'POST',
                 data: {
-                    action: 'tokiflow_test_connection',
+                    action: 'Saturn_test_connection',
                     nonce: pulseGuardAdmin.nonce,
                     token: token,
                     api_url: apiUrl

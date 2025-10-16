@@ -55,7 +55,7 @@ export const authOptions: NextAuthOptions = {
           pass: process.env.EMAIL_SERVER_PASSWORD,
         },
       } : undefined,
-      from: process.env.EMAIL_FROM || 'noreply@tokiflow.co',
+      from: process.env.EMAIL_FROM || 'noreply@saturn.co',
       sendVerificationRequest: async ({ identifier, url, provider }) => {
         // Always log to console for debugging
         console.log('\n🔗 Magic Link for', identifier);
@@ -69,18 +69,18 @@ export const authOptions: NextAuthOptions = {
             const { data, error } = await resend.emails.send({
               from: provider.from,
               to: identifier,
-              subject: 'Sign in to Tokiflow',
+              subject: 'Sign in to Saturn',
               html: `
                 <!DOCTYPE html>
                 <html>
                   <head>
                     <meta charset="utf-8">
                     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                    <title>Sign in to Tokiflow</title>
+                    <title>Sign in to Saturn</title>
                   </head>
                   <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
                     <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
-                      <h1 style="color: white; margin: 0; font-size: 28px;">Tokiflow</h1>
+                      <h1 style="color: white; margin: 0; font-size: 28px;">Saturn</h1>
                       <p style="color: rgba(255, 255, 255, 0.9); margin: 10px 0 0 0;">Cron & Job Monitoring</p>
                     </div>
                     
@@ -88,7 +88,7 @@ export const authOptions: NextAuthOptions = {
                       <h2 style="color: #1f2937; margin-top: 0;">Sign in to your account</h2>
                       
                       <p style="color: #4b5563; font-size: 16px; margin: 20px 0;">
-                        Click the button below to sign in to your Tokiflow account. This link will expire in 24 hours.
+                        Click the button below to sign in to your Saturn account. This link will expire in 24 hours.
                       </p>
                       
                       <div style="text-align: center; margin: 35px 0;">
@@ -101,7 +101,7 @@ export const authOptions: NextAuthOptions = {
                                   font-weight: 600;
                                   font-size: 16px;
                                   display: inline-block;">
-                          Sign in to Tokiflow
+                          Sign in to Saturn
                         </a>
                       </div>
                       
@@ -120,7 +120,7 @@ export const authOptions: NextAuthOptions = {
                     </div>
                     
                     <div style="text-align: center; margin-top: 20px; color: #9ca3af; font-size: 12px;">
-                      <p>© 2025 Tokiflow. All rights reserved.</p>
+                      <p>© 2025 Saturn. All rights reserved.</p>
                     </div>
                   </body>
                 </html>
@@ -156,6 +156,42 @@ export const authOptions: NextAuthOptions = {
   },
   debug: true,
   callbacks: {
+    async signIn({ user, account, profile }) {
+      // When a user signs in with OAuth for the first time, create an organization
+      if (account && (account.provider === 'google' || account.provider === 'email')) {
+        const existingMembership = await prisma.membership.findFirst({
+          where: { userId: user.id },
+        });
+
+        // Only create org if user doesn't have one
+        if (!existingMembership) {
+          const userName = user.name || user.email?.split('@')[0] || 'User';
+          const timestamp = Date.now();
+          
+          await prisma.org.create({
+            data: {
+              name: `${userName}'s Organization`,
+              slug: `${user.email?.split('@')[0]}-${timestamp}`,
+              memberships: {
+                create: {
+                  userId: user.id,
+                  role: 'OWNER',
+                },
+              },
+              subscriptionPlan: {
+                create: {
+                  plan: 'FREE',
+                  monitorLimit: 5,
+                  userLimit: 1,
+                },
+              },
+            },
+          });
+          console.log(`✅ Created organization for new user: ${user.email}`);
+        }
+      }
+      return true;
+    },
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.sub!;

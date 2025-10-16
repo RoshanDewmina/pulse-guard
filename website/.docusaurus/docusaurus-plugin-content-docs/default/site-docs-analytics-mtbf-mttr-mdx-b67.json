@@ -1,0 +1,35 @@
+{
+  "id": "analytics/mtbf-mttr",
+  "title": "MTBF & MTTR",
+  "description": "Mean Time Between Failures and Mean Time To Repair - key reliability metrics",
+  "source": "@site/docs/analytics/mtbf-mttr.mdx",
+  "sourceDirName": "analytics",
+  "slug": "/analytics/mtbf-mttr",
+  "permalink": "/analytics/mtbf-mttr",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/saturn/saturn/tree/main/website/docs/analytics/mtbf-mttr.mdx",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "mtbf-mttr",
+    "title": "MTBF & MTTR",
+    "description": "Mean Time Between Failures and Mean Time To Repair - key reliability metrics",
+    "keywords": [
+      "mtbf",
+      "mttr",
+      "mean time between failures",
+      "mean time to repair",
+      "reliability metrics"
+    ]
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Uptime & SLA Tracking",
+    "permalink": "/analytics/uptime-sla"
+  },
+  "next": {
+    "title": "Duration Percentiles",
+    "permalink": "/analytics/percentiles"
+  }
+}

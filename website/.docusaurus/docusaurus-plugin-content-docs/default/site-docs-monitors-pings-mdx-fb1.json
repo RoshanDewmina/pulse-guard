@@ -1,0 +1,36 @@
+{
+  "id": "monitors/pings",
+  "title": "Ping API",
+  "description": "Understanding start, success, and fail pings with duration and exit code capture",
+  "source": "@site/docs/monitors/pings.mdx",
+  "sourceDirName": "monitors",
+  "slug": "/monitors/pings",
+  "permalink": "/monitors/pings",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/saturn/saturn/tree/main/website/docs/monitors/pings.mdx",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "pings",
+    "title": "Ping API",
+    "description": "Understanding start, success, and fail pings with duration and exit code capture",
+    "keywords": [
+      "ping api",
+      "start ping",
+      "success ping",
+      "fail ping",
+      "duration",
+      "exit code"
+    ]
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Monitor Types & Schedules",
+    "permalink": "/monitors/types"
+  },
+  "next": {
+    "title": "Grace Periods",
+    "permalink": "/monitors/grace-periods"
+  }
+}

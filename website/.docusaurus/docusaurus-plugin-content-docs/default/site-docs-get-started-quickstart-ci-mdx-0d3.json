@@ -1,0 +1,35 @@
+{
+  "id": "get-started/quickstart-ci",
+  "title": "CI/CD Pipeline Monitoring",
+  "description": "Monitor GitHub Actions, GitLab CI, Jenkins, and other CI/CD pipelines with Saturn",
+  "source": "@site/docs/get-started/quickstart-ci.mdx",
+  "sourceDirName": "get-started",
+  "slug": "/get-started/quickstart-ci",
+  "permalink": "/get-started/quickstart-ci",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/saturn/saturn/tree/main/website/docs/get-started/quickstart-ci.mdx",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "quickstart-ci",
+    "title": "CI/CD Pipeline Monitoring",
+    "description": "Monitor GitHub Actions, GitLab CI, Jenkins, and other CI/CD pipelines with Saturn",
+    "keywords": [
+      "ci/cd",
+      "github actions",
+      "gitlab ci",
+      "jenkins",
+      "pipeline monitoring"
+    ]
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Linux Cron with curl or CLI",
+    "permalink": "/get-started/quickstart-linux-cron"
+  },
+  "next": {
+    "title": "Monitor Types & Schedules",
+    "permalink": "/monitors/types"
+  }
+}

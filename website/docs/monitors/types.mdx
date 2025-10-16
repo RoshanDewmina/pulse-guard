@@ -1,0 +1,254 @@
+---
+id: types
+title: Monitor Types & Schedules
+description: Understanding interval-based and cron-based monitors with timezone support
+keywords: [monitor types, interval, cron expression, schedule, timezone]
+---
+
+# Monitor Types & Schedules
+
+Saturn supports multiple scheduling methods to match your job's configuration.
+
+## Monitor Types
+
+### Interval-Based
+
+Monitor expects a ping every **N seconds**.
+
+**Best for**:
+- Simple recurring jobs
+- Jobs that run at fixed intervals
+- When cron expressions feel like overkill
+
+**Example**: Ping every 3600 seconds (1 hour)
+
+```bash
+# Create in dashboard or via API
+{
+  "name": "Hourly Health Check",
+  "schedule": {
+    "type": "interval",
+    "seconds": 3600
+  },
+  "gracePeriod": 300  // 5 minutes grace
+}
+```
+
+**Common Intervals**:
+
+| Interval | Seconds | Use Case |
+|----------|---------|----------|
+| 5 minutes | 300 | Health checks |
+| 15 minutes | 900 | Cache updates |
+| 1 hour | 3600 | Cleanup tasks |
+| 6 hours | 21600 | Report generation |
+| 1 day | 86400 | Daily backups |
+
+### Cron-Based
+
+Monitor expects a ping based on a **cron expression**.
+
+**Best for**:
+- Complex schedules (e.g., "weekdays at 3 AM")
+- Matching existing crontab entries
+- Timezone-specific schedules
+
+**Example**: Daily at 3 AM
+
+```bash
+{
+  "name": "Nightly Backup",
+  "schedule": {
+    "type": "cron",
+    "expression": "0 3 * * *",
+    "timezone": "America/New_York"
+  },
+  "gracePeriod": 1800  // 30 minutes grace
+}
+```
+
+## Cron Expression Syntax
+
+Saturn uses standard cron syntax with optional seconds field:
+
+```
+┌────────── second (optional, 0-59)
+│ ┌──────── minute (0-59)
+│ │ ┌────── hour (0-23)
+│ │ │ ┌──── day of month (1-31)
+│ │ │ │ ┌── month (1-12 or JAN-DEC)
+│ │ │ │ │ ┌ day of week (0-7 or SUN-SAT, 0 and 7 are Sunday)
+│ │ │ │ │ │
+* * * * * *
+```
+
+### Common Patterns
+
+```bash
+# Every day at 3 AM
+0 3 * * *
+
+# Every hour
+0 * * * *
+
+# Every 15 minutes
+*/15 * * * *
+
+# Every Monday at 9 AM
+0 9 * * 1
+
+# First day of every month at midnight
+0 0 1 * *
+
+# Weekdays at 6 AM
+0 6 * * 1-5
+
+# Every 6 hours
+0 */6 * * *
+
+# Twice a day (6 AM and 6 PM)
+0 6,18 * * *
+```
+
+### Advanced Expressions
+
+```bash
+# Business hours only (9 AM - 5 PM, weekdays)
+0 9-17 * * 1-5
+
+# Last day of month (approximation)
+0 0 28-31 * *
+
+# Every quarter (Jan, Apr, Jul, Oct)
+0 0 1 1,4,7,10 *
+
+# With seconds: Every 30 seconds
+*/30 * * * * *
+```
+
+:::tip Expression Tester
+Use an online cron expression tester to validate your schedules before creating monitors. Try [crontab.guru](https://crontab.guru/) or [crontab-generator.org](https://crontab-generator.org/).
+:::
+
+## Timezone Support
+
+By default, cron expressions use **UTC**. Specify a timezone to match your server's configuration:
+
+### Supported Timezones
+
+Use IANA timezone names:
+
+```bash
+# North America
+America/New_York        # EST/EDT
+America/Chicago         # CST/CDT
+America/Denver          # MST/MDT
+America/Los_Angeles     # PST/PDT
+
+# Europe
+Europe/London           # GMT/BST
+Europe/Paris            # CET/CEST
+Europe/Berlin           # CET/CEST
+
+# Asia
+Asia/Tokyo              # JST
+Asia/Shanghai           # CST
+Asia/Kolkata            # IST
+
+# Pacific
+Australia/Sydney        # AEDT/AEST
+Pacific/Auckland        # NZDT/NZST
+```
+
+Full list: [IANA Time Zone Database](https://www.iana.org/time-zones)
+
+### Example with Timezone
+
+```json
+{
+  "name": "Tokyo Morning Backup",
+  "schedule": {
+    "type": "cron",
+    "expression": "0 3 * * *",
+    "timezone": "Asia/Tokyo"
+  }
+}
+```
+
+This runs at 3 AM **Japan Standard Time**, not UTC.
+
+### Daylight Saving Time
+
+Saturn automatically handles DST transitions:
+
+- **Spring forward**: Job runs once (skips the lost hour)
+- **Fall back**: Job runs once (doesn't duplicate)
+
+:::warning Kubernetes Timezone Support
+Kubernetes CronJobs only support timezone in v1.25+. For older versions, use UTC and adjust your expression.
+:::
+
+## Manual Pings
+
+For jobs without a fixed schedule:
+
+```json
+{
+  "name": "On-Demand Task",
+  "schedule": {
+    "type": "manual"
+  }
+}
+```
+
+**Manual monitors**:
+- Never go "MISSED" or "LATE"
+- Only alert on explicit **FAIL** pings
+- Useful for webhooks, event-driven jobs, or ad-hoc tasks
+
+## Choosing the Right Type
+
+| Scenario | Recommended Type | Example |
+|----------|------------------|---------|
+| Runs every N seconds/minutes | Interval | Health checks every 5 min |
+| Matches a crontab entry | Cron | `0 3 * * *` daily backup |
+| Complex schedule with TZ | Cron + Timezone | Weekdays 9 AM EST |
+| Event-driven / no fixed schedule | Manual | Webhook receiver |
+| Varies by environment | Interval (simpler) | Dev: 1 hr, Prod: 15 min |
+
+## Grace Periods
+
+Every monitor has a **grace period** — the extra time allowed before marking a job as LATE or MISSED.
+
+### Recommended Grace Periods
+
+| Job Duration | Grace Period | Reason |
+|--------------|--------------|--------|
+| < 1 minute | 1-2 minutes | Quick alert on failure |
+| 1-5 minutes | 2-5 minutes | Account for small delays |
+| 5-30 minutes | 5-10 minutes | Network/load variance |
+| 30-60 minutes | 10-30 minutes | Generous for reliability |
+| > 1 hour | 15-30% of duration | Avoid false positives |
+
+See [Grace Periods](./grace-periods) for detailed guidance.
+
+## Updating Schedules
+
+You can change a monitor's schedule anytime:
+
+- **Interval → Cron**: Switches to cron-based expectations
+- **Cron → Interval**: Calculates next expected interval
+- **Timezone changes**: Applies immediately to future runs
+
+:::info Statistics Preserved
+Changing the schedule does **not** reset statistical baselines (mean, stddev, etc.). Historical data remains for anomaly detection.
+:::
+
+## Next Steps
+
+Learn more about:
+
+- [Pings](./pings) — How to send start/success/fail pings
+- [Grace Periods](./grace-periods) — Tuning grace periods to avoid false positives
+- [Tokens & RBAC](./tokens-rbac) — Managing access and permissions
+

@@ -1,12 +1,12 @@
-# Default values for tokiflow-monitor
+# Default values for Saturn-monitor
 # This is a YAML-formatted file.
 
-# Tokiflow configuration
-tokiflow:
+# Saturn configuration
+Saturn:
   # API endpoint (use your self-hosted instance or SaaS)
-  apiUrl: "https://api.tokiflow.com"
+  apiUrl: "https://api.Saturn.com"
   
-  # Monitor token from Tokiflow dashboard
+  # Monitor token from Saturn dashboard
   # REQUIRED: Set this to your monitor token
   token: ""
   
@@ -20,7 +20,7 @@ tokiflow:
 sidecar:
   # Sidecar image
   image:
-    repository: tokiflow/k8s-sidecar
+    repository: Saturn/k8s-sidecar
     tag: "1.0.0"
     pullPolicy: IfNotPresent
   
@@ -75,7 +75,7 @@ serviceAccount:
   create: true
   
   # Name of the service account
-  name: tokiflow-monitor
+  name: Saturn-monitor
   
   # Annotations to add to the service account
   annotations: {}
@@ -90,6 +90,7 @@ labels: {}
 
 # Additional annotations to add to all resources
 annotations: {}
+
 
 
 

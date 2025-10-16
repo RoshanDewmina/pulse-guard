@@ -1,0 +1,37 @@
+{
+  "id": "analytics/percentiles",
+  "title": "Duration Percentiles",
+  "description": "P50, P95, P99 percentiles for understanding job performance distribution",
+  "source": "@site/docs/analytics/percentiles.mdx",
+  "sourceDirName": "analytics",
+  "slug": "/analytics/percentiles",
+  "permalink": "/analytics/percentiles",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/saturn/saturn/tree/main/website/docs/analytics/percentiles.mdx",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "percentiles",
+    "title": "Duration Percentiles",
+    "description": "P50, P95, P99 percentiles for understanding job performance distribution",
+    "keywords": [
+      "percentiles",
+      "p50",
+      "p95",
+      "p99",
+      "median",
+      "performance",
+      "latency"
+    ]
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "MTBF & MTTR",
+    "permalink": "/analytics/mtbf-mttr"
+  },
+  "next": {
+    "title": "Email Alerts",
+    "permalink": "/alerts/email"
+  }
+}

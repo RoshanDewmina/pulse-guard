@@ -13,7 +13,7 @@ import (
 const version = "1.0.0"
 
 func main() {
-	log.Printf("🚀 Tokiflow Kubernetes Sidecar v%s starting...", version)
+	log.Printf("🚀 Saturn Kubernetes Sidecar v%s starting...", version)
 
 	// Get configuration from environment
 	config, err := loadConfig()
@@ -22,7 +22,7 @@ func main() {
 	}
 
 	log.Printf("Monitoring CronJob: %s", config.CronJobName)
-	log.Printf("Tokiflow API: %s", config.TokiflowAPI)
+	log.Printf("Saturn API: %s", config.SaturnAPI)
 
 	// Create context for graceful shutdown
 	ctx, cancel := context.WithCancel(context.Background())
@@ -79,6 +79,7 @@ func main() {
 	log.Printf("✓ Final %s ping sent", state)
 	log.Println("✨ Sidecar completed successfully")
 }
+
 
 
 

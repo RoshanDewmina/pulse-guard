@@ -1,0 +1,35 @@
+{
+  "id": "anomalies/rules",
+  "title": "Anomaly Detection Rules",
+  "description": "Z-Score, Median Multiplier, and Output Size Drop detection rules explained",
+  "source": "@site/docs/anomalies/rules.mdx",
+  "sourceDirName": "anomalies",
+  "slug": "/anomalies/rules",
+  "permalink": "/anomalies/rules",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/saturn/saturn/tree/main/website/docs/anomalies/rules.mdx",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "rules",
+    "title": "Anomaly Detection Rules",
+    "description": "Z-Score, Median Multiplier, and Output Size Drop detection rules explained",
+    "keywords": [
+      "z-score",
+      "median multiplier",
+      "output size",
+      "detection rules",
+      "thresholds"
+    ]
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Anomaly Detection Overview",
+    "permalink": "/anomalies/overview"
+  },
+  "next": {
+    "title": "Welford's Online Algorithm",
+    "permalink": "/anomalies/welford"
+  }
+}

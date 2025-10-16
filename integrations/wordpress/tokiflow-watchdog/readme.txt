@@ -1,5 +1,5 @@
-=== Tokiflow Watchdog ===
-Contributors: tokiflow
+=== Saturn Watchdog ===
+Contributors: saturn
 Tags: monitoring, cron, wp-cron, alerts, uptime
 Requires at least: 5.0
 Tested up to: 6.4
@@ -8,18 +8,18 @@ Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Monitor WordPress cron jobs with Tokiflow. Detect if wp-cron is broken and get instant alerts.
+Monitor WordPress cron jobs with Saturn. Detect if wp-cron is broken and get instant alerts.
 
 == Description ==
 
-Tokiflow Watchdog monitors your WordPress cron system (wp-cron) and sends heartbeat pings to Tokiflow, ensuring your scheduled tasks are running correctly.
+Saturn Watchdog monitors your WordPress cron system (wp-cron) and sends heartbeat pings to Saturn, ensuring your scheduled tasks are running correctly.
 
 **Features:**
 
 * 🔍 **Automatic WP-Cron Monitoring** - Tracks every wp-cron execution
 * 🚨 **Instant Alerts** - Get notified via Email, Slack, or Discord if wp-cron fails
 * 📊 **Health Dashboard** - See wp-cron status at a glance
-* ⚙️ **Zero Configuration** - Just add your Tokiflow token
+* ⚙️ **Zero Configuration** - Just add your Saturn token
 * 🛡️ **Detect Broken Cron** - Alerts if wp-cron hasn't run in 24 hours
 * 📝 **Scheduled Events List** - See all your scheduled WordPress tasks
 * ✅ **Connection Testing** - Verify your setup works
@@ -28,9 +28,9 @@ Tokiflow Watchdog monitors your WordPress cron system (wp-cron) and sends heartb
 
 WordPress wp-cron is fragile. It only runs when someone visits your site. If you have low traffic, your cron jobs (backups, scheduled posts, updates) may never run!
 
-**What is Tokiflow?**
+**What is Saturn?**
 
-Tokiflow is a modern cron monitoring service. It tracks your scheduled jobs and alerts you when they fail, run late, or behave unusually.
+Saturn is a modern cron monitoring service. It tracks your scheduled jobs and alerts you when they fail, run late, or behave unusually.
 
 **Pricing:**
 
@@ -41,8 +41,8 @@ Tokiflow is a modern cron monitoring service. It tracks your scheduled jobs and 
 == Installation ==
 
 1. Install and activate the plugin
-2. Go to Settings → Tokiflow
-3. Sign up at [tokiflow.co](https://tokiflow.co) (free plan available)
+2. Go to Settings → Saturn
+3. Sign up at [Saturn.co](https://Saturn.co) (free plan available)
 4. Create a new monitor:
    - Schedule Type: **INTERVAL**
    - Interval: **15 minutes** (900 seconds)
@@ -54,9 +54,9 @@ Tokiflow is a modern cron monitoring service. It tracks your scheduled jobs and 
 
 == Frequently Asked Questions ==
 
-= Is Tokiflow free? =
+= Is Saturn free? =
 
-Yes! Tokiflow offers a free plan with 5 monitors, perfect for WordPress sites. Pro and Business plans available for larger needs.
+Yes! Saturn offers a free plan with 5 monitors, perfect for WordPress sites. Pro and Business plans available for larger needs.
 
 = Do I need to change my code? =
 
@@ -64,7 +64,7 @@ No! The plugin automatically monitors wp-cron. No code changes needed.
 
 = What happens if wp-cron fails? =
 
-You'll receive an alert via Email, Slack, Discord, or your preferred channel. You can acknowledge and resolve incidents from the Tokiflow dashboard.
+You'll receive an alert via Email, Slack, Discord, or your preferred channel. You can acknowledge and resolve incidents from the Saturn dashboard.
 
 = Does this work with real cron? =
 
@@ -80,12 +80,12 @@ WP-Cron can be unreliable with aggressive caching. This plugin helps you detect 
 
 = Can I monitor multiple WordPress sites? =
 
-Yes! Create a separate monitor for each site in your Tokiflow account.
+Yes! Create a separate monitor for each site in your Saturn account.
 
 == Screenshots ==
 
 1. Plugin settings page showing wp-cron status
-2. Tokiflow dashboard showing WordPress monitor
+2. Saturn dashboard showing WordPress monitor
 3. Alert received when wp-cron fails
 4. Scheduled events debug view
 
@@ -94,7 +94,7 @@ Yes! Create a separate monitor for each site in your Tokiflow account.
 = 1.0.0 - 2025-10-12 =
 * Initial release
 * Automatic wp-cron monitoring
-* Tokiflow API integration
+* Saturn API integration
 * Admin settings page
 * Connection testing
 * Health status indicators
@@ -103,31 +103,31 @@ Yes! Create a separate monitor for each site in your Tokiflow account.
 == Upgrade Notice ==
 
 = 1.0.0 =
-Initial release of Tokiflow Watchdog.
+Initial release of Saturn Watchdog.
 
 == Additional Info ==
 
 **Links:**
 
-* [Tokiflow](https://tokiflow.co)
-* [Documentation](https://docs.tokiflow.co/wordpress)
-* [Support](https://tokiflow.co/support)
-* [GitHub](https://github.com/tokiflow/tokiflow)
+* [Saturn](https://Saturn.co)
+* [Documentation](https://docs.Saturn.co/wordpress)
+* [Support](https://Saturn.co/support)
+* [GitHub](https://github.com/Saturn/Saturn)
 
 **Requirements:**
 
 * WordPress 5.0 or higher
 * PHP 7.4 or higher
 * Active internet connection
-* Tokiflow account (free plan available)
+* Saturn account (free plan available)
 
 **Privacy:**
 
-This plugin connects to Tokiflow's external service to send heartbeat pings. No personal data or content is transmitted. Only ping timestamps and execution status are sent.
+This plugin connects to Saturn's external service to send heartbeat pings. No personal data or content is transmitted. Only ping timestamps and execution status are sent.
 
 **Support:**
 
-For support, please visit [tokiflow.co/support](https://tokiflow.co/support) or email support@tokiflow.co.
+For support, please visit [Saturn.co/support](https://Saturn.co/support) or email support@Saturn.co.
 
 
 

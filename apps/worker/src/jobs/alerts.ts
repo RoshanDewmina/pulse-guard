@@ -141,7 +141,7 @@ export function startAlertWorker() {
   });
 
   worker.on('failed', (job, err) => {
-    logger.error(`Job ${job?.id} failed:`, err);
+    logger.error({ err, jobId: job?.id }, `Job ${job?.id} failed`);
   });
 
   return worker;

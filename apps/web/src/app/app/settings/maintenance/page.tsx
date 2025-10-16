@@ -2,20 +2,25 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { prisma } from '@tokiflow/db';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+  SaturnCard,
+  SaturnCardHeader,
+  SaturnCardTitle,
+  SaturnCardDescription,
+  SaturnCardContent,
+  SaturnButton,
+  SaturnBadge,
+  SaturnTable,
+  SaturnTableHeader,
+  SaturnTableBody,
+  SaturnTableRow,
+  SaturnTableHead,
+  SaturnTableCell,
+} from '@/components/saturn';
 import { Calendar, Clock, Trash2, Plus } from 'lucide-react';
 import { format } from 'date-fns';
 import { getActiveWindows } from '@/lib/maintenance/scheduler';
+import { PageHeaderWithBreadcrumbs } from '@/components/page-header-with-breadcrumbs';
 
 export default async function MaintenancePage() {
   const session = await getServerSession(authOptions);
@@ -50,160 +55,153 @@ export default async function MaintenancePage() {
   const windows = await getActiveWindows(membership.orgId);
 
   return (
-    <div className="container mx-auto p-6 max-w-6xl">
-      <div className="mb-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">Maintenance Windows</h1>
-            <p className="text-gray-600 mt-1">
-              Schedule maintenance periods to suppress alerts
-            </p>
-          </div>
-          <Button>
-            <Plus className="h-4 w-4 mr-2" />
-            New Window
-          </Button>
-        </div>
-      </div>
-
+    <div className="space-y-6">
+      <PageHeaderWithBreadcrumbs
+        title="Maintenance Windows"
+        description="Schedule maintenance windows to suppress alerts"
+        breadcrumbs={[
+          { label: 'Dashboard', href: '/app' },
+          { label: 'Settings', href: '/app/settings' },
+          { label: 'Maintenance' },
+        ]}
+      />
+      
       {/* Active Windows */}
       {windows.some(w => w.isActive) && (
-        <Card className="mb-6 border-yellow-300 bg-yellow-50">
-          <CardHeader>
-            <CardTitle className="text-yellow-800 flex items-center gap-2">
+        <SaturnCard className="border-yellow-300 bg-yellow-50">
+          <SaturnCardHeader>
+            <SaturnCardTitle as="h2" className="text-yellow-800 flex items-center gap-2">
               <Clock className="h-5 w-5" />
               Active Maintenance Windows
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
+            </SaturnCardTitle>
+          </SaturnCardHeader>
+          <SaturnCardContent>
             <div className="space-y-2">
               {windows
                 .filter(w => w.isActive)
                 .map(window => (
-                  <div key={window.id} className="flex items-center justify-between p-3 bg-white border rounded-lg">
+                  <div key={window.id} className="flex items-center justify-between p-3 bg-white border border-yellow-200 rounded-lg">
                     <div>
-                      <p className="font-medium">{window.name}</p>
-                      <p className="text-sm text-gray-600">
+                      <p className="font-medium text-[#37322F] font-sans">{window.name}</p>
+                      <p className="text-sm text-[rgba(55,50,47,0.80)] font-sans">
                         {format(window.startTime, 'PPp')} - {format(window.endTime, 'p')}
                       </p>
                     </div>
-                    <Badge variant="secondary">Active Now</Badge>
+                    <SaturnBadge variant="warning" size="sm">Active Now</SaturnBadge>
                   </div>
                 ))}
             </div>
-          </CardContent>
-        </Card>
+          </SaturnCardContent>
+        </SaturnCard>
       )}
 
       {/* All Windows */}
-      <Card>
-        <CardHeader>
-          <CardTitle>All Maintenance Windows</CardTitle>
-          <CardDescription>
+      <SaturnCard>
+        <SaturnCardHeader>
+          <SaturnCardTitle as="h2">All Maintenance Windows</SaturnCardTitle>
+          <SaturnCardDescription>
             Schedule periods where alerts will be suppressed
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+          </SaturnCardDescription>
+        </SaturnCardHeader>
+        <SaturnCardContent>
           {windows.length === 0 ? (
-            <div className="text-center py-12 text-gray-500">
+            <div className="text-center py-12 text-[rgba(55,50,47,0.80)]">
               <Calendar className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p className="text-lg font-medium">No maintenance windows</p>
-              <p className="text-sm mt-2">
+              <p className="text-lg font-medium font-sans">No maintenance windows</p>
+              <p className="text-sm mt-2 font-sans">
                 Create a maintenance window to suppress alerts during planned downtime
               </p>
-              <Button className="mt-4">
+              <SaturnButton className="mt-4">
                 <Plus className="h-4 w-4 mr-2" />
                 Create Maintenance Window
-              </Button>
+              </SaturnButton>
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Scope</TableHead>
-                  <TableHead>Start Time</TableHead>
-                  <TableHead>End Time</TableHead>
-                  <TableHead>Recurrence</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+            <SaturnTable>
+              <SaturnTableHeader>
+                <SaturnTableRow>
+                  <SaturnTableHead>Name</SaturnTableHead>
+                  <SaturnTableHead>Scope</SaturnTableHead>
+                  <SaturnTableHead>Start Time</SaturnTableHead>
+                  <SaturnTableHead>End Time</SaturnTableHead>
+                  <SaturnTableHead>Recurrence</SaturnTableHead>
+                  <SaturnTableHead>Status</SaturnTableHead>
+                  <SaturnTableHead className="text-right">Actions</SaturnTableHead>
+                </SaturnTableRow>
+              </SaturnTableHeader>
+              <SaturnTableBody>
                 {windows.map(window => (
-                  <TableRow key={window.id}>
-                    <TableCell className="font-medium">{window.name}</TableCell>
-                    <TableCell>
+                  <SaturnTableRow key={window.id}>
+                    <SaturnTableCell className="font-medium text-[#37322F]">{window.name}</SaturnTableCell>
+                    <SaturnTableCell>
                       {window.monitorId ? (
-                        <Badge variant="outline">Specific Monitor</Badge>
+                        <SaturnBadge variant="default" size="sm">Specific Monitor</SaturnBadge>
                       ) : (
-                        <Badge>All Monitors</Badge>
+                        <SaturnBadge variant="success" size="sm">All Monitors</SaturnBadge>
                       )}
-                    </TableCell>
-                    <TableCell className="text-sm">
+                    </SaturnTableCell>
+                    <SaturnTableCell className="text-[rgba(55,50,47,0.80)]">
                       {format(window.startTime, 'PPp')}
-                    </TableCell>
-                    <TableCell className="text-sm">
+                    </SaturnTableCell>
+                    <SaturnTableCell className="text-[rgba(55,50,47,0.80)]">
                       {format(window.endTime, 'PPp')}
-                    </TableCell>
-                    <TableCell>
+                    </SaturnTableCell>
+                    <SaturnTableCell>
                       {window.recurring ? (
-                        <Badge variant="secondary">
+                        <SaturnBadge variant="default" size="sm">
                           {window.rrule ? window.rrule.split(';')[0].replace('FREQ=', '') : 'Recurring'}
-                        </Badge>
+                        </SaturnBadge>
                       ) : (
-                        <span className="text-gray-500">One-time</span>
+                        <span className="text-[rgba(55,50,47,0.60)] font-sans">One-time</span>
                       )}
-                    </TableCell>
-                    <TableCell>
+                    </SaturnTableCell>
+                    <SaturnTableCell>
                       {window.isActive ? (
-                        <Badge className="bg-yellow-100 text-yellow-800">Active</Badge>
+                        <SaturnBadge variant="warning" size="sm">Active</SaturnBadge>
                       ) : window.enabled ? (
-                        <Badge variant="outline">Scheduled</Badge>
+                        <SaturnBadge variant="default" size="sm">Scheduled</SaturnBadge>
                       ) : (
-                        <Badge variant="secondary">Disabled</Badge>
+                        <SaturnBadge variant="default" size="sm">Disabled</SaturnBadge>
                       )}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Button variant="ghost" size="sm">
+                    </SaturnTableCell>
+                    <SaturnTableCell className="text-right">
+                      <SaturnButton variant="ghost" size="sm">
                         <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
+                      </SaturnButton>
+                    </SaturnTableCell>
+                  </SaturnTableRow>
                 ))}
-              </TableBody>
-            </Table>
+              </SaturnTableBody>
+            </SaturnTable>
           )}
-        </CardContent>
-      </Card>
+        </SaturnCardContent>
+      </SaturnCard>
 
       {/* Help Card */}
-      <Card className="mt-6">
-        <CardHeader>
-          <CardTitle>About Maintenance Windows</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <p className="text-sm text-gray-600">
-            Maintenance windows allow you to schedule periods where alerts will be suppressed. This is useful for:
-          </p>
-          <ul className="list-disc list-inside space-y-2 text-sm text-gray-600">
-            <li>Planned maintenance or deployments</li>
-            <li>Regular system updates (e.g., every Sunday night)</li>
-            <li>Known downtime periods</li>
-            <li>Testing or staging environment work</li>
-          </ul>
-          <div className="p-4 bg-blue-50 border border-blue-200 rounded-md mt-4">
-            <p className="text-sm text-blue-900">
-              <strong>Note:</strong> Jobs will still be monitored during maintenance windows, but no alerts will be sent. 
-              Incidents will be created but marked as suppressed.
+      <SaturnCard>
+        <SaturnCardHeader>
+          <SaturnCardTitle as="h3">About Maintenance Windows</SaturnCardTitle>
+        </SaturnCardHeader>
+        <SaturnCardContent>
+          <div className="space-y-3">
+            <p className="text-sm text-[rgba(55,50,47,0.80)] font-sans">
+              Maintenance windows allow you to schedule periods where alerts will be suppressed. This is useful for:
             </p>
+            <ul className="list-disc list-inside space-y-2 text-sm text-[rgba(55,50,47,0.80)] font-sans">
+              <li>Planned maintenance or deployments</li>
+              <li>Regular system updates (e.g., every Sunday night)</li>
+              <li>Known downtime periods</li>
+              <li>Testing or staging environment work</li>
+            </ul>
+            <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg mt-4">
+              <p className="text-sm text-blue-900 font-sans">
+                <strong>Note:</strong> Jobs will still be monitored during maintenance windows, but no alerts will be sent. 
+                Incidents will be created but marked as suppressed.
+              </p>
+            </div>
           </div>
-        </CardContent>
-      </Card>
+        </SaturnCardContent>
+      </SaturnCard>
     </div>
   );
 }
-
-
-
-

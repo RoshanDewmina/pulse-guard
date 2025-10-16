@@ -9,7 +9,7 @@ async function main() {
   try {
     console.log(`🔍 Selenium: navigating to ${base}`);
     await driver.get(base);
-    await driver.wait(until.titleContains('Tokiflow'), 10000);
+    await driver.wait(until.titleContains('Saturn'), 10000);
     const cta = await driver.findElement(By.css('a[href="/auth/signin"]'));
     console.log('✅ Selenium smoke: homepage loaded, signin link present');
     

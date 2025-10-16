@@ -1,0 +1,35 @@
+{
+  "id": "anomalies/welford",
+  "title": "Welford's Online Algorithm",
+  "description": "How Saturn calculates statistics incrementally with O(1) memory using Welford's algorithm",
+  "source": "@site/docs/anomalies/welford.mdx",
+  "sourceDirName": "anomalies",
+  "slug": "/anomalies/welford",
+  "permalink": "/anomalies/welford",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/saturn/saturn/tree/main/website/docs/anomalies/welford.mdx",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "welford",
+    "title": "Welford's Online Algorithm",
+    "description": "How Saturn calculates statistics incrementally with O(1) memory using Welford's algorithm",
+    "keywords": [
+      "welford algorithm",
+      "online statistics",
+      "incremental mean",
+      "variance",
+      "stddev"
+    ]
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Anomaly Detection Rules",
+    "permalink": "/anomalies/rules"
+  },
+  "next": {
+    "title": "Anomaly Tuning",
+    "permalink": "/anomalies/tuning"
+  }
+}

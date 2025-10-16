@@ -1,0 +1,36 @@
+{
+  "id": "alerts/webhooks",
+  "title": "Webhooks",
+  "description": "Custom integrations with HMAC SHA-256 signatures, events, and retry logic",
+  "source": "@site/docs/alerts/webhooks.mdx",
+  "sourceDirName": "alerts",
+  "slug": "/alerts/webhooks",
+  "permalink": "/alerts/webhooks",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/saturn/saturn/tree/main/website/docs/alerts/webhooks.mdx",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "webhooks",
+    "title": "Webhooks",
+    "description": "Custom integrations with HMAC SHA-256 signatures, events, and retry logic",
+    "keywords": [
+      "webhooks",
+      "hmac",
+      "signatures",
+      "events",
+      "integrations",
+      "custom alerts"
+    ]
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Discord Alerts",
+    "permalink": "/alerts/discord"
+  },
+  "next": {
+    "title": "Kubernetes Sidecar",
+    "permalink": "/kubernetes/sidecar"
+  }
+}

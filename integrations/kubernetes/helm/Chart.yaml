@@ -1,6 +1,6 @@
 apiVersion: v2
-name: tokiflow-monitor
-description: Zero-code monitoring for Kubernetes CronJobs with Tokiflow
+name: Saturn-monitor
+description: Zero-code monitoring for Kubernetes CronJobs with Saturn
 type: application
 version: 1.0.0
 appVersion: "1.0.0"
@@ -9,13 +9,13 @@ keywords:
   - cronjob
   - alerting
   - observability
-home: https://tokiflow.co
+home: https://Saturn.co
 sources:
-  - https://github.com/tokiflow/tokiflow
+  - https://github.com/Saturn/Saturn
 maintainers:
-  - name: Tokiflow Team
-    email: support@tokiflow.co
-icon: https://tokiflow.co/icon.png
+  - name: Saturn Team
+    email: support@Saturn.co
+icon: https://Saturn.co/icon.png
 
 
 

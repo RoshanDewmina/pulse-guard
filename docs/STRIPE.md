@@ -1,201 +1,170 @@
-# Stripe Integration Guide
+# Stripe Billing Integration
 
-Complete guide for setting up Stripe billing in Tokiflow.
-
-## Quick Setup (Automated)
+## Quick Setup
 
 ```bash
 # 1. Install Stripe CLI
 brew install stripe/stripe-cli/stripe
-# Or: https://stripe.com/docs/stripe-cli
 
 # 2. Login
 stripe login
 
-# 3. Run automated setup
+# 3. Run setup scripts
 cd docs/stripe
 ./setup-stripe.sh
 ./create-stripe-products.sh
 
-# 4. Start webhook listener (keep running)
-stripe listen --forward-to localhost:3000/api/stripe/webhook
-# Copy the whsec_... secret to .env as STRIPE_WEBHOOK_SECRET
+# 4. Start webhook listener (keep running during development)
+stripe listen --forward-to localhost:3000/api/webhooks/stripe
+# Copy the whsec_... secret to .env
 ```
 
 ## Manual Setup
 
 ### 1. Get API Keys
 
-1. Create account at [dashboard.stripe.com](https://dashboard.stripe.com/register)
-2. Enable **Test Mode** (toggle in top right)
-3. Go to [API Keys](https://dashboard.stripe.com/test/apikeys)
-4. Copy **Secret key** (`sk_test_...`)
+1. Create account at https://dashboard.stripe.com
+2. Enable **Test Mode** (toggle in dashboard)
+3. Go to API Keys section
+4. Copy Secret key (`sk_test_...`)
 5. Add to `.env`:
-   ```env
-   STRIPE_SECRET_KEY=sk_test_your_key_here
-   ```
-
-### 2. Create Products
-
-#### Pro Plan ($19/month)
-```bash
-stripe products create \
-  --name="Tokiflow Pro" \
-  --description="Professional plan with up to 100 monitors"
-
-stripe prices create \
-  --product=prod_xxx \
-  --unit-amount=1900 \
-  --currency=usd \
-  --recurring[interval]=month
+```env
+STRIPE_SECRET_KEY=sk_test_your_key
+STRIPE_PUBLISHABLE_KEY=pk_test_your_key
 ```
 
-Copy the `price_xxx` and add to `.env`:
+### 2. Create Products & Prices
+
+```bash
+# Pro Plan ($29/month)
+stripe products create --name="Saturn Pro"
+stripe prices create --product=prod_xxx --unit-amount=2900 --currency=usd --recurring[interval]=month
+
+# Business Plan ($99/month)
+stripe products create --name="Saturn Business"
+stripe prices create --product=prod_yyy --unit-amount=9900 --currency=usd --recurring[interval]=month
+```
+
+Add price IDs to `.env`:
 ```env
 STRIPE_PRICE_PRO=price_xxx
-```
-
-#### Business Plan ($49/month)
-```bash
-stripe products create \
-  --name="Tokiflow Business" \
-  --description="Business plan with up to 500 monitors"
-
-stripe prices create \
-  --product=prod_yyy \
-  --unit-amount=4900 \
-  --currency=usd \
-  --recurring[interval]=month
-```
-
-Add to `.env`:
-```env
 STRIPE_PRICE_BUSINESS=price_yyy
 ```
 
-### 3. Setup Webhooks
+### 3. Configure Webhooks
 
-**For Local Development:**
+**Development:**
 ```bash
-stripe listen --forward-to localhost:3000/api/stripe/webhook
+stripe listen --forward-to localhost:3000/api/webhooks/stripe
+# Copy signing secret to .env
 ```
 
-**For Production:**
-1. Go to [Webhooks](https://dashboard.stripe.com/webhooks)
-2. Add endpoint: `https://yourdomain.com/api/stripe/webhook`
+**Production:**
+1. Go to Stripe Dashboard → Webhooks
+2. Add endpoint: `https://your-app.com/api/webhooks/stripe`
 3. Select events:
    - `checkout.session.completed`
    - `customer.subscription.updated`
    - `customer.subscription.deleted`
-4. Copy **Signing secret** to `.env`:
-   ```env
-   STRIPE_WEBHOOK_SECRET=whsec_...
-   ```
+4. Copy signing secret
+
+```env
+STRIPE_WEBHOOK_SECRET=whsec_...
+```
 
 ## Testing
 
-```bash
-# Test API connection
-cd docs/stripe
-./test-stripe-api.sh
-
-# Test billing flow (requires running app)
-./test-stripe-billing.sh
-```
-
-### Manual Testing
+### Test Checkout Flow
 
 1. Start app: `make dev`
-2. Login at http://localhost:3000
-3. Go to Settings → Billing
-4. Click "Upgrade to Pro"
-5. Use test card: `4242 4242 4242 4242`
-6. Expiry: Any future date, CVC: Any 3 digits
-7. Complete checkout
-8. Verify subscription in Stripe dashboard
+2. Login and go to Settings → Billing
+3. Click "Upgrade to Pro"
+4. Use test card: `4242 4242 4242 4242`
+5. Complete checkout
+6. Verify subscription created in Stripe dashboard
 
 ### Test Cards
 
-```
-Success: 4242 4242 4242 4242
-Decline: 4000 0000 0000 0002
-3D Secure: 4000 0027 6000 3184
+- **Success**: 4242 4242 4242 4242
+- **Decline**: 4000 0000 0000 0002
+- **3D Secure**: 4000 0027 6000 3184
+
+Any future expiry date and any 3-digit CVC.
+
+### Test Scripts
+
+```bash
+cd docs/stripe
+./test-stripe-api.sh        # Test API connection
+./test-stripe-billing.sh    # Test full billing flow
+./verify-stripe-setup.sh    # Verify configuration
 ```
 
 ## Pricing Tiers
 
-| Tier | Price | Monitors | Users | History |
-|------|-------|----------|-------|---------|
-| Free | $0 | 5 | 3 | 7 days |
-| Pro | $19/mo | 100 | 10 | 90 days |
-| Business | $49/mo | 500 | Unlimited | 365 days |
+| Tier | Price | Monitors | Features |
+|------|-------|----------|----------|
+| **Free** | $0 | 5 | Basic monitoring, email alerts |
+| **Pro** | $29/mo | 100 | Anomaly detection, Discord, webhooks |
+| **Business** | $99/mo | 500 | Kubernetes, WordPress, everything |
 
-## Implementation Details
+## Implementation
 
-### Checkout Flow
-1. User clicks "Upgrade" button
-2. API creates Stripe Checkout Session
-3. User redirected to Stripe hosted checkout
-4. On success, redirected back to app
-5. Webhook updates subscription in database
+### Files
+- `apps/web/src/app/api/stripe/*` - Checkout & customer portal
+- `apps/web/src/app/api/webhooks/stripe/route.ts` - Webhook handler
+- `apps/web/src/app/app/settings/billing/page.tsx` - Billing UI
 
-### Webhook Events Handled
-- `checkout.session.completed` - New subscription
-- `customer.subscription.updated` - Plan change/renewal
-- `customer.subscription.deleted` - Cancellation
+### Webhook Events
+- `checkout.session.completed` → Create subscription
+- `customer.subscription.updated` → Update subscription
+- `customer.subscription.deleted` → Cancel subscription
 
-### Subscription Enforcement
-Limits enforced in:
-- `/api/monitors` - Monitor creation
-- `/api/incidents` - Incident access
-- Dashboard - UI controls
+### Subscription Limits
+Enforced in:
+- Monitor creation (check `subscription.plan`)
+- API endpoints (middleware)
+- UI (conditional rendering)
 
-## Production Checklist
+## Production Deployment
 
-- [ ] Switch to Live mode in Stripe
-- [ ] Get live API keys (`sk_live_...`)
-- [ ] Create live products/prices
-- [ ] Setup production webhook endpoint
-- [ ] Test with real card (then refund)
-- [ ] Enable Stripe Radar for fraud protection
-- [ ] Configure email receipts
-- [ ] Set up tax collection (Stripe Tax)
+1. Switch to **Live mode** in Stripe dashboard
+2. Get live API keys (`sk_live_...`)
+3. Create live products/prices
+4. Configure production webhook: `https://your-app.com/api/webhooks/stripe`
+5. Update environment variables with live keys
+6. Test with real card (small amount, then refund)
+7. Enable Stripe Radar (fraud protection)
 
 ## Troubleshooting
 
-**Webhook not receiving events:**
+**Webhook not working:**
 ```bash
-# Check webhook secret matches
-stripe listen --forward-to localhost:3000/api/stripe/webhook --print-secret
+# Check webhook secret
+stripe listen --print-secret
 
-# Check endpoint is accessible
-curl -X POST http://localhost:3000/api/stripe/webhook
+# Test webhook delivery
+curl -X POST http://localhost:3000/api/webhooks/stripe
+
+# View webhook logs
+stripe logs tail
 ```
 
 **Subscription not updating:**
+- Verify `STRIPE_WEBHOOK_SECRET` matches
 - Check webhook logs in Stripe dashboard
-- Verify webhook secret in `.env`
-- Check server logs for errors
-- Ensure webhook endpoint returns 200 status
+- Ensure endpoint returns 200 status
+- Review application logs
 
-**Test mode vs Live mode:**
-- Test keys start with `sk_test_` and `pk_test_`
-- Live keys start with `sk_live_` and `pk_live_`
+**Test vs Live mode:**
+- Test keys: `sk_test_...`, `pk_test_...`
+- Live keys: `sk_live_...`, `pk_live_...`
 - Keep them separate!
+- Toggle mode in Stripe dashboard
 
-## Scripts Available
-
-All scripts located in `docs/stripe/`:
-
-- `setup-stripe.sh` - Initial Stripe CLI setup
-- `create-stripe-products.sh` - Create products/prices
-- `verify-stripe-setup.sh` - Verify configuration
-- `test-stripe-api.sh` - Test API connection
-- `test-stripe-billing.sh` - Test billing flow
-
-## Support
+## Resources
 
 - Stripe Docs: https://stripe.com/docs
-- Test Mode: https://dashboard.stripe.com/test/dashboard
+- Test Dashboard: https://dashboard.stripe.com/test
 - Webhook Testing: `stripe trigger checkout.session.completed`
-
+- CLI Reference: https://stripe.com/docs/stripe-cli

@@ -1,0 +1,24 @@
+{
+  "id": "legal/privacy",
+  "title": "Privacy Policy",
+  "description": "Saturn privacy policy",
+  "source": "@site/docs/legal/privacy.mdx",
+  "sourceDirName": "legal",
+  "slug": "/legal/privacy",
+  "permalink": "/legal/privacy",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/saturn/saturn/tree/main/website/docs/legal/privacy.mdx",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "privacy",
+    "title": "Privacy Policy",
+    "description": "Saturn privacy policy",
+    "keywords": [
+      "privacy",
+      "gdpr",
+      "data protection"
+    ]
+  }
+}

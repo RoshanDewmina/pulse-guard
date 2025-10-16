@@ -1,0 +1,35 @@
+{
+  "id": "get-started/quickstart-wordpress",
+  "title": "Reliable wp-cron Monitoring at Scale",
+  "description": "Install Saturn WordPress plugin for wp-cron monitoring with bulk management for agencies",
+  "source": "@site/docs/get-started/quickstart-wordpress.mdx",
+  "sourceDirName": "get-started",
+  "slug": "/get-started/quickstart-wordpress",
+  "permalink": "/get-started/quickstart-wordpress",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/saturn/saturn/tree/main/website/docs/get-started/quickstart-wordpress.mdx",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "quickstart-wordpress",
+    "title": "Reliable wp-cron Monitoring at Scale",
+    "description": "Install Saturn WordPress plugin for wp-cron monitoring with bulk management for agencies",
+    "keywords": [
+      "wordpress",
+      "wp-cron",
+      "plugin",
+      "agency",
+      "bulk management"
+    ]
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Kubernetes CronJobs in 60 Seconds",
+    "permalink": "/get-started/quickstart-kubernetes"
+  },
+  "next": {
+    "title": "Linux Cron with curl or CLI",
+    "permalink": "/get-started/quickstart-linux-cron"
+  }
+}

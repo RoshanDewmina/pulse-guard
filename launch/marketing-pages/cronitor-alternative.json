@@ -1,0 +1,212 @@
+{
+    "meta": {
+        "title": "Saturn vs Cronitor: Anomaly Detection & Kubernetes Native | Saturn",
+        "description": "Feature comparison: Saturn adds statistical anomaly detection, health scoring, native Kubernetes support, and WordPress plugin that Cronitor lacks.",
+        "keywords": [
+            "cronitor alternative",
+            "cron monitoring comparison",
+            "cronitor vs saturn",
+            "anomaly detection monitoring",
+            "kubernetes cron monitoring"
+        ],
+        "canonical": "https://saturn.example.com/cronitor-alternative"
+    },
+    "hero": {
+        "headline": "Saturn vs Cronitor",
+        "subheadline": "Next-generation monitoring with anomaly detection and Kubernetes-native tools",
+        "cta_primary": {
+            "text": "Try Saturn Free",
+            "url": "https://saturn.example.com/signup?utm_source=cronitor-alt&utm_medium=cta&utm_campaign=hero"
+        },
+        "cta_secondary": {
+            "text": "View Documentation",
+            "url": "https://docs.saturn.example.com"
+        }
+    },
+    "comparison_table": {
+        "headline": "Feature Comparison",
+        "categories": [
+            {
+                "name": "Core Monitoring",
+                "features": [
+                    {
+                        "feature": "Ping-based monitoring",
+                        "saturn": true,
+                        "cronitor": true
+                    },
+                    {
+                        "feature": "Cron & interval schedules",
+                        "saturn": true,
+                        "cronitor": true
+                    },
+                    {
+                        "feature": "Grace periods",
+                        "saturn": true,
+                        "cronitor": true
+                    },
+                    {
+                        "feature": "Alert channels",
+                        "saturn": "Email, Slack, Discord, Webhooks",
+                        "cronitor": "Email, Slack, PagerDuty, Webhooks"
+                    }
+                ]
+            },
+            {
+                "name": "Advanced Analytics",
+                "features": [
+                    {
+                        "feature": "Anomaly detection",
+                        "saturn": "Statistical (Z-Score)",
+                        "cronitor": false,
+                        "highlight": true
+                    },
+                    {
+                        "feature": "Health scoring (0-100)",
+                        "saturn": "A-F grades",
+                        "cronitor": false,
+                        "highlight": true
+                    },
+                    {
+                        "feature": "MTTR/MTBF tracking",
+                        "saturn": true,
+                        "cronitor": false,
+                        "highlight": true
+                    },
+                    {
+                        "feature": "Duration percentiles (P50/P95/P99)",
+                        "saturn": true,
+                        "cronitor": false,
+                        "highlight": true
+                    }
+                ]
+            },
+            {
+                "name": "Integrations",
+                "features": [
+                    {
+                        "feature": "Kubernetes Helm chart",
+                        "saturn": "Native sidecar",
+                        "cronitor": false,
+                        "highlight": true
+                    },
+                    {
+                        "feature": "WordPress plugin",
+                        "saturn": "Dedicated plugin",
+                        "cronitor": false,
+                        "highlight": true
+                    },
+                    {
+                        "feature": "CLI tool",
+                        "saturn": true,
+                        "cronitor": true
+                    }
+                ]
+            },
+            {
+                "name": "Pricing",
+                "features": [
+                    {
+                        "feature": "Free tier monitors",
+                        "saturn": "10",
+                        "cronitor": "3"
+                    },
+                    {
+                        "feature": "Starting price",
+                        "saturn": "$29/mo (50 monitors)",
+                        "cronitor": "$29/mo (30 monitors)"
+                    }
+                ]
+            }
+        ]
+    },
+    "key_differences": {
+        "headline": "What Makes Saturn Different",
+        "differences": [
+            {
+                "title": "Statistical Anomaly Detection",
+                "saturn": "Uses Welford's algorithm for incremental statistics. Detects when jobs run 3+ standard deviations slower than baseline, even if they technically succeed.",
+                "cronitor": "Binary pass/fail only. No performance anomaly detection. You won't know if a job slows from 10s to 50s until it times out completely.",
+                "icon": "chart-line"
+            },
+            {
+                "title": "Health Scoring System",
+                "saturn": "Every monitor gets a 0-100 health score with A-F grade based on uptime, incidents, and consistency. Perfect for executive dashboards and SLA reporting.",
+                "cronitor": "No health scoring. Only status indicators (up/down).",
+                "icon": "heart-pulse"
+            },
+            {
+                "title": "Kubernetes Native",
+                "saturn": "Helm chart with Go sidecar. Deploy monitoring in 60 seconds with zero code changes to your CronJob manifests.",
+                "cronitor": "Manual integration required. Must modify every container to add curl/ping logic.",
+                "icon": "kubernetes"
+            },
+            {
+                "title": "WordPress at Scale",
+                "saturn": "Dedicated plugin for wp-cron monitoring. Perfect for agencies managing 100+ sites with bulk deployment and centralized dashboards.",
+                "cronitor": "Generic HTTP integration. No WordPress-specific features or bulk management.",
+                "icon": "wordpress"
+            }
+        ]
+    },
+    "migration": {
+        "headline": "Migrate from Cronitor in Minutes",
+        "steps": [
+            {
+                "number": 1,
+                "title": "Export Cronitor Monitors",
+                "description": "List all your Cronitor monitors and their schedules"
+            },
+            {
+                "number": 2,
+                "title": "Create Saturn Monitors",
+                "description": "Use Saturn CLI or API to bulk-create equivalent monitors"
+            },
+            {
+                "number": 3,
+                "title": "Update Ping URLs",
+                "description": "Swap Cronitor URLs for Saturn URLs in your cron jobs (or deploy Helm for K8s)"
+            },
+            {
+                "number": 4,
+                "title": "Configure Alerts",
+                "description": "Connect Slack, Discord, email, or webhooks"
+            },
+            {
+                "number": 5,
+                "title": "Verify & Decommission",
+                "description": "Monitor for 1-2 days to ensure all pings work, then cancel Cronitor"
+            }
+        ],
+        "note": "Migration typically takes 30-60 minutes for most teams. We can help with larger migrations (100+ monitors)."
+    },
+    "faq": [
+        {
+            "question": "Can I import my Cronitor monitors?",
+            "answer": "We don't have a direct import tool, but the Saturn CLI makes it easy to bulk-create monitors from a CSV or JSON file. Contact support@saturn.example.com for migration assistance."
+        },
+        {
+            "question": "Does Saturn have a PagerDuty integration?",
+            "answer": "Not yet (coming in Q1 2026), but you can use webhooks to integrate with PagerDuty's Events API today."
+        },
+        {
+            "question": "Will I save money switching to Saturn?",
+            "answer": "Depends on usage. Saturn offers more monitors per tier (50 vs 30 at $29/mo) and a larger free tier (10 vs 3). Plus you get anomaly detection included."
+        },
+        {
+            "question": "What if I'm already using Cronitor's RUM or status pages?",
+            "answer": "Saturn focuses exclusively on cron/job monitoring. If you need RUM or status pages, you may want to keep Cronitor for those features."
+        }
+    ],
+    "cta_final": {
+        "headline": "Ready to Upgrade from Cronitor?",
+        "description": "Get anomaly detection, health scoring, and Kubernetes-native monitoring. Free tier includes 10 monitors with all features.",
+        "cta_primary": {
+            "text": "Start Free Trial",
+            "url": "https://saturn.example.com/signup?utm_source=cronitor-alt&utm_medium=cta&utm_campaign=final"
+        },
+        "cta_secondary": {
+            "text": "Contact Sales",
+            "url": "https://saturn.example.com/contact?subject=Migration%20from%20Cronitor"
+        }
+    }
+}

@@ -1,0 +1,35 @@
+{
+  "id": "wordpress/troubleshooting",
+  "title": "WordPress Troubleshooting",
+  "description": "Fix common wp-cron issues including DISABLE_WP_CRON and real cron setup",
+  "source": "@site/docs/wordpress/troubleshooting.mdx",
+  "sourceDirName": "wordpress",
+  "slug": "/wordpress/troubleshooting",
+  "permalink": "/wordpress/troubleshooting",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/saturn/saturn/tree/main/website/docs/wordpress/troubleshooting.mdx",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "troubleshooting",
+    "title": "WordPress Troubleshooting",
+    "description": "Fix common wp-cron issues including DISABLE_WP_CRON and real cron setup",
+    "keywords": [
+      "wordpress",
+      "troubleshooting",
+      "wp-cron",
+      "disable_wp_cron",
+      "cron"
+    ]
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Bulk Agency Rollout",
+    "permalink": "/wordpress/bulk-agency"
+  },
+  "next": {
+    "title": "CLI Installation",
+    "permalink": "/cli/install"
+  }
+}

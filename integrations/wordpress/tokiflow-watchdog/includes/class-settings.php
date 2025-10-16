@@ -1,11 +1,11 @@
 <?php
 /**
- * Tokiflow Settings Page
+ * Saturn Settings Page
  * 
  * Admin interface for plugin configuration
  */
 
-class Tokiflow_Settings {
+class Saturn_Settings {
     
     private $api;
     
@@ -13,7 +13,7 @@ class Tokiflow_Settings {
         $this->api = $api;
         
         // AJAX handlers
-        add_action('wp_ajax_tokiflow_test_connection', array($this, 'ajax_test_connection'));
+        add_action('wp_ajax_saturn_test_connection', array($this, 'ajax_test_connection'));
     }
     
     /**
@@ -21,10 +21,10 @@ class Tokiflow_Settings {
      */
     public function add_settings_page() {
         add_options_page(
-            'Tokiflow Watchdog Settings',
-            'Tokiflow',
+            'Saturn Watchdog Settings',
+            'Saturn',
             'manage_options',
-            'tokiflow-watchdog',
+            'saturn-watchdog',
             array($this, 'render_settings_page')
         );
     }
@@ -33,9 +33,9 @@ class Tokiflow_Settings {
      * Register plugin settings
      */
     public function register_settings() {
-        register_setting('tokiflow_settings', 'tokiflow_token');
-        register_setting('tokiflow_settings', 'tokiflow_api_url');
-        register_setting('tokiflow_settings', 'tokiflow_capture_output');
+        register_setting('saturn_settings', 'saturn_token');
+        register_setting('saturn_settings', 'saturn_api_url');
+        register_setting('saturn_settings', 'saturn_capture_output');
     }
     
     /**
@@ -47,17 +47,17 @@ class Tokiflow_Settings {
         }
         
         // Get monitor instance to check health
-        $monitor = new Tokiflow_Monitor($this->api);
+        $monitor = new Saturn_Monitor($this->api);
         $health = $monitor->check_cron_health();
         
-        include PULSEGUARD_PLUGIN_DIR . 'admin/settings-page.php';
+        include SATURN_PLUGIN_DIR . 'admin/settings-page.php';
     }
     
     /**
      * AJAX handler for connection test
      */
     public function ajax_test_connection() {
-        check_ajax_referer('tokiflow_test_connection', 'nonce');
+        check_ajax_referer('saturn_test_connection', 'nonce');
         
         if (!current_user_can('manage_options')) {
             wp_send_json_error('Unauthorized');
@@ -65,7 +65,7 @@ class Tokiflow_Settings {
         }
         
         $token = sanitize_text_field($_POST['token'] ?? '');
-        $api_url = esc_url_raw($_POST['api_url'] ?? 'https://api.tokiflow.com');
+        $api_url = esc_url_raw($_POST['api_url'] ?? 'https://api.saturn.io');
         
         if (empty($token)) {
             wp_send_json_error('Token is required');

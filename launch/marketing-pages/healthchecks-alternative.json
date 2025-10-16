@@ -1,0 +1,301 @@
+{
+    "meta": {
+        "title": "Saturn vs Healthchecks.io: Enterprise Features & Anomaly Detection | Saturn",
+        "description": "Compare Saturn and Healthchecks.io: Saturn adds anomaly detection, health scoring, Kubernetes Helm chart, WordPress plugin, and advanced analytics.",
+        "keywords": [
+            "healthchecks.io alternative",
+            "healthchecks alternative",
+            "cron monitoring comparison",
+            "anomaly detection monitoring",
+            "enterprise cron monitoring"
+        ],
+        "canonical": "https://saturn.example.com/healthchecks-alternative"
+    },
+    "hero": {
+        "headline": "Saturn vs Healthchecks.io",
+        "subheadline": "Enterprise-grade monitoring with anomaly detection and platform-native integrations",
+        "cta_primary": {
+            "text": "Try Saturn Free",
+            "url": "https://saturn.example.com/signup?utm_source=healthchecks-alt&utm_medium=cta&utm_campaign=hero"
+        },
+        "cta_secondary": {
+            "text": "View Documentation",
+            "url": "https://docs.saturn.example.com"
+        }
+    },
+    "comparison_table": {
+        "headline": "Feature Comparison",
+        "categories": [
+            {
+                "name": "Core Monitoring",
+                "features": [
+                    {
+                        "feature": "Ping-based monitoring",
+                        "saturn": true,
+                        "healthchecks": true
+                    },
+                    {
+                        "feature": "Cron schedule support",
+                        "saturn": true,
+                        "healthchecks": true
+                    },
+                    {
+                        "feature": "Grace periods",
+                        "saturn": true,
+                        "healthchecks": true
+                    },
+                    {
+                        "feature": "Output capture",
+                        "saturn": "Unlimited retention",
+                        "healthchecks": "Last ping only"
+                    }
+                ]
+            },
+            {
+                "name": "Advanced Analytics",
+                "features": [
+                    {
+                        "feature": "Anomaly detection",
+                        "saturn": "Statistical (Z-Score, Median)",
+                        "healthchecks": false,
+                        "highlight": true
+                    },
+                    {
+                        "feature": "Health scoring",
+                        "saturn": "0-100 with A-F grades",
+                        "healthchecks": false,
+                        "highlight": true
+                    },
+                    {
+                        "feature": "MTTR/MTBF tracking",
+                        "saturn": true,
+                        "healthchecks": false,
+                        "highlight": true
+                    },
+                    {
+                        "feature": "Duration percentiles",
+                        "saturn": "P50/P95/P99",
+                        "healthchecks": false,
+                        "highlight": true
+                    },
+                    {
+                        "feature": "Org-level dashboard",
+                        "saturn": "Rankings, trends, aggregates",
+                        "healthchecks": "Basic list view",
+                        "highlight": true
+                    }
+                ]
+            },
+            {
+                "name": "Alerts & Integrations",
+                "features": [
+                    {
+                        "feature": "Email alerts",
+                        "saturn": true,
+                        "healthchecks": true
+                    },
+                    {
+                        "feature": "Slack alerts",
+                        "saturn": "OAuth + threaded updates",
+                        "healthchecks": "Webhooks only"
+                    },
+                    {
+                        "feature": "Discord alerts",
+                        "saturn": "Native with embeds",
+                        "healthchecks": "Webhooks",
+                        "highlight": true
+                    },
+                    {
+                        "feature": "Webhooks with HMAC",
+                        "saturn": true,
+                        "healthchecks": "Basic webhooks"
+                    }
+                ]
+            },
+            {
+                "name": "Platform Integrations",
+                "features": [
+                    {
+                        "feature": "Kubernetes Helm chart",
+                        "saturn": "Native sidecar",
+                        "healthchecks": false,
+                        "highlight": true
+                    },
+                    {
+                        "feature": "WordPress plugin",
+                        "saturn": "Dedicated plugin",
+                        "healthchecks": false,
+                        "highlight": true
+                    },
+                    {
+                        "feature": "CLI tool",
+                        "saturn": "Full-featured",
+                        "healthchecks": "Basic"
+                    }
+                ]
+            },
+            {
+                "name": "Team & Enterprise",
+                "features": [
+                    {
+                        "feature": "RBAC",
+                        "saturn": "3 roles (Admin/Member/Viewer)",
+                        "healthchecks": "Basic team access"
+                    },
+                    {
+                        "feature": "Maintenance windows",
+                        "saturn": "One-time + recurring (RRULE)",
+                        "healthchecks": "Manual pause only",
+                        "highlight": true
+                    },
+                    {
+                        "feature": "Audit logs",
+                        "saturn": true,
+                        "healthchecks": false,
+                        "highlight": true
+                    },
+                    {
+                        "feature": "SSO/SAML",
+                        "saturn": "Roadmap Q1 2026",
+                        "healthchecks": false
+                    }
+                ]
+            },
+            {
+                "name": "Pricing",
+                "features": [
+                    {
+                        "feature": "Free tier",
+                        "saturn": "10 monitors, full features",
+                        "healthchecks": "20 checks, basic features"
+                    },
+                    {
+                        "feature": "Pro tier",
+                        "saturn": "$29/mo (50 monitors)",
+                        "healthchecks": "$20/mo (100 checks)"
+                    },
+                    {
+                        "feature": "Self-hosted",
+                        "saturn": "Enterprise only",
+                        "healthchecks": "Open source available"
+                    }
+                ]
+            }
+        ]
+    },
+    "key_differences": {
+        "headline": "Why Teams Choose Saturn",
+        "differences": [
+            {
+                "title": "Proactive Anomaly Detection",
+                "saturn": "Automatic statistical baseline after ≥10 runs. Alerts when duration exceeds mean + 3σ, catching performance degradation days before failure.",
+                "healthchecks": "Reactive only. Alerts when jobs miss or fail, but won't detect a job that slows from 10 seconds to 50 seconds over weeks.",
+                "icon": "chart-line"
+            },
+            {
+                "title": "Health & Reliability Metrics",
+                "saturn": "Every monitor gets a health score (0-100, A-F) based on uptime, incidents, and consistency. Org dashboard shows rankings, trends, and SLA-ready reports.",
+                "healthchecks": "Simple up/down status. No aggregated metrics or health scoring for executive reporting.",
+                "icon": "heart-pulse"
+            },
+            {
+                "title": "Enterprise-Ready Features",
+                "saturn": "RBAC with 3 roles, audit logs, maintenance windows with RRULE support, advanced alert routing, and dedicated customer success.",
+                "healthchecks": "Basic team access. Designed for small teams and individuals, not enterprise compliance requirements.",
+                "icon": "building"
+            },
+            {
+                "title": "Platform-Native Integrations",
+                "saturn": "Kubernetes Helm chart (zero-code sidecar), WordPress plugin (agency-scale management), advanced Slack integration (OAuth, threads, slash commands).",
+                "healthchecks": "Generic webhooks. Manual instrumentation required for Kubernetes. No WordPress-specific tools.",
+                "icon": "puzzle"
+            }
+        ]
+    },
+    "migration": {
+        "headline": "Migrate from Healthchecks.io",
+        "steps": [
+            {
+                "number": 1,
+                "title": "Export Healthchecks Data",
+                "description": "Use Healthchecks API to list all your checks and their schedules"
+            },
+            {
+                "number": 2,
+                "title": "Bulk Create in Saturn",
+                "description": "Use Saturn CLI to create monitors from exported data"
+            },
+            {
+                "number": 3,
+                "title": "Update URLs",
+                "description": "Swap Healthchecks ping URLs for Saturn URLs in your jobs"
+            },
+            {
+                "number": 4,
+                "title": "Enable Anomaly Detection",
+                "description": "Configure Z-Score thresholds and median multipliers"
+            },
+            {
+                "number": 5,
+                "title": "Set Up Alerts",
+                "description": "Connect Slack, Discord, email, or webhooks"
+            }
+        ],
+        "note": "Most migrations complete in under 1 hour. We provide free migration support for teams with 50+ monitors."
+    },
+    "when_to_choose": {
+        "headline": "Which Tool Is Right for You?",
+        "scenarios": [
+            {
+                "title": "Choose Saturn If...",
+                "points": [
+                    "You need anomaly detection to catch slow jobs before they fail",
+                    "You want health scoring and SLA reporting for stakeholders",
+                    "You're running Kubernetes CronJobs and want zero-code monitoring",
+                    "You manage WordPress sites at scale (agencies)",
+                    "You need RBAC, audit logs, and enterprise features",
+                    "You want advanced analytics (MTTR, MTBF, percentiles)"
+                ]
+            },
+            {
+                "title": "Choose Healthchecks.io If...",
+                "points": [
+                    "You need simple ping monitoring without advanced analytics",
+                    "You want self-hosted open source (Healthchecks is OSS)",
+                    "You have a small number of checks (<20) and budget is tight",
+                    "You don't need team features or integrations beyond webhooks"
+                ]
+            }
+        ]
+    },
+    "faq": [
+        {
+            "question": "Is Saturn more expensive than Healthchecks?",
+            "answer": "Saturn Pro ($29/mo for 50 monitors) is slightly more than Healthchecks Pro ($20/mo for 100 checks), but includes anomaly detection, health scoring, MTTR/MTBF, and platform integrations. Most teams find the value justifies the cost."
+        },
+        {
+            "question": "Can I self-host Saturn?",
+            "answer": "Not currently. Saturn is cloud-only (SaaS). If self-hosting is a requirement, Healthchecks.io is open source. We're exploring enterprise self-hosted options for 2026."
+        },
+        {
+            "question": "Does Saturn support as many alert channels as Healthchecks?",
+            "answer": "Saturn supports Email, Slack, Discord, and Webhooks. Healthchecks has more integrations (PagerDuty, Matrix, etc.). However, Saturn's webhooks with HMAC signatures make it easy to integrate with any service."
+        },
+        {
+            "question": "Will my ping URLs change?",
+            "answer": "Yes. Saturn uses `https://api.saturn.example.com/api/ping/<MONITOR_ID>/success` format. You'll need to update your cron jobs or use the Saturn CLI wrapper."
+        }
+    ],
+    "cta_final": {
+        "headline": "Upgrade to Saturn for Anomaly Detection & Health Scoring",
+        "description": "Free tier includes 10 monitors with full anomaly detection, health scores, and all alert channels. No credit card required.",
+        "cta_primary": {
+            "text": "Start Free Trial",
+            "url": "https://saturn.example.com/signup?utm_source=healthchecks-alt&utm_medium=cta&utm_campaign=final"
+        },
+        "cta_secondary": {
+            "text": "Compare Pricing",
+            "url": "https://saturn.example.com/pricing"
+        }
+    }
+}

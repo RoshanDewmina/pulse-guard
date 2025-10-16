@@ -4,7 +4,7 @@ import { prisma } from '@tokiflow/db';
 // Helper function for login
 async function login(page: any) {
   await page.goto('/auth/signin');
-  await page.fill('input[name="email"]', 'dev@tokiflow.co');
+  await page.fill('input[name="email"]', 'dev@saturn.co');
   await page.click('button[type="submit"]');
   
   // In a real test, you'd check email for magic link

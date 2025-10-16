@@ -201,7 +201,7 @@ export function buildIncidentEmbed(
     color,
     fields,
     footer: {
-      text: 'PulseGuard Monitoring',
+      text: 'Saturn Monitoring',
     },
     timestamp: incident.openedAt.toISOString(),
   };
@@ -222,7 +222,7 @@ export async function sendIncidentAlert(
   const embed = buildIncidentEmbed(incident);
 
   const payload: DiscordWebhookPayload = {
-    username: 'PulseGuard',
+    username: 'Saturn',
     embeds: [embed],
   };
 
@@ -260,13 +260,13 @@ export async function sendIncidentResolution(
       },
     ],
     footer: {
-      text: 'PulseGuard Monitoring',
+      text: 'Saturn Monitoring',
     },
     timestamp: new Date().toISOString(),
   };
 
   return await sendDiscordWebhook(config, {
-    username: 'PulseGuard',
+    username: 'Saturn',
     embeds: [embed],
   });
 }

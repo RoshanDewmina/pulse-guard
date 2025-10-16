@@ -7,8 +7,8 @@ test.describe('Homepage', () => {
     // Check main heading
     await expect(page.getByRole('heading', { name: /Never Miss a Critical Job Again/ })).toBeVisible();
     
-    // Check Tokiflow branding
-    await expect(page.getByText('Tokiflow').first()).toBeVisible();
+    // Check Saturn branding
+    await expect(page.getByText('Saturn').first()).toBeVisible();
     
     // Check tagline
     await expect(page.getByText(/Monitor your cron jobs and scheduled tasks/)).toBeVisible();
@@ -91,7 +91,7 @@ test.describe('Homepage', () => {
     await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
     
     // Check footer content
-    await expect(page.getByText('© 2024 Tokiflow. All rights reserved.')).toBeVisible();
+    await expect(page.getByText('© 2024 Saturn. All rights reserved.')).toBeVisible();
   });
 
   test('page is responsive', async ({ page }) => {

@@ -1,0 +1,298 @@
+---
+id: email
+title: Email Alerts
+description: Configure email notifications with high deliverability and customizable templates
+keywords: [email alerts, notifications, deliverability, email templates, SMTP]
+---
+
+# Email Alerts
+
+Email is the most universal alert channel. Saturn uses transactional email infrastructure for high deliverability.
+
+## Setup
+
+### 1. Configure Email Addresses
+
+In **Settings → Integrations → Email**:
+
+1. Click **Add Email**
+2. Enter email address
+3. Click verification link sent to inbox
+4. Select incident types to receive
+
+### 2. Routing Rules
+
+Control which incidents trigger emails:
+
+```json
+{
+  "email": "ops@company.com",
+  "routes": [
+    {
+      "types": ["MISSED", "FAIL"],
+      "severity": ["HIGH"],
+      "monitors": ["mon_prod_*"]  // Only production
+    }
+  ]
+}
+```
+
+## Email Format
+
+### Subject Lines
+
+```
+[Saturn] FAIL: Database Backup (3 attempts)
+[Saturn] MISSED: API Health Check
+[Saturn] ANOMALY: ETL Pipeline (4.2σ slower)
+[Saturn] RESOLVED: Database Backup
+```
+
+Format: `[Saturn] TYPE: Monitor Name (context)`
+
+### Email Body
+
+```html
+═══════════════════════════════════════
+🔴 FAIL: Database Backup
+═══════════════════════════════════════
+
+Monitor: Database Backup
+Organization: Acme Corp
+Status: OPEN
+Severity: HIGH
+Time: 2025-10-14 03:15:23 UTC
+
+───────────────────────────────────────
+DETAILS
+───────────────────────────────────────
+
+Exit Code: 1
+Duration: 3.2 seconds
+Expected: ≈12 minutes
+
+Error Output:
+ERROR: Connection to database failed
+Host: db.prod.example.com:5432
+Reason: Connection timeout after 3 retries
+
+───────────────────────────────────────
+ACTIONS
+───────────────────────────────────────
+
+→ View Incident: https://saturn.example.com/incidents/inc_abc123
+→ View Monitor: https://saturn.example.com/monitors/mon_xyz789
+→ Acknowledge: https://saturn.example.com/ack/inc_abc123
+
+───────────────────────────────────────
+RECENT HISTORY
+───────────────────────────────────────
+
+Oct 13 03:00 - ✓ Success (12.3 min)
+Oct 12 03:00 - ✓ Success (11.8 min)
+Oct 11 03:00 - ✓ Success (12.5 min)
+
+───────────────────────────────────────
+```
+
+## Deliverability
+
+Saturn uses dedicated infrastructure for transactional emails:
+
+### Features
+
+- ✅ **SPF/DKIM/DMARC** configured
+- ✅ **Dedicated IP** with good reputation
+- ✅ **Bounce handling** automatic
+- ✅ **Unsubscribe** compliance
+- ✅ **Rate limiting** prevents spam classification
+
+### Whitelisting
+
+Add Saturn to your email whitelist:
+
+**Domains**:
+- `notifications@saturn.example.com`
+- `alerts@saturn.example.com`
+
+**IP Addresses** (for strict firewalls):
+- See [Status Page](https://status.saturn.example.com/email-ips)
+
+## Digest Mode
+
+Receive batched email instead of per-incident:
+
+```json
+{
+  "email": "team@company.com",
+  "mode": "digest",
+  "frequency": "hourly",  // or "daily"
+  "includeResolved": false
+}
+```
+
+**Hourly Digest Example**:
+
+```
+Subject: [Saturn] Hourly Digest - 3 new incidents
+
+═══════════════════════════════════════
+Saturn Hourly Digest
+October 14, 2025 14:00-15:00 UTC
+═══════════════════════════════════════
+
+3 New Incidents:
+───────────────────────────────────────
+14:15 │ FAIL   │ Database Backup
+14:32 │ LATE   │ API Sync
+14:47 │ MISSED │ Cache Rebuild
+
+2 Resolved:
+───────────────────────────────────────
+14:20 │ Database Backup (MTTR: 5 min)
+14:55 │ API Sync (MTTR: 23 min)
+
+Current Open: 1 incident (Cache Rebuild)
+
+View Dashboard: https://saturn.example.com
+```
+
+## Custom Templates
+
+Customize email templates (Enterprise plan):
+
+```html
+<!-- custom-template.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    .incident { background: #fee; padding: 20px; }
+    .details { font-family: monospace; }
+  </style>
+</head>
+<body>
+  <div class="incident">
+    <h2>{{incidentType}}: {{monitorName}}</h2>
+    <p><strong>Time:</strong> {{timestamp}}</p>
+    <p><strong>Severity:</strong> {{severity}}</p>
+    <div class="details">{{details}}</div>
+    <a href="{{incidentUrl}}">View Incident</a>
+  </div>
+</body>
+</html>
+```
+
+Upload via:
+
+```bash
+curl -X POST https://api.saturn.example.com/api/settings/email-template \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -F "template=@custom-template.html"
+```
+
+## Suppression
+
+Temporarily stop email alerts:
+
+**Per Email**:
+```bash
+curl -X POST https://api.saturn.example.com/api/alerts/email/<EMAIL_ID>/suppress \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -d '{"durationHours": 24}'
+```
+
+**Per Monitor**:
+Use [Maintenance Windows](../incidents/maintenance-windows)
+
+## Bounce Handling
+
+Saturn automatically handles bounces:
+
+| Bounce Type | Action |
+|-------------|--------|
+| **Soft bounce** | Retry 3 times over 6 hours |
+| **Hard bounce** | Disable email, notify admin |
+| **Spam complaint** | Immediate disable |
+
+View bounce status in **Settings → Integrations → Email**.
+
+## Testing
+
+Send test email:
+
+```bash
+curl -X POST https://api.saturn.example.com/api/alerts/email/test \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -d '{"email": "ops@company.com"}'
+```
+
+## Best Practices
+
+### ✅ Do
+
+1. **Use role-based emails**: `ops@`, `oncall@`, not personal
+2. **Set up filters**: Route Saturn emails to dedicated folder
+3. **Verify regularly**: Check spam folder occasionally
+4. **Use digest mode**: For non-critical monitors
+5. **Document escalation**: Who gets which alerts
+
+### ❌ Don't
+
+1. **Use personal email only**: Team members leave
+2. **Ignore bounces**: Fix or remove dead addresses
+3. **Over-alert**: Use appropriate severity levels
+4. **Skip verification**: Unverified emails won't receive alerts
+
+## Troubleshooting
+
+### Not Receiving Emails
+
+**Check**:
+1. Email verified? (check Settings)
+2. Spam folder?
+3. Routing rules correct?
+4. Monitor has email channel enabled?
+5. Incident type matches rules?
+
+**Test**:
+```bash
+# Send test email
+curl -X POST https://api.saturn.example.com/api/alerts/email/test \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -d '{"email": "your@email.com"}'
+```
+
+### Emails Going to Spam
+
+**Solutions**:
+1. Whitelist Saturn domains/IPs
+2. Add Saturn to safe senders
+3. Contact IT to adjust spam filters
+4. Check DMARC policy
+
+## API Reference
+
+```bash
+# Add email
+POST /api/alerts/email
+Body: {"email": "ops@company.com"}
+
+# Update routing
+PATCH /api/alerts/email/<EMAIL_ID>
+Body: {"routes": [...]}
+
+# Remove email
+DELETE /api/alerts/email/<EMAIL_ID>
+
+# Send test
+POST /api/alerts/email/test
+Body: {"email": "ops@company.com"}
+```
+
+## Next Steps
+
+- [Slack Alerts](./slack) — Rich notifications with threading
+- [Discord Alerts](./discord) — Discord webhook integration
+- [Webhooks](./webhooks) — Custom integrations with HMAC signatures
+

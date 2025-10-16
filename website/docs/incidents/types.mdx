@@ -1,0 +1,256 @@
+---
+id: types
+title: Incident Types
+description: Understanding MISSED, LATE, FAIL, and ANOMALY incidents
+keywords: [incidents, missed, late, fail, anomaly, incident types]
+---
+
+# Incident Types
+
+Saturn creates incidents automatically when jobs deviate from expected behavior. Understanding each type helps you respond appropriately.
+
+## Incident Types
+
+### MISSED
+
+**Trigger**: No ping received within expected schedule + grace period
+
+**Meaning**: Job didn't run at all, or couldn't reach Saturn
+
+**Common Causes**:
+- Cron daemon not running
+- Job disabled/commented out
+- Server down or unreachable
+- Network connectivity issues
+- DNS resolution failure
+
+**Example**:
+
+```
+Incident: MISSED
+Monitor: Daily Backup
+Expected: 2025-10-14 03:00:00 UTC
+Grace Period: 30 minutes
+Status: No ping received by 03:30:00 UTC
+```
+
+**Response Actions**:
+1. Check if the server/service is running
+2. Verify cron configuration (`crontab -l`)
+3. Check system logs for errors
+4. Test network connectivity to Saturn API
+
+---
+
+### LATE
+
+**Trigger**: Ping received after grace period expired
+
+**Meaning**: Job ran but started/finished late
+
+**Common Causes**:
+- Server under heavy load
+- Resource constraints (CPU/memory)
+- Dependency delays (database, API, etc.)
+- Grace period too short
+- Clock skew between systems
+
+**Example**:
+
+```
+Incident: LATE
+Monitor: Hourly Sync
+Expected: 2025-10-14 10:00:00 UTC
+Grace Period: 5 minutes
+Actual Ping: 10:07:23 UTC (7 minutes late)
+```
+
+**Response Actions**:
+1. Review job duration trends in analytics
+2. Check server resources during incident time
+3. Consider increasing grace period if consistently late
+4. Investigate dependencies that might be slow
+
+---
+
+### FAIL
+
+**Trigger**: Explicit fail ping received (exit code ≠ 0)
+
+**Meaning**: Job ran but reported failure
+
+**Common Causes**:
+- Application logic error
+- External service unavailable
+- Invalid input data
+- Permission issues
+- Disk space full
+- Database connection failed
+
+**Example**:
+
+```
+Incident: FAIL
+Monitor: Database Backup
+Exit Code: 1
+Duration: 3.2 seconds
+Output: ERROR: Connection to database failed after 3 retries
+        Host: db.example.com:5432
+        Reason: Connection timeout
+```
+
+**Response Actions**:
+1. Review captured output for error details
+2. Check external dependencies (databases, APIs)
+3. Verify permissions and credentials
+4. Review application logs
+5. Test the job manually to reproduce
+
+---
+
+### ANOMALY
+
+**Trigger**: Job succeeded but behaved abnormally
+
+**Meaning**: Statistical analysis detected deviation from baseline
+
+**Common Causes**:
+- Performance degradation
+- Increased data volume
+- Resource contention
+- Network latency spike
+- Configuration change
+- Code regression
+
+**Anomaly Sub-Types**:
+
+#### Duration Anomaly (Z-Score)
+
+```
+Incident: ANOMALY (Duration)
+Monitor: ETL Pipeline
+Duration: 47 minutes (typical: 12 minutes)
+Z-Score: 4.2 (threshold: 3.0)
+Analysis:
+  Mean: 12.3 minutes
+  Std Dev: 8.2 minutes
+  This run: 3.5 standard deviations above mean
+```
+
+#### Duration Anomaly (Median Multiplier)
+
+```
+Incident: ANOMALY (Duration)
+Monitor: Report Generation
+Duration: 89 seconds (median: 15 seconds)
+Multiplier: 5.9x (threshold: 5.0x)
+Analysis:
+  Median: 15 seconds
+  This run: 5.9 times the median
+```
+
+#### Output Size Drop
+
+```
+Incident: ANOMALY (Output Size)
+Monitor: Data Export
+Output: 234 bytes (median: 45 KB)
+Drop: 99.5% (threshold: 50%)
+Analysis:
+  Median Output: 45,231 bytes
+  This run: 234 bytes
+  Possible empty export or early termination
+```
+
+**Response Actions**:
+1. Review analytics for performance trends
+2. Compare with recent successful runs
+3. Check for infrastructure changes
+4. Investigate data volume changes
+5. Review recent code deployments
+6. Use [Anomaly Tuning](../anomalies/tuning) to adjust sensitivity
+
+---
+
+## Incident Severity
+
+| Type | Default Severity | Description |
+|------|------------------|-------------|
+| **MISSED** | High | Job didn't run — immediate action needed |
+| **LATE** | Medium | Job ran late — monitor for patterns |
+| **FAIL** | High | Job failed — investigate and fix |
+| **ANOMALY** | Low-Medium | Job succeeded but unusual — investigate if recurring |
+
+Severity affects:
+- Alert priority
+- Escalation rules
+- Dashboard sorting
+
+## Incident Metadata
+
+Every incident includes:
+
+```json
+{
+  "id": "inc_abc123",
+  "type": "ANOMALY",
+  "monitorId": "mon_xyz789",
+  "severity": "MEDIUM",
+  "status": "OPEN",
+  "createdAt": "2025-10-14T10:15:00Z",
+  "acknowledgedAt": null,
+  "resolvedAt": null,
+  "details": {
+    "zScore": 3.7,
+    "meanMs": 9800,
+    "stddevMs": 1100,
+    "durationMs": 14050,
+    "rule": "zscore>3"
+  },
+  "runId": "run_def456",
+  "alertsSent": ["slack", "email"]
+}
+```
+
+## Incident Timeline
+
+Each incident maintains an event log:
+
+1. **Created**: Incident detected
+2. **Alerts Sent**: Notification channels triggered
+3. **Acknowledged**: Team member acknowledged
+4. **Notes Added**: Investigation notes
+5. **Resolved**: Issue fixed and incident closed
+
+View full timeline in the dashboard.
+
+## Multiple Incidents
+
+Same monitor can have multiple open incidents:
+
+```
+Monitor: Nightly Backup
+  Incident 1: LATE (Oct 13) - RESOLVED
+  Incident 2: ANOMALY (Oct 14) - OPEN
+  Incident 3: FAIL (Oct 14) - OPEN
+```
+
+Each is tracked independently.
+
+## Deduplication
+
+Saturn prevents alert spam:
+
+- **MISSED**: One alert per grace period expiration
+- **LATE**: One alert per late ping
+- **FAIL**: One alert per failed run
+- **ANOMALY**: One alert per anomalous run
+
+If a monitor is already in incident state, new pings update the existing incident rather than creating duplicates (configurable).
+
+## Next Steps
+
+- [Incident Lifecycle](./lifecycle) — Managing incidents from open to resolved
+- [Maintenance Windows](./maintenance-windows) — Suppressing alerts during maintenance
+- [Anomalies](../anomalies/overview) — Deep dive on anomaly detection
+

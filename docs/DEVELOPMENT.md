@@ -1,380 +1,307 @@
 # Development Guide
 
-## Technology Stack
+## Tech Stack
 
-**Latest Versions (October 2025)**
+- **Frontend**: Next.js 15, React 19, TypeScript 5
+- **Backend**: Next.js API Routes, Prisma ORM
+- **Database**: PostgreSQL 17
+- **Queue**: BullMQ + Redis 7
+- **Storage**: MinIO (S3-compatible)
+- **UI**: Tailwind CSS, shadcn/ui
 
-- PostgreSQL 17.6
-- Redis 7.4.6
-- Prisma 6.17.1
-- Next.js 14.2.14
-- React 18.3.1
-- Stripe 17.2.1
-- BullMQ 5.20.3
-- Node.js 20+
-- Bun (latest)
-
-See `docs/development/VERSION_UPDATES.md` in git history for complete update log.
-
-## Development Setup
+## Quick Start
 
 ```bash
-# Clone and install
+# Clone and setup
 git clone <repo>
-cd tokiflow
+cd saturn
 make setup
 
-# Development
-make dev          # Start web + worker
-make migrate      # Run migrations
-make seed         # Seed test data
-make generate     # Generate Prisma client
+# Start development
+make dev
 
-# Database
-cd packages/db
-bun prisma studio # Visual database editor
-bun prisma migrate dev --name description
+# Access
+open http://localhost:3000
+```
+
+## Project Structure
+
+```
+saturn/
+├── apps/
+│   ├── web/          # Next.js app (frontend + API)
+│   └── worker/       # Background jobs (BullMQ)
+├── packages/
+│   ├── db/           # Prisma schema & migrations
+│   └── cli/          # CLI tool
+└── integrations/
+    ├── kubernetes/   # Go sidecar + Helm
+    └── wordpress/    # PHP plugin
 ```
 
 ## Architecture
 
-### Monorepo Structure
-```
-apps/
-  web/          - Next.js app (frontend + API routes)
-  worker/       - BullMQ background jobs
-packages/
-  db/           - Prisma schema & migrations (shared)
-  cli/          - CLI tool
-```
-
 ### Data Flow
 ```
-Cron Job → Ping API → Database → Worker Queue → Evaluator → Incident → Alert
+Cron Job → Ping API → Database → Queue → Evaluator
+                                          ↓
+                                      Incident → Alert → Channel
 ```
 
 ### Key Concepts
 
-**Monitor**: Configuration for a job to monitor  
-**Run**: Single execution record (ping received)  
-**Incident**: Problem detected (MISSED/LATE/FAIL)  
-**Alert**: Notification sent (email/Slack)  
-**Rule**: Alert routing logic  
-**Channel**: Alert destination (email/Slack)  
+**Monitor**: Job configuration (schedule, grace period, etc.)
+**Run**: Single execution record (when ping received)
+**Incident**: Problem detected (MISSED/LATE/FAIL/ANOMALY)
+**Alert**: Notification sent via channel
+**Channel**: Alert destination (Email/Slack/Discord/Webhook)
+**Rule**: Alert routing logic
 
 ## Database Schema
 
-```prisma
-// Key models
-Monitor      - Job configuration
-Run          - Execution history
-Incident     - Detected problems
-Alert        - Sent notifications
-Organization - Multi-tenant
-User         - Authentication
-Membership   - User-Org relationship
-Rule         - Alert routing
-Channel      - Alert destinations
-```
-
-### Migrations
-```bash
-cd packages/db
-bun prisma migrate dev       # Development
-bun prisma migrate deploy    # Production
-bun prisma migrate reset     # Reset & reseed
-```
+Main models:
+- `Monitor` - Job configurations
+- `Run` - Execution history
+- `Incident` - Detected problems
+- `Alert` - Sent notifications
+- `Organization` - Multi-tenant orgs
+- `User` - Authentication
+- `Membership` - User-org relationships
+- `Channel` - Alert destinations
+- `Rule` - Alert routing rules
 
 ## API Routes
 
 ### Public (No Auth)
-- `GET /api/ping/:token` - Receive job pings
-- `POST /api/ping/:token` - Ping with output
+- `GET/POST /api/ping/:token` - Receive pings
 
 ### Protected (Auth Required)
-- `/api/monitors` - CRUD monitors
-- `/api/incidents` - View incidents
-- `/api/channels` - Manage alert channels
-- `/api/rules` - Configure routing
-- `/api/stripe/*` - Billing
+- `/api/monitors` - Monitor CRUD
+- `/api/incidents` - Incident management
+- `/api/channels` - Alert channels
+- `/api/rules` - Alert routing
+- `/api/analytics` - Statistics
 
-### Webhooks
-- `/api/stripe/webhook` - Stripe events
-- `/api/slack/actions` - Slack button clicks
-- `/api/slack/commands` - Slack slash commands
+### Integrations
+- `/api/slack/*` - Slack OAuth & webhooks
+- `/api/stripe/*` - Billing webhooks
+- `/api/webhooks/*` - External webhooks
 
-## Worker Jobs
+## Development Commands
 
-Located in `apps/worker/src/jobs/`:
+```bash
+# Setup
+make setup          # Full setup (install, docker, migrate, seed)
+make docker-up      # Start Postgres, Redis, MinIO
 
-- **evaluator.ts** - Runs every 60s, checks for MISSED/LATE
-- **alerts.ts** - Routes alerts to channels
-- **email.ts** - Sends emails via Resend
-- **slack.ts** - Posts to Slack
-- **webhook.ts** - Sends webhook notifications
-- **discord.ts** - Posts to Discord
+# Development
+make dev            # Start web + worker
+make web            # Web only
+make worker         # Worker only
 
-### Queue System (BullMQ)
-```typescript
-import { scheduleEvaluationQueue } from './queues';
+# Database
+make migrate        # Run migrations
+make generate       # Generate Prisma client
+make seed           # Seed test data
+make reset          # Reset database
 
-// Add job
-await scheduleEvaluationQueue.add('evaluate', {});
-
-// Process
-scheduleEvaluationQueue.process(async (job) => {
-  // Handle job
-});
+# Database tools
+cd packages/db
+npx prisma studio   # Visual editor
+npx prisma migrate dev --name <name>
 ```
 
-## Authentication
+## Background Jobs
 
-### Magic Link Setup
-
-**Development**: Links printed to console
-
-**Production**: 
-1. Get Resend API key from [resend.com](https://resend.com)
-2. Add verified domain
-3. Set `RESEND_API_KEY` in `.env`
-
-**Troubleshooting**:
-- Check `RESEND_API_KEY` is set
-- Verify domain in Resend dashboard
-- Check email logs in Resend UI
-- Ensure `NEXTAUTH_URL` matches your domain
-
-### OAuth Providers
-
-**Google OAuth**:
-1. Create project at [console.cloud.google.com](https://console.cloud.google.com)
-2. Enable Google+ API
-3. Create OAuth credentials
-4. Add to `.env`:
-   ```env
-   GOOGLE_CLIENT_ID=...
-   GOOGLE_CLIENT_SECRET=...
-   ```
-
-## Rate Limiting
-
-Implemented using Redis:
-- 60 requests per minute per token
-- Applied to `/api/ping/:token`
-- Returns 429 with `Retry-After` header
-
-```typescript
-import { checkRateLimit } from '@/lib/rate-limit';
-
-const limited = await checkRateLimit(token);
-if (limited) {
-  return NextResponse.json({ error: 'Rate limited' }, { status: 429 });
-}
-```
+BullMQ workers in `apps/worker/src/jobs/`:
+- **evaluator** - Check for missed/late monitors (runs every 60s)
+- **alerts** - Dispatch alert to appropriate channel
+- **email** - Send email via Resend
+- **slack** - Send Slack message
+- **discord** - Send Discord message
+- **webhook** - Send HTTP webhook
 
 ## Environment Variables
 
-**Required**:
+Key variables for development:
+
 ```env
-DATABASE_URL=postgresql://...
-REDIS_URL=redis://...
-NEXTAUTH_SECRET=generate-with-openssl
+# Database
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/saturn
+
+# Redis
+REDIS_URL=redis://localhost:6379
+
+# NextAuth
 NEXTAUTH_URL=http://localhost:3000
-JWT_SECRET=another-secret
+NEXTAUTH_SECRET=<generate with: openssl rand -base64 32>
+
+# Email (optional for dev)
+RESEND_API_KEY=re_...
+
+# Storage
+S3_ENDPOINT=http://localhost:9000
+S3_BUCKET=saturn-outputs
+S3_ACCESS_KEY_ID=minioadmin
+S3_SECRET_ACCESS_KEY=minioadmin
+S3_FORCE_PATH_STYLE=true
 ```
 
-**Optional**:
-```env
-RESEND_API_KEY=re_...              # For emails
-STRIPE_SECRET_KEY=sk_test_...      # For billing
-SLACK_CLIENT_ID=...                # For Slack
-S3_ENDPOINT=http://localhost:9000  # MinIO/S3
-GOOGLE_CLIENT_ID=...               # Google OAuth
-DISCORD_WEBHOOK_URL=...            # Discord alerts
-SENTRY_DSN=...                     # Error tracking
+See `.env.example` for complete list.
+
+## Common Tasks
+
+### Adding a New API Route
+```bash
+# Create route file
+touch apps/web/src/app/api/your-route/route.ts
+
+# Add handler
+export async function GET(req: Request) {
+  // Your code
+}
 ```
 
-## Code Style
+### Creating a Database Migration
+```bash
+cd packages/db
 
-- TypeScript strict mode
-- Prettier for formatting
-- ESLint for linting
-- Prisma for database queries
-- React Server Components by default
-- `'use client'` only when needed
+# Edit schema
+vi prisma/schema.prisma
 
-## Testing
+# Create migration
+npx prisma migrate dev --name add_new_field
+
+# Apply to production
+npx prisma migrate deploy
+```
+
+### Adding a Background Job
+```typescript
+// apps/worker/src/jobs/my-job.ts
+import { Job, Queue } from 'bullmq';
+
+export async function processMyJob(job: Job) {
+  // Your logic
+}
+
+// Register in apps/worker/src/index.ts
+```
+
+### Testing Locally
 
 ```bash
-# Unit tests
-npm test
+# Create a monitor in UI
+# Get token from monitor details
 
-# E2E tests
-cd apps/web
-npm run test:e2e
+# Test ping
+curl http://localhost:3000/api/ping/YOUR_TOKEN
 
-# Manual API testing
-curl http://localhost:3000/api/ping/$TOKEN
+# Test with state
+curl "http://localhost:3000/api/ping/YOUR_TOKEN?state=success"
 ```
 
 ## Debugging
 
-### Database
+### Database Issues
 ```bash
+# Check connection
+cd packages/db
+npx prisma db pull
+
 # View data
-cd packages/db && bun prisma studio
+npx prisma studio
 
-# Query directly
-docker exec -it pulseguard-postgres psql -U postgres -d pulseguard
-SELECT * FROM "Monitor";
+# Reset if corrupted
+make reset
 ```
 
-### Worker Logs
+### Queue Issues
 ```bash
-# Check worker logs
-docker logs pulseguard-worker -f
+# Check Redis connection
+redis-cli -h localhost ping
 
-# Or if running locally
-# Logs printed to console
+# View queue status
+redis-cli
+> KEYS bull:*
+> LLEN bull:alerts:wait
 ```
 
-### Redis Queue
+### Worker Issues
 ```bash
-docker exec -it pulseguard-redis redis-cli
-KEYS *
-GET key_name
+# View logs
+cd apps/worker
+npm run dev
+
+# Check for errors in output
 ```
 
-## Common Tasks
+## Testing
 
-### Add New API Route
-```typescript
-// apps/web/src/app/api/your-route/route.ts
-export const runtime = 'nodejs';  // If using Node features
-
-export async function GET(request: Request) {
-  // Your logic
-  return NextResponse.json({ data: '...' });
-}
-```
-
-### Add New Worker Job
-```typescript
-// apps/worker/src/jobs/your-job.ts
-export async function processYourJob(data: any) {
-  // Job logic
-}
-
-// apps/worker/src/index.ts
-import { yourQueue } from './queues';
-yourQueue.process(processYourJob);
-```
-
-### Add Database Field
-```prisma
-// packages/db/prisma/schema.prisma
-model Monitor {
-  // ... existing fields
-  newField String?
-}
-```
+### E2E Tests
 ```bash
-cd packages/db
-bun prisma migrate dev --name add_new_field
+cd apps/web
+npm run test:e2e
+
+# Specific test
+npx playwright test monitors.spec.ts
+
+# With UI
+npx playwright test --ui
 ```
 
-### Add Component
-```typescript
-// apps/web/src/components/your-component.tsx
-'use client';  // Only if needed
-
-export function YourComponent() {
-  return <div>...</div>;
-}
-```
-
-## Performance
-
-### Database Indexes
-Key indexes already added:
-- Monitor.token (unique)
-- Run.monitorId, Run.createdAt
-- Incident.monitorId, Incident.resolvedAt
-- Alert.incidentId
-
-### Caching Strategy
-- Redis for rate limiting
-- Future: Cache monitor lookups
-- Future: Cache nextDueAt calculations
-
-### Query Optimization
-- Use Prisma select to limit fields
-- Paginate large result sets
-- Use indexes for filtering
-
-## Security
-
-### Token Security
-- Monitor tokens: cryptographically random
-- API keys: stored hashed
-- Webhook signatures: HMAC validation
-
-### Input Validation
-- All API inputs validated
-- SQL injection: Prevented by Prisma
-- XSS: React auto-escapes
-- CSRF: Protected by SameSite cookies
-
-## Deployment
-
-See main [GUIDE.md](GUIDE.md#deployment) for deployment guide.
-
-### Database Migrations
+### Manual Testing
 ```bash
-# Production
-cd packages/db
-bun prisma migrate deploy
+# Seed test data
+make seed
+
+# Login with
+# Email: dev@Saturn.co
+# Check terminal for magic link
 ```
 
-### Worker Deployment
-Ensure only one evaluator instance runs or use leader election.
+## Code Style
+
+- TypeScript strict mode enabled
+- ESLint for linting
+- Prettier for formatting (via Next.js)
+- Use Zod for validation
+- Prisma for all database queries
 
 ## Troubleshooting
 
-**Build Errors**:
+**Port already in use:**
 ```bash
-rm -rf node_modules bun.lock
-bun install
-make generate
+# Kill processes
+lsof -ti:3000 | xargs kill -9
+lsof -ti:3001 | xargs kill -9
 ```
 
-**Database Connection**:
+**Database connection errors:**
 ```bash
-# Test connection
-docker exec -it pulseguard-postgres psql -U postgres -c "SELECT 1;"
+# Restart Postgres
+make docker-down
+make docker-up
 ```
 
-**Worker Not Processing**:
+**Prisma client out of sync:**
 ```bash
-# Check Redis
-docker exec -it pulseguard-redis redis-cli ping
-
-# Check queues
-docker exec -it pulseguard-redis redis-cli KEYS bull:*
+cd packages/db
+npx prisma generate
 ```
 
-**Rate Limit Issues**:
+**Redis connection errors:**
 ```bash
-# Clear rate limits
-docker exec -it pulseguard-redis redis-cli FLUSHDB
+# Check Redis is running
+redis-cli ping
+
+# Restart
+docker restart pulse-guard-redis
 ```
 
-## Contributing
+## Resources
 
-1. Fork repository
-2. Create feature branch
-3. Make changes with tests
-4. Submit PR with description
-
-See [CONTRIBUTING.md](../CONTRIBUTING.md) for details.
-
+- Next.js Docs: https://nextjs.org/docs
+- Prisma Docs: https://www.prisma.io/docs
+- BullMQ Docs: https://docs.bullmq.io/
+- Tailwind Docs: https://tailwindcss.com/docs

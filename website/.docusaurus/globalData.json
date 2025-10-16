@@ -1,0 +1,1042 @@
+{
+  "docusaurus-plugin-content-docs": {
+    "default": {
+      "path": "/",
+      "versions": [
+        {
+          "name": "current",
+          "label": "Next",
+          "isLast": true,
+          "path": "/",
+          "mainDocId": "get-started/overview",
+          "docs": [
+            {
+              "id": "alerts/discord",
+              "path": "/alerts/discord",
+              "sidebar": "docsSidebar"
+            },
+            {
+              "id": "alerts/email",
+              "path": "/alerts/email",
+              "sidebar": "docsSidebar"
+            },
+            {
+              "id": "alerts/slack",
+              "path": "/alerts/slack",
+              "sidebar": "docsSidebar"
+            },
+            {
+              "id": "alerts/webhooks",
+              "path": "/alerts/webhooks",
+              "sidebar": "docsSidebar"
+            },
+            {
+              "id": "analytics/health-score",
+              "path": "/analytics/health-score",
+              "sidebar": "docsSidebar"
+            },
+            {
+              "id": "analytics/mtbf-mttr",
+              "path": "/analytics/mtbf-mttr",
+              "sidebar": "docsSidebar"
+            },
+            {
+              "id": "analytics/percentiles",
+              "path": "/analytics/percentiles",
+              "sidebar": "docsSidebar"
+            },
+            {
+              "id": "analytics/uptime-sla",
+              "path": "/analytics/uptime-sla",
+              "sidebar": "docsSidebar"
+            },
+            {
+              "id": "anomalies/overview",
+              "path": "/anomalies/overview",
+              "sidebar": "docsSidebar"
+            },
+            {
+              "id": "anomalies/rules",
+              "path": "/anomalies/rules",
+              "sidebar": "docsSidebar"
+            },
+            {
+              "id": "anomalies/tuning",
+              "path": "/anomalies/tuning",
+              "sidebar": "docsSidebar"
+            },
+            {
+              "id": "anomalies/welford",
+              "path": "/anomalies/welford",
+              "sidebar": "docsSidebar"
+            },
+            {
+              "id": "api/reference",
+              "path": "/api/reference"
+            },
+            {
+              "id": "billing/plans",
+              "path": "/billing/plans",
+              "sidebar": "docsSidebar"
+            },
+            {
+              "id": "billing/usage-enforcement",
+              "path": "/billing/usage-enforcement",
+              "sidebar": "docsSidebar"
+            },
+            {
+              "id": "changelog/index",
+              "path": "/changelog/",
+              "sidebar": "docsSidebar"
+            },
+            {
+              "id": "cli/install",
+              "path": "/cli/install",
+              "sidebar": "docsSidebar"
+            },
+            {
+              "id": "cli/pulse-run",
+              "path": "/cli/pulse-run",
+              "sidebar": "docsSidebar"
+            },
+            {
+              "id": "cli/reference",
+              "path": "/cli/reference",
+              "sidebar": "docsSidebar"
+            },
+            {
+              "id": "contact/index",
+              "path": "/contact/"
+            },
+            {
+              "id": "faq/index",
+              "path": "/faq/",
+              "sidebar": "docsSidebar"
+            },
+            {
+              "id": "get-started/choose-your-path",
+              "path": "/get-started/choose-your-path",
+              "sidebar": "docsSidebar"
+            },
+            {
+              "id": "get-started/overview",
+              "path": "/get-started/overview",
+              "sidebar": "docsSidebar"
+            },
+            {
+              "id": "get-started/quickstart-ci",
+              "path": "/get-started/quickstart-ci",
+              "sidebar": "docsSidebar"
+            },
+            {
+              "id": "get-started/quickstart-kubernetes",
+              "path": "/get-started/quickstart-kubernetes",
+              "sidebar": "docsSidebar"
+            },
+            {
+              "id": "get-started/quickstart-linux-cron",
+              "path": "/get-started/quickstart-linux-cron",
+              "sidebar": "docsSidebar"
+            },
+            {
+              "id": "get-started/quickstart-wordpress",
+              "path": "/get-started/quickstart-wordpress",
+              "sidebar": "docsSidebar"
+            },
+            {
+              "id": "incidents/lifecycle",
+              "path": "/incidents/lifecycle",
+              "sidebar": "docsSidebar"
+            },
+            {
+              "id": "incidents/maintenance-windows",
+              "path": "/incidents/maintenance-windows",
+              "sidebar": "docsSidebar"
+            },
+            {
+              "id": "incidents/types",
+              "path": "/incidents/types",
+              "sidebar": "docsSidebar"
+            },
+            {
+              "id": "kubernetes/examples",
+              "path": "/kubernetes/examples",
+              "sidebar": "docsSidebar"
+            },
+            {
+              "id": "kubernetes/helm-values",
+              "path": "/kubernetes/helm-values",
+              "sidebar": "docsSidebar"
+            },
+            {
+              "id": "kubernetes/sidecar",
+              "path": "/kubernetes/sidecar",
+              "sidebar": "docsSidebar"
+            },
+            {
+              "id": "legal/dpa",
+              "path": "/legal/dpa"
+            },
+            {
+              "id": "legal/privacy",
+              "path": "/legal/privacy"
+            },
+            {
+              "id": "legal/terms",
+              "path": "/legal/terms"
+            },
+            {
+              "id": "maintenance-windows/index",
+              "path": "/maintenance-windows/",
+              "sidebar": "docsSidebar"
+            },
+            {
+              "id": "monitors/grace-periods",
+              "path": "/monitors/grace-periods",
+              "sidebar": "docsSidebar"
+            },
+            {
+              "id": "monitors/pings",
+              "path": "/monitors/pings",
+              "sidebar": "docsSidebar"
+            },
+            {
+              "id": "monitors/tokens-rbac",
+              "path": "/monitors/tokens-rbac",
+              "sidebar": "docsSidebar"
+            },
+            {
+              "id": "monitors/types",
+              "path": "/monitors/types",
+              "sidebar": "docsSidebar"
+            },
+            {
+              "id": "output-capture/overview",
+              "path": "/output-capture/overview",
+              "sidebar": "docsSidebar"
+            },
+            {
+              "id": "roadmap/index",
+              "path": "/roadmap/",
+              "sidebar": "docsSidebar"
+            },
+            {
+              "id": "security/overview",
+              "path": "/security/overview",
+              "sidebar": "docsSidebar"
+            },
+            {
+              "id": "security/redaction",
+              "path": "/security/redaction",
+              "sidebar": "docsSidebar"
+            },
+            {
+              "id": "wordpress/bulk-agency",
+              "path": "/wordpress/bulk-agency",
+              "sidebar": "docsSidebar"
+            },
+            {
+              "id": "wordpress/install",
+              "path": "/wordpress/install",
+              "sidebar": "docsSidebar"
+            },
+            {
+              "id": "wordpress/troubleshooting",
+              "path": "/wordpress/troubleshooting",
+              "sidebar": "docsSidebar"
+            }
+          ],
+          "draftIds": [],
+          "sidebars": {
+            "docsSidebar": {
+              "link": {
+                "path": "/get-started/overview",
+                "label": "get-started/overview"
+              }
+            }
+          }
+        }
+      ],
+      "breadcrumbs": true
+    }
+  },
+  "docusaurus-plugin-redoc": {
+    "plugin-redoc-0": {
+      "url": "redocusaurus/plugin-redoc-0.yaml",
+      "themeId": "theme-redoc",
+      "isSpecFile": true,
+      "normalizeUrl": true,
+      "spec": {
+        "openapi": "3.1.0",
+        "info": {
+          "title": "Saturn Monitoring API",
+          "version": "1.0.0",
+          "description": "Saturn API for cron and scheduled job monitoring with anomaly detection.\n\n## Authentication\n\nUse Bearer token authentication:\n```\nAuthorization: Bearer <TOKEN>\n```\n\nGet tokens from the Saturn dashboard under Settings → Tokens.\n",
+          "contact": {
+            "name": "Saturn Support",
+            "email": "support@saturn.example.com",
+            "url": "https://saturn.example.com"
+          },
+          "license": {
+            "name": "Proprietary"
+          }
+        },
+        "servers": [
+          {
+            "url": "https://api.saturn.example.com",
+            "description": "Production API"
+          },
+          {
+            "url": "https://api.saturn-staging.example.com",
+            "description": "Staging API"
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          {
+            "name": "Ping",
+            "description": "Send pings from monitored jobs"
+          },
+          {
+            "name": "Monitors",
+            "description": "Manage monitors"
+          },
+          {
+            "name": "Incidents",
+            "description": "View and manage incidents"
+          },
+          {
+            "name": "Webhooks",
+            "description": "Webhook event deliveries"
+          }
+        ],
+        "paths": {
+          "/api/ping/{monitorId}/start": {
+            "post": {
+              "tags": [
+                "Ping"
+              ],
+              "summary": "Send start ping",
+              "description": "Signal that a job has started execution",
+              "operationId": "pingStart",
+              "parameters": [
+                {
+                  "$ref": "#/components/parameters/MonitorId"
+                }
+              ],
+              "responses": {
+                "200": {
+                  "description": "Ping accepted",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "$ref": "#/components/schemas/PingResponse"
+                      }
+                    }
+                  }
+                },
+                "401": {
+                  "$ref": "#/components/responses/Unauthorized"
+                },
+                "404": {
+                  "$ref": "#/components/responses/NotFound"
+                },
+                "429": {
+                  "$ref": "#/components/responses/RateLimited"
+                }
+              }
+            }
+          },
+          "/api/ping/{monitorId}/success": {
+            "post": {
+              "tags": [
+                "Ping"
+              ],
+              "summary": "Send success ping",
+              "description": "Signal that a job completed successfully",
+              "operationId": "pingSuccess",
+              "parameters": [
+                {
+                  "$ref": "#/components/parameters/MonitorId"
+                }
+              ],
+              "requestBody": {
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "type": "object",
+                      "properties": {
+                        "durationMs": {
+                          "type": "integer",
+                          "description": "Job duration in milliseconds",
+                          "example": 12456
+                        },
+                        "output": {
+                          "type": "string",
+                          "description": "Job output (stdout/stderr)",
+                          "example": "Backup completed\n5000 files processed"
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "responses": {
+                "200": {
+                  "description": "Ping accepted",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "$ref": "#/components/schemas/PingResponse"
+                      }
+                    }
+                  }
+                },
+                "401": {
+                  "$ref": "#/components/responses/Unauthorized"
+                },
+                "404": {
+                  "$ref": "#/components/responses/NotFound"
+                },
+                "429": {
+                  "$ref": "#/components/responses/RateLimited"
+                }
+              }
+            }
+          },
+          "/api/ping/{monitorId}/fail": {
+            "post": {
+              "tags": [
+                "Ping"
+              ],
+              "summary": "Send fail ping",
+              "description": "Signal that a job failed",
+              "operationId": "pingFail",
+              "parameters": [
+                {
+                  "$ref": "#/components/parameters/MonitorId"
+                }
+              ],
+              "requestBody": {
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "type": "object",
+                      "properties": {
+                        "exitCode": {
+                          "type": "integer",
+                          "description": "Process exit code",
+                          "example": 1
+                        },
+                        "durationMs": {
+                          "type": "integer",
+                          "description": "Job duration in milliseconds",
+                          "example": 3200
+                        },
+                        "output": {
+                          "type": "string",
+                          "description": "Error output",
+                          "example": "ERROR: Database connection failed"
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "responses": {
+                "200": {
+                  "description": "Ping accepted",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "$ref": "#/components/schemas/PingResponse"
+                      }
+                    }
+                  }
+                },
+                "401": {
+                  "$ref": "#/components/responses/Unauthorized"
+                },
+                "404": {
+                  "$ref": "#/components/responses/NotFound"
+                },
+                "429": {
+                  "$ref": "#/components/responses/RateLimited"
+                }
+              }
+            }
+          },
+          "/api/monitors": {
+            "get": {
+              "tags": [
+                "Monitors"
+              ],
+              "summary": "List monitors",
+              "description": "Get all monitors for the authenticated organization",
+              "operationId": "listMonitors",
+              "parameters": [
+                {
+                  "name": "page",
+                  "in": "query",
+                  "schema": {
+                    "type": "integer",
+                    "default": 1
+                  }
+                },
+                {
+                  "name": "limit",
+                  "in": "query",
+                  "schema": {
+                    "type": "integer",
+                    "default": 50,
+                    "maximum": 100
+                  }
+                }
+              ],
+              "responses": {
+                "200": {
+                  "description": "List of monitors",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "object",
+                        "properties": {
+                          "monitors": {
+                            "type": "array",
+                            "items": {
+                              "$ref": "#/components/schemas/Monitor"
+                            }
+                          },
+                          "total": {
+                            "type": "integer"
+                          },
+                          "page": {
+                            "type": "integer"
+                          },
+                          "limit": {
+                            "type": "integer"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "/api/incidents": {
+            "get": {
+              "tags": [
+                "Incidents"
+              ],
+              "summary": "List incidents",
+              "description": "Get incidents for the authenticated organization",
+              "operationId": "listIncidents",
+              "parameters": [
+                {
+                  "name": "status",
+                  "in": "query",
+                  "schema": {
+                    "type": "string",
+                    "enum": [
+                      "OPEN",
+                      "ACKNOWLEDGED",
+                      "RESOLVED"
+                    ]
+                  }
+                },
+                {
+                  "name": "type",
+                  "in": "query",
+                  "schema": {
+                    "type": "string",
+                    "enum": [
+                      "MISSED",
+                      "LATE",
+                      "FAIL",
+                      "ANOMALY"
+                    ]
+                  }
+                },
+                {
+                  "name": "monitorId",
+                  "in": "query",
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              ],
+              "responses": {
+                "200": {
+                  "description": "List of incidents",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "object",
+                        "properties": {
+                          "incidents": {
+                            "type": "array",
+                            "items": {
+                              "$ref": "#/components/schemas/Incident"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "/api/incidents/{incidentId}/acknowledge": {
+            "post": {
+              "tags": [
+                "Incidents"
+              ],
+              "summary": "Acknowledge incident",
+              "description": "Mark an incident as acknowledged",
+              "operationId": "acknowledgeIncident",
+              "parameters": [
+                {
+                  "name": "incidentId",
+                  "in": "path",
+                  "required": true,
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              ],
+              "requestBody": {
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "type": "object",
+                      "properties": {
+                        "note": {
+                          "type": "string",
+                          "example": "Investigating database connection"
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "responses": {
+                "200": {
+                  "description": "Incident acknowledged",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "$ref": "#/components/schemas/Incident"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "/api/incidents/{incidentId}/resolve": {
+            "post": {
+              "tags": [
+                "Incidents"
+              ],
+              "summary": "Resolve incident",
+              "description": "Mark an incident as resolved",
+              "operationId": "resolveIncident",
+              "parameters": [
+                {
+                  "name": "incidentId",
+                  "in": "path",
+                  "required": true,
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              ],
+              "requestBody": {
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "type": "object",
+                      "properties": {
+                        "note": {
+                          "type": "string",
+                          "example": "Fixed database credentials"
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "responses": {
+                "200": {
+                  "description": "Incident resolved",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "$ref": "#/components/schemas/Incident"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "components": {
+          "securitySchemes": {
+            "bearerAuth": {
+              "type": "http",
+              "scheme": "bearer",
+              "description": "Organization or monitor token from Saturn dashboard"
+            }
+          },
+          "parameters": {
+            "MonitorId": {
+              "name": "monitorId",
+              "in": "path",
+              "required": true,
+              "description": "Unique monitor identifier",
+              "schema": {
+                "type": "string"
+              },
+              "example": "mon_abc123xyz"
+            }
+          },
+          "schemas": {
+            "Monitor": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "example": "mon_abc123"
+                },
+                "name": {
+                  "type": "string",
+                  "example": "Daily Backup"
+                },
+                "schedule": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "interval",
+                        "cron",
+                        "manual"
+                      ]
+                    },
+                    "expression": {
+                      "type": "string",
+                      "example": "0 3 * * *"
+                    },
+                    "timezone": {
+                      "type": "string",
+                      "example": "America/New_York"
+                    }
+                  }
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "OK",
+                    "LATE",
+                    "MISSED",
+                    "FAILING",
+                    "DISABLED"
+                  ]
+                },
+                "healthScore": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 100,
+                  "example": 95
+                },
+                "createdAt": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            },
+            "Incident": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "example": "inc_abc123"
+                },
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "MISSED",
+                    "LATE",
+                    "FAIL",
+                    "ANOMALY"
+                  ]
+                },
+                "severity": {
+                  "type": "string",
+                  "enum": [
+                    "LOW",
+                    "MEDIUM",
+                    "HIGH"
+                  ]
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "OPEN",
+                    "ACKNOWLEDGED",
+                    "RESOLVED"
+                  ]
+                },
+                "monitorId": {
+                  "type": "string",
+                  "example": "mon_xyz789"
+                },
+                "createdAt": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "acknowledgedAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "nullable": true
+                },
+                "resolvedAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "nullable": true
+                },
+                "details": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "PingResponse": {
+              "type": "object",
+              "properties": {
+                "received": {
+                  "type": "boolean",
+                  "example": true
+                },
+                "runId": {
+                  "type": "string",
+                  "example": "run_abc123"
+                }
+              }
+            },
+            "WebhookEvent": {
+              "type": "object",
+              "properties": {
+                "event": {
+                  "type": "string",
+                  "enum": [
+                    "incident.opened",
+                    "incident.acknowledged",
+                    "incident.resolved",
+                    "monitor.created",
+                    "monitor.updated",
+                    "monitor.deleted"
+                  ]
+                },
+                "id": {
+                  "type": "string",
+                  "example": "evt_abc123"
+                },
+                "createdAt": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "data": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              },
+              "example": {
+                "event": "incident.opened",
+                "id": "evt_abc123",
+                "createdAt": "2025-10-14T03:15:23Z",
+                "data": {
+                  "incident": {
+                    "id": "inc_abc123",
+                    "type": "FAIL",
+                    "severity": "HIGH",
+                    "monitorId": "mon_xyz789"
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "Unauthorized": {
+              "description": "Invalid or missing authentication token",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "error": {
+                        "type": "string",
+                        "example": "Invalid token"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "NotFound": {
+              "description": "Resource not found",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "error": {
+                        "type": "string",
+                        "example": "Monitor not found"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "RateLimited": {
+              "description": "Rate limit exceeded",
+              "headers": {
+                "Retry-After": {
+                  "schema": {
+                    "type": "integer"
+                  },
+                  "description": "Seconds to wait before retry"
+                }
+              },
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "error": {
+                        "type": "string",
+                        "example": "Rate limit exceeded"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "docusaurus-theme-redoc": {
+    "theme-redoc": {
+      "lightTheme": {
+        "typography": {
+          "fontFamily": "var(--ifm-font-family-base)",
+          "fontSize": "var(--ifm-font-size-base)",
+          "lineHeight": "var(--ifm-line-height-base)",
+          "fontWeightLight": "var(--ifm-font-weight-light)",
+          "fontWeightRegular": "var(--ifm-font-weight-base)",
+          "fontWeightBold": "var(--ifm-font-weight-bold)",
+          "headings": {
+            "fontFamily": "var(--ifm-heading-font-family)",
+            "fontWeight": "var(--ifm-heading-font-weight)",
+            "lineHeight": "var(--ifm-heading-line-height)"
+          },
+          "code": {
+            "fontFamily": "var(--ifm-font-family-monospace)",
+            "lineHeight": "var(--ifm-pre-line-height)"
+          }
+        },
+        "sidebar": {
+          "width": "300px",
+          "backgroundColor": "#ffffff"
+        },
+        "rightPanel": {
+          "backgroundColor": "#303846"
+        },
+        "colors": {
+          "primary": {
+            "main": "#1890ff"
+          }
+        },
+        "theme": {
+          "prism": {
+            "additionalLanguages": [
+              "scala"
+            ]
+          }
+        }
+      },
+      "darkTheme": {
+        "typography": {
+          "fontFamily": "var(--ifm-font-family-base)",
+          "fontSize": "var(--ifm-font-size-base)",
+          "lineHeight": "var(--ifm-line-height-base)",
+          "fontWeightLight": "var(--ifm-font-weight-light)",
+          "fontWeightRegular": "var(--ifm-font-weight-base)",
+          "fontWeightBold": "var(--ifm-font-weight-bold)",
+          "headings": {
+            "fontFamily": "var(--ifm-heading-font-family)",
+            "fontWeight": "var(--ifm-heading-font-weight)",
+            "lineHeight": "var(--ifm-heading-line-height)"
+          },
+          "code": {
+            "fontFamily": "var(--ifm-font-family-monospace)",
+            "lineHeight": "var(--ifm-pre-line-height)"
+          }
+        },
+        "sidebar": {
+          "width": "300px",
+          "backgroundColor": "rgb(24, 25, 26)",
+          "textColor": "#f5f6f7",
+          "arrow": {
+            "color": "#f5f6f7"
+          }
+        },
+        "colors": {
+          "text": {
+            "primary": "#f5f6f7",
+            "secondary": "rgba(255, 255, 255, 1)"
+          },
+          "gray": {
+            "50": "#FAFAFA",
+            "100": "#F5F5F5"
+          },
+          "border": {
+            "dark": "#ffffff",
+            "light": "rgba(0,0,0, 0.1)"
+          },
+          "primary": {
+            "main": "#1890ff"
+          }
+        },
+        "schema": {
+          "nestedBackground": "rgb(24, 25, 26)",
+          "typeNameColor": "rgba(255, 255, 255, 1)",
+          "typeTitleColor": "rgba(255, 255, 255, 1)"
+        },
+        "theme": {
+          "prism": {
+            "additionalLanguages": [
+              "scala"
+            ]
+          }
+        }
+      },
+      "options": {
+        "scrollYOffset": "nav.navbar",
+        "expandSingleSchemaField": true,
+        "menuToggle": true,
+        "suppressWarnings": true
+      }
+    }
+  }
+}

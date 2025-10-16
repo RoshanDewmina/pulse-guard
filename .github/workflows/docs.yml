@@ -1,0 +1,81 @@
+name: Documentation CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'website/**'
+      - '.github/workflows/docs.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'website/**'
+      - '.github/workflows/docs.yml'
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+      
+      - name: Install dependencies
+        working-directory: ./website
+        run: bun install
+      
+      - name: Type check
+        working-directory: ./website
+        run: bun run typecheck || tsc --noEmit
+      
+      - name: Build documentation
+        working-directory: ./website
+        run: bun run build
+      
+      - name: Validate OpenAPI spec
+        run: |
+          npm install -g @redocly/cli
+          redocly lint website/static/openapi.yaml
+      
+      - name: Spell check
+        uses: streetsidesoftware/cspell-action@v5
+        with:
+          files: 'website/docs/**/*.mdx'
+          config: './website/.cspell.json'
+          strict: false
+      
+      - name: Link check
+        uses: lycheeverse/lychee-action@v1
+        with:
+          args: |
+            --exclude 'saturn.example.com'
+            --exclude 'localhost'
+            --max-retries 3
+            'website/docs/**/*.mdx'
+          fail: true
+      
+      - name: Upload build artifacts
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs-build
+          path: website/build
+          retention-days: 7
+      
+      - name: Comment PR with preview
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '📚 Documentation built successfully! Deploy preview will be available once merged.'
+            })
+

@@ -1,0 +1,25 @@
+{
+  "id": "contact/index",
+  "title": "Contact Us",
+  "description": "Get in touch with the Saturn team",
+  "source": "@site/docs/contact/index.mdx",
+  "sourceDirName": "contact",
+  "slug": "/contact/",
+  "permalink": "/contact/",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/saturn/saturn/tree/main/website/docs/contact/index.mdx",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "index",
+    "title": "Contact Us",
+    "description": "Get in touch with the Saturn team",
+    "keywords": [
+      "contact",
+      "support",
+      "help",
+      "email"
+    ]
+  }
+}

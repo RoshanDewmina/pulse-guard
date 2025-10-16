@@ -1,0 +1,32 @@
+{
+  "id": "get-started/overview",
+  "title": "What is Saturn?",
+  "description": "Saturn is anomaly-aware monitoring for cron, Kubernetes CronJobs, and wp-cron with health scores, MTTR/MTBF, and multi-channel alerts.",
+  "source": "@site/docs/get-started/overview.mdx",
+  "sourceDirName": "get-started",
+  "slug": "/get-started/overview",
+  "permalink": "/get-started/overview",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/saturn/saturn/tree/main/website/docs/get-started/overview.mdx",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "overview",
+    "title": "What is Saturn?",
+    "description": "Saturn is anomaly-aware monitoring for cron, Kubernetes CronJobs, and wp-cron with health scores, MTTR/MTBF, and multi-channel alerts.",
+    "keywords": [
+      "saturn",
+      "cron monitoring",
+      "kubernetes cronjob",
+      "wp-cron",
+      "anomaly detection",
+      "health monitoring"
+    ]
+  },
+  "sidebar": "docsSidebar",
+  "next": {
+    "title": "Choose Your Path",
+    "permalink": "/get-started/choose-your-path"
+  }
+}

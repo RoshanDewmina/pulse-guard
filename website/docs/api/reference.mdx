@@ -1,0 +1,80 @@
+---
+id: reference
+title: API Reference
+description: Complete Saturn API reference with authentication, endpoints, and examples
+keywords: [api, reference, endpoints, rest api, openapi]
+---
+
+# API Reference
+
+Complete API reference for Saturn monitoring platform.
+
+## Interactive API Documentation
+
+<div style={{marginTop: '2rem'}}>
+  <p>The full API reference with request/response examples is available below.</p>
+</div>
+
+:::info Authentication
+All API requests require authentication via Bearer token:
+
+\`\`\`bash
+Authorization: Bearer YOUR_TOKEN
+\`\`\`
+
+Get tokens from **Settings → Tokens** in the Saturn dashboard.
+:::
+
+## Quick Links
+
+- [Ping API](#tag/Ping) — Send start/success/fail pings
+- [Monitors](#tag/Monitors) — Manage monitors
+- [Incidents](#tag/Incidents) — View and manage incidents
+- [Webhooks](#tag/Webhooks) — Event deliveries
+
+## Base URL
+
+\`\`\`
+https://api.saturn.example.com
+\`\`\`
+
+## Rate Limits
+
+- **Ping API**: 60 requests/minute per monitor
+- **Other endpoints**: 1000 requests/hour per organization
+
+## Common Patterns
+
+### Send Success Ping
+
+\`\`\`bash
+curl -X POST https://api.saturn.example.com/api/ping/YOUR_MONITOR_ID/success \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"durationMs": 12456}'
+\`\`\`
+
+### Send Fail Ping
+
+\`\`\`bash
+curl -X POST https://api.saturn.example.com/api/ping/YOUR_MONITOR_ID/fail \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"exitCode": 1, "output": "Error message"}'
+\`\`\`
+
+### List Incidents
+
+\`\`\`bash
+curl -X GET https://api.saturn.example.com/api/incidents?status=OPEN \
+  -H "Authorization: Bearer YOUR_TOKEN"
+\`\`\`
+
+---
+
+## Next Steps
+
+- [Ping API](../monitors/pings) — Detailed ping documentation
+- [Webhooks](../alerts/webhooks) — Webhook integration guide
+- [CLI](../cli/reference) — CLI commands reference
+

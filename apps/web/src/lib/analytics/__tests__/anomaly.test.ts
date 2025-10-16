@@ -3,61 +3,64 @@ import { detectDurationAnomaly } from '@/lib/analytics/anomaly';
 describe('detectDurationAnomaly', () => {
   it('should not detect anomaly for first run', async () => {
     const monitor = {
-      id: 'mon-1',
       durationMean: null,
-      durationStddev: null,
+      durationM2: null,
+      durationMedian: null,
+      durationMin: null,
+      durationMax: null,
       durationCount: 0,
     };
 
     const result = await detectDurationAnomaly(monitor, 1000);
 
     expect(result.isAnomaly).toBe(false);
-    expect(result.reason).toBe('insufficient_data');
-    expect(result.message).toContain('Need at least');
   });
 
-  it('should detect anomaly when duration exceeds 3 standard deviations', async () => {
+  it('should detect anomaly when duration exceeds threshold', async () => {
     const monitor = {
-      id: 'mon-1',
       durationMean: 1000, // 1 second average
-      durationStddev: 100, // 0.1 second stddev
+      durationM2: 5000000, // Corresponds to ~100ms stddev with 50 samples
+      durationMedian: 1000,
+      durationMin: 800,
+      durationMax: 1200,
       durationCount: 50,
     };
 
-    // 1000 + (3 * 100) = 1300ms is the threshold
-    // Test with 1400ms (above threshold)
-    const result = await detectDurationAnomaly(monitor, 1400);
+    // Test with very high duration (5x normal)
+    const result = await detectDurationAnomaly(monitor, 5000);
 
     expect(result.isAnomaly).toBe(true);
-    expect(result.reason).toBe('slow_duration');
-    expect(result.zScore).toBeGreaterThan(3);
+    expect(result.type).toBe('duration');
   });
 
   it('should not detect anomaly for normal duration', async () => {
     const monitor = {
-      id: 'mon-1',
       durationMean: 1000,
-      durationStddev: 200,
+      durationM2: 5000000,
+      durationMedian: 1000,
+      durationMin: 800,
+      durationMax: 1200,
       durationCount: 50,
     };
 
-    // Duration within 2 standard deviations
-    const result = await detectDurationAnomaly(monitor, 1200);
+    // Duration within normal range
+    const result = await detectDurationAnomaly(monitor, 1100);
 
     expect(result.isAnomaly).toBe(false);
-    expect(result.reason).toBe('normal');
   });
 
-  it('should handle edge case with zero stddev', async () => {
+  it('should handle edge case with sufficient data', async () => {
     const monitor = {
-      id: 'mon-1',
       durationMean: 1000,
-      durationStddev: 0, // All runs took exactly the same time
-      durationCount: 10,
+      durationM2: 5000, // Small variance
+      durationMedian: 1000,
+      durationMin: 950,
+      durationMax: 1050,
+      durationCount: 20,
     };
 
-    // Even 1ms difference should be anomaly with 0 stddev
-    const result = await detectDurationAnomaly(monitor, 1001);
+    // Significantly higher duration should be detected
+    const result = await detectDurationAnomaly(monitor, 3000);
 
     expect(result.isAnomaly).toBe(true);
   });

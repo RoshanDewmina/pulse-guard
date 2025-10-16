@@ -1,0 +1,348 @@
+---
+id: tokens-rbac
+title: Tokens & RBAC
+description: Managing API tokens, scopes, organizations, and role-based access control
+keywords: [tokens, api keys, rbac, permissions, organizations, access control]
+---
+
+# Tokens & RBAC
+
+Control access to your monitors with API tokens and role-based permissions.
+
+## Token Types
+
+### Organization Tokens
+
+**Scope**: All monitors within an organization
+
+**Best for**:
+- CI/CD pipelines
+- Kubernetes deployments (auto-register monitors)
+- WordPress bulk rollouts
+- CLI authentication
+
+**Permissions**:
+- Create monitors
+- Send pings to any monitor
+- View all monitors
+- Manage incidents
+
+**Example**:
+
+```bash
+# Automatically creates monitor if it doesn't exist
+pulse run --token YOUR_ORG_TOKEN --name "New Job" -- ./script.sh
+```
+
+### Monitor Tokens
+
+**Scope**: Single monitor only
+
+**Best for**:
+- Least-privilege access
+- Third-party integrations
+- Shared access to specific monitors
+- Per-environment isolation
+
+**Permissions**:
+- Send pings to this monitor only
+- View this monitor's data
+- Cannot create monitors
+- Cannot access other monitors
+
+**Example**:
+
+```bash
+# Can only ping this one monitor
+curl -X POST https://api.saturn.example.com/api/ping/YOUR_MONITOR_ID/success \
+  -H "Authorization: Bearer <MONITOR_TOKEN>"
+```
+
+### User Tokens
+
+**Scope**: Actions on behalf of a specific user
+
+**Best for**:
+- Personal automation scripts
+- Custom dashboards
+- API exploration
+
+**Permissions**: Based on user's role in organization
+
+## Token Management
+
+### Creating Tokens
+
+**Organization Token**:
+1. Go to **Settings → Tokens**
+2. Click **Create Organization Token**
+3. Name it (e.g., "CI Pipeline")
+4. Copy and save securely
+
+**Monitor Token**:
+1. Open monitor settings
+2. Go to **API Access**
+3. Click **Generate Token**
+4. Copy and save securely
+
+:::warning Token Security
+Tokens are only shown once. Store them in a password manager or secrets vault (GitHub Secrets, AWS Secrets Manager, etc.).
+:::
+
+### Rotating Tokens
+
+Rotate tokens regularly (e.g., every 90 days):
+
+1. Create a new token
+2. Update all services using the old token
+3. Verify pings are working
+4. Delete the old token
+
+**Zero-downtime rotation**:
+
+```bash
+# Step 1: Generate new token in UI (don't delete old one yet)
+
+# Step 2: Update services one by one
+kubectl set env deployment/cronjob SATURN_TOKEN=<NEW_TOKEN>
+
+# Step 3: Monitor dashboard to ensure pings continue
+
+# Step 4: Delete old token
+```
+
+### Revoking Tokens
+
+Delete compromised tokens immediately:
+
+1. Go to **Settings → Tokens**
+2. Find the token
+3. Click **Delete** or **Revoke**
+
+Effects:
+- All requests using this token will fail with `401 Unauthorized`
+- No data is deleted
+- Historical runs/pings remain intact
+
+## Role-Based Access Control (RBAC)
+
+### Roles
+
+| Role | Monitors | Incidents | Settings | Billing | Invite Users |
+|------|----------|-----------|----------|---------|--------------|
+| **Owner** | ✓ Full | ✓ Full | ✓ Full | ✓ Full | ✓ |
+| **Admin** | ✓ Full | ✓ Full | ✓ Full | ✗ | ✓ |
+| **Member** | ✓ Create/Edit | ✓ Ack/Resolve | ✗ | ✗ | ✗ |
+| **Viewer** | ✓ Read-only | ✓ Read-only | ✗ | ✗ | ✗ |
+
+### Assigning Roles
+
+1. Go to **Settings → Team**
+2. Click **Invite Member**
+3. Enter email and select role
+4. User receives invitation email
+
+### Changing Roles
+
+1. Go to **Settings → Team**
+2. Find user
+3. Change role dropdown
+4. Changes apply immediately
+
+### Removing Access
+
+1. Go to **Settings → Team**
+2. Find user
+3. Click **Remove**
+4. User loses all access immediately
+
+## Organizations
+
+Organize your monitors across teams, projects, or environments.
+
+### Creating Organizations
+
+1. Click organization dropdown (top-left)
+2. Select **Create Organization**
+3. Enter name
+4. Invite initial team members
+
+### Use Cases
+
+**Multi-tenant SaaS**:
+```
+- MyCompany (root org)
+  - Customer A (sub-org)
+  - Customer B (sub-org)
+```
+
+**Department-based**:
+```
+- Engineering Org
+  - Backend Team
+  - Frontend Team
+  - DevOps Team
+```
+
+**Environment-based**:
+```
+- Production
+- Staging
+- Development
+```
+
+### Switching Organizations
+
+Click the organization dropdown (top-left) and select.
+
+Organization-scoped:
+- Monitors
+- Incidents
+- Alert channels
+- Tokens
+- Team members
+
+NOT organization-scoped:
+- User accounts
+- Billing (can be at parent org level)
+
+## Token Best Practices
+
+### ✅ Do
+
+1. **Use org tokens for automation**
+
+   ```yaml
+   # GitHub Actions
+   env:
+     SATURN_TOKEN: ${{ secrets.SATURN_ORG_TOKEN }}
+   ```
+
+2. **Use monitor tokens for restricted access**
+
+   Share with third parties who only need access to specific monitors.
+
+3. **Rotate tokens regularly**
+
+   Set calendar reminders for quarterly rotation.
+
+4. **Store tokens securely**
+
+   Use secrets management:
+   - GitHub/GitLab Secrets
+   - AWS Secrets Manager
+   - HashiCorp Vault
+   - 1Password / Bitwarden
+
+5. **Use descriptive names**
+
+   ```
+   ✓ "GitHub Actions - Production Deploy"
+   ✗ "Token 1"
+   ```
+
+### ❌ Don't
+
+1. **Commit tokens to git**
+
+   ```bash
+   # Add to .gitignore
+   .env
+   .saturn/config.json
+   ```
+
+2. **Share tokens via chat/email**
+
+   Use a password manager or secrets link that expires.
+
+3. **Use the same token everywhere**
+
+   Create separate tokens per service for easier rotation.
+
+4. **Log tokens**
+
+   ```bash
+   # BAD
+   echo "Using token: $SATURN_TOKEN"
+   
+   # GOOD
+   echo "Using token: ${SATURN_TOKEN:0:8}..."
+   ```
+
+## API Token Scopes
+
+Future feature: fine-grained scopes per token.
+
+Planned scopes:
+- `monitors:read` — View monitors
+- `monitors:write` — Create/update monitors
+- `pings:write` — Send pings
+- `incidents:read` — View incidents
+- `incidents:write` — Acknowledge/resolve incidents
+- `settings:read` — View org settings
+- `settings:write` — Modify org settings
+
+Currently, tokens have all-or-nothing scope based on type (org vs monitor).
+
+## SSO & SAML (Enterprise)
+
+Enterprise plans support Single Sign-On:
+
+**Supported providers**:
+- Okta
+- Azure AD
+- Google Workspace
+- OneLogin
+- Auth0
+
+**Features**:
+- Automatic provisioning
+- Group-based role assignment
+- Centralized access control
+
+Contact sales for SSO setup.
+
+## Audit Logs
+
+Track token usage and access:
+
+1. Go to **Settings → Audit Log**
+2. Filter by user, action, or date range
+
+Logged events:
+- Token creation/deletion
+- Role changes
+- Monitor access
+- Incident actions
+- Settings changes
+
+:::tip Compliance
+Export audit logs (CSV/JSON) for compliance requirements (SOC 2, ISO 27001, etc.).
+:::
+
+## IP Allowlisting (Enterprise)
+
+Restrict API access to specific IP ranges:
+
+```json
+{
+  "allowedIps": [
+    "192.168.1.0/24",
+    "10.0.0.0/8",
+    "2001:db8::/32"
+  ]
+}
+```
+
+Available on Enterprise plans.
+
+## Webhook Signatures
+
+Verify webhooks using HMAC-SHA256 signatures. See [Webhooks](../alerts/webhooks).
+
+## Next Steps
+
+- [Security](../security/overview) — How Saturn secures your data
+- [Billing](../billing/plans) — Plans and limits
+- [Webhooks](../alerts/webhooks) — Secure webhook integration
+

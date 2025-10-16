@@ -57,7 +57,7 @@ test.describe('Authentication Flow', () => {
     const submitButton = page.getByRole('button', { name: 'Send Magic Link' });
     
     // Fill in email
-    await emailInput.fill('test@tokiflow.co');
+    await emailInput.fill('test@saturn.co');
     
     // Button should be enabled with valid email
     await expect(submitButton).toBeEnabled();
@@ -66,8 +66,8 @@ test.describe('Authentication Flow', () => {
   test('page has correct branding', async ({ page }) => {
     await page.goto('/auth/signin');
     
-    // Check for Tokiflow branding
-    await expect(page.getByText('Tokiflow')).toBeVisible();
+    // Check for Saturn branding
+    await expect(page.getByText('Saturn')).toBeVisible();
     await expect(page.getByText('Monitor your cron jobs with confidence')).toBeVisible();
   });
 

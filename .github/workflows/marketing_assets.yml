@@ -1,0 +1,137 @@
+name: Marketing Assets Validation
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'launch/**'
+      - '.github/workflows/marketing_assets.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'launch/**'
+
+jobs:
+  validate-assets:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Validate WordPress readme.txt
+        run: |
+          echo "Checking WordPress readme.txt format..."
+          if [ -f "launch/wordpress/readme.txt" ]; then
+            # Check required headers
+            grep -q "=== " launch/wordpress/readme.txt || (echo "Missing plugin name header" && exit 1)
+            grep -q "Contributors:" launch/wordpress/readme.txt || (echo "Missing Contributors field" && exit 1)
+            grep -q "Requires at least:" launch/wordpress/readme.txt || (echo "Missing Requires at least field" && exit 1)
+            echo "✓ WordPress readme.txt is valid"
+          else
+            echo "⚠ WordPress readme.txt not found"
+          fi
+      
+      - name: Validate YAML files
+        run: |
+          echo "Validating YAML files..."
+          if [ -f "launch/artifact-hub/artifacthub-repo.yml" ]; then
+            # Install yq for YAML validation
+            sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+            sudo chmod +x /usr/local/bin/yq
+            yq eval launch/artifact-hub/artifacthub-repo.yml > /dev/null && echo "✓ artifacthub-repo.yml is valid"
+          else
+            echo "⚠ artifacthub-repo.yml not found - expected at launch/artifact-hub/artifacthub-repo.yml"
+            exit 1
+          fi
+          
+          # Validate Artifact Hub README exists
+          if [ -f "launch/artifact-hub/README.md" ]; then
+            echo "✓ Artifact Hub README exists"
+          else
+            echo "⚠ Artifact Hub README not found"
+            exit 1
+          fi
+      
+      - name: Check image sizes
+        run: |
+          echo "Checking OG image sizes..."
+          if [ -d "launch/assets/og" ]; then
+            # Check for SVG templates
+            svg_count=$(find launch/assets/og -name "*.svg" | wc -l)
+            echo "Found $svg_count SVG templates"
+            
+            # Check PNG sizes if they exist
+            if ls launch/assets/og/*.png 1> /dev/null 2>&1; then
+              echo "Checking PNG file sizes..."
+              find launch/assets/og -name "*.png" -size +300k -exec echo "⚠ Large image (>300KB): {}" \;
+            else
+              echo "ℹ No PNG files found (SVG templates only - convert with generate-og-images.sh)"
+            fi
+          else
+            echo "⚠ OG images directory not found"
+          fi
+      
+      - name: Lint Markdown files
+        uses: DavidAnson/markdownlint-cli2-action@v14
+        with:
+          globs: 'launch/**/*.md'
+          config: '{
+            "default": true,
+            "MD013": false,
+            "MD033": false,
+            "MD041": false
+          }'
+      
+      - name: Validate analytics documentation
+        run: |
+          echo "Checking analytics documentation..."
+          if [ -f "launch/assets/analytics/event-tracking-specification.md" ]; then
+            echo "✓ Event tracking specification exists"
+          else
+            echo "⚠ Event tracking specification not found"
+          fi
+          
+          if [ -f "launch/assets/analytics/utm-conventions.md" ]; then
+            echo "✓ UTM conventions documentation exists"
+          else
+            echo "⚠ UTM conventions documentation not found"
+          fi
+      
+      - name: Validate marketing page stubs
+        run: |
+          echo "Checking marketing page stubs..."
+          required_pages=(
+            "kubernetes-cronjob-monitoring.json"
+            "wordpress-wp-cron-monitoring.json"
+            "cronitor-alternative.json"
+            "healthchecks-alternative.json"
+          )
+          
+          for page in "${required_pages[@]}"; do
+            if [ -f "launch/marketing-pages/$page" ]; then
+              echo "✓ $page exists"
+              # Validate JSON
+              if jq empty "launch/marketing-pages/$page" 2>/dev/null; then
+                echo "  ✓ Valid JSON"
+              else
+                echo "  ⚠ Invalid JSON"
+                exit 1
+              fi
+            else
+              echo "⚠ $page not found"
+              exit 1
+            fi
+          done
+      
+      - name: Summary
+        run: |
+          echo "✅ Marketing assets validation complete"
+          echo ""
+          echo "Asset counts:"
+          echo "  Total files: $(find launch -type f | wc -l)"
+          echo "  Markdown files: $(find launch -name "*.md" | wc -l)"
+          echo "  JSON files: $(find launch -name "*.json" | wc -l)"
+          echo "  YAML files: $(find launch -name "*.yml" -o -name "*.yaml" | wc -l)"
+          echo "  SVG files: $(find launch -name "*.svg" | wc -l)"
+

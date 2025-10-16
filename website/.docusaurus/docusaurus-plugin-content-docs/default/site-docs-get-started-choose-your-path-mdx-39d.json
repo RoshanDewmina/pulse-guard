@@ -1,0 +1,36 @@
+{
+  "id": "get-started/choose-your-path",
+  "title": "Choose Your Path",
+  "description": "Find the quickest way to get started with Saturn based on your environment",
+  "source": "@site/docs/get-started/choose-your-path.mdx",
+  "sourceDirName": "get-started",
+  "slug": "/get-started/choose-your-path",
+  "permalink": "/get-started/choose-your-path",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/saturn/saturn/tree/main/website/docs/get-started/choose-your-path.mdx",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "choose-your-path",
+    "title": "Choose Your Path",
+    "description": "Find the quickest way to get started with Saturn based on your environment",
+    "keywords": [
+      "getting started",
+      "quickstart",
+      "kubernetes",
+      "wordpress",
+      "cron",
+      "ci/cd"
+    ]
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "What is Saturn?",
+    "permalink": "/get-started/overview"
+  },
+  "next": {
+    "title": "Kubernetes CronJobs in 60 Seconds",
+    "permalink": "/get-started/quickstart-kubernetes"
+  }
+}

@@ -1,0 +1,370 @@
+---
+id: pings
+title: Ping API
+description: Understanding start, success, and fail pings with duration and exit code capture
+keywords: [ping api, start ping, success ping, fail ping, duration, exit code]
+---
+
+# Ping API
+
+Pings are how your jobs communicate with Saturn. Each ping provides context about job execution.
+
+## Ping Types
+
+### Start Ping
+
+Signals that a job has **begun execution**.
+
+```bash
+POST /api/ping/YOUR_MONITOR_ID/start
+```
+
+**When to use**:
+- Long-running jobs (> 5 minutes)
+- Jobs where "started but didn't finish" is meaningful
+- To track in-progress status in dashboard
+
+**Optional**:
+- You can skip start pings for simple jobs
+- Saturn infers start time from success/fail ping arrival
+
+**Example**:
+
+```bash
+curl -X POST https://api.saturnmonitor.com/api/ping/YOUR_MONITOR_ID/start \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+### Success Ping
+
+Signals that a job **completed successfully**.
+
+```bash
+POST /api/ping/YOUR_MONITOR_ID/success
+```
+
+**Required**:
+- Always send this for successful job completion
+
+**Includes**:
+- Duration (milliseconds)
+- Output (optional, if capture enabled)
+
+**Example with duration**:
+
+```bash
+curl -X POST https://api.saturnmonitor.com/api/ping/YOUR_MONITOR_ID/success \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"durationMs": 12456}'
+```
+
+**Example with output**:
+
+```bash
+curl -X POST https://api.saturnmonitor.com/api/ping/YOUR_MONITOR_ID/success \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "durationMs": 12456,
+    "output": "Backup completed\n5000 files processed\n2.3 GB total"
+  }'
+```
+
+### Fail Ping
+
+Signals that a job **failed**.
+
+```bash
+POST /api/ping/YOUR_MONITOR_ID/fail
+```
+
+**Required**:
+- Send this for job failures
+
+**Includes**:
+- Exit code (optional but recommended)
+- Error output (optional)
+- Duration (optional)
+
+**Example**:
+
+```bash
+curl -X POST https://api.saturnmonitor.com/api/ping/YOUR_MONITOR_ID/fail \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "exitCode": 1,
+    "durationMs": 3200,
+    "output": "ERROR: Database connection failed\nTimeout after 30s"
+  }'
+```
+
+## Ping Flow Patterns
+
+### Pattern 1: Simple (Success or Fail)
+
+Simplest approach — just ping at the end:
+
+```bash
+#!/bin/bash
+MONITOR_ID="mon_abc123"
+TOKEN="YOUR_TOKEN"
+
+# Run job
+if ./backup.sh; then
+  curl -X POST https://api.saturnmonitor.com/api/ping/YOUR_MONITOR_ID/success \
+    -H "Authorization: Bearer YOUR_TOKEN"
+else
+  curl -X POST https://api.saturnmonitor.com/api/ping/YOUR_MONITOR_ID/fail \
+    -H "Authorization: Bearer YOUR_TOKEN"
+fi
+```
+
+### Pattern 2: Start → Success/Fail
+
+For long jobs where in-progress status matters:
+
+```bash
+#!/bin/bash
+MONITOR_ID="mon_abc123"
+TOKEN="YOUR_TOKEN"
+API_URL="https://api.saturnmonitor.com/api/ping/YOUR_MONITOR_ID"
+
+# Start ping
+curl -X POST "$API_URL/start" -H "Authorization: Bearer YOUR_TOKEN"
+
+# Run job
+if ./backup.sh; then
+  curl -X POST "$API_URL/success" -H "Authorization: Bearer YOUR_TOKEN"
+else
+  curl -X POST "$API_URL/fail" -H "Authorization: Bearer YOUR_TOKEN"
+fi
+```
+
+### Pattern 3: Full Context (Duration + Output)
+
+Track everything for maximum visibility:
+
+```bash
+#!/bin/bash
+MONITOR_ID="mon_abc123"
+TOKEN="YOUR_TOKEN"
+API_URL="https://api.saturnmonitor.com/api/ping/YOUR_MONITOR_ID"
+
+# Start ping
+curl -X POST "$API_URL/start" -H "Authorization: Bearer YOUR_TOKEN"
+
+# Track duration
+START=$(date +%s)
+
+# Run and capture output
+if OUTPUT=$(./backup.sh 2>&1); then
+  END=$(date +%s)
+  DURATION=$(( (END - START) * 1000 ))
+  
+  curl -X POST "$API_URL/success" \
+    -H "Authorization: Bearer YOUR_TOKEN" \
+    -H "Content-Type: application/json" \
+    -d "{\"durationMs\": $DURATION, \"output\": $(echo "$OUTPUT" | jq -Rs .)}"
+else
+  EXIT_CODE=$?
+  END=$(date +%s)
+  DURATION=$(( (END - START) * 1000 ))
+  
+  curl -X POST "$API_URL/fail" \
+    -H "Authorization: Bearer YOUR_TOKEN" \
+    -H "Content-Type: application/json" \
+    -d "{\"exitCode\": $EXIT_CODE, \"durationMs\": $DURATION, \"output\": $(echo "$OUTPUT" | jq -Rs .)}"
+fi
+```
+
+## Request Format
+
+### Headers
+
+```http
+Authorization: Bearer YOUR_TOKEN
+Content-Type: application/json  (for JSON body)
+```
+
+### Success Ping Body
+
+```json
+{
+  "durationMs": 12456,        // Optional: milliseconds
+  "output": "Job output..."   // Optional: stdout/stderr
+}
+```
+
+### Fail Ping Body
+
+```json
+{
+  "exitCode": 1,              // Optional: process exit code
+  "durationMs": 3200,         // Optional: milliseconds
+  "output": "Error details..."  // Optional: error output
+}
+```
+
+## Duration Calculation
+
+Duration should be in **milliseconds**:
+
+```bash
+# Bash
+START=$(date +%s)
+# ... job runs ...
+END=$(date +%s)
+DURATION_MS=$(( (END - START) * 1000 ))
+
+# Python
+import time
+start = time.time()
+# ... job runs ...
+duration_ms = int((time.time() - start) * 1000)
+
+# Node.js
+const start = Date.now();
+// ... job runs ...
+const durationMs = Date.now() - start;
+```
+
+:::tip Automatic duration with CLI
+Use `pulse run` to automatically track duration:
+
+```bash
+pulse run --monitor YOUR_MONITOR_ID -- ./backup.sh
+```
+:::
+
+## Exit Code Conventions
+
+Saturn follows standard Unix exit code conventions:
+
+| Exit Code | Meaning | Action |
+|-----------|---------|--------|
+| 0 | Success | Send success ping |
+| 1 | General error | Send fail ping |
+| 2 | Misuse of command | Send fail ping |
+| 126 | Command not executable | Send fail ping |
+| 127 | Command not found | Send fail ping |
+| 130 | Terminated by Ctrl+C | Send fail ping |
+| 143 | Terminated by SIGTERM | Send fail ping |
+
+Capture the actual exit code for debugging:
+
+```bash
+./backup.sh
+EXIT_CODE=$?
+
+if [ $EXIT_CODE -eq 0 ]; then
+  # success ping
+else
+  curl ... -d "{\"exitCode\": $EXIT_CODE}"
+fi
+```
+
+## Output Capture
+
+Output is stored in MinIO/S3 and displayed in the dashboard.
+
+### Size Limits
+
+Default: **10 KB per ping**
+
+Configure per monitor in settings or during creation:
+
+```json
+{
+  "name": "Large Output Job",
+  "maxOutputSizeKb": 50
+}
+```
+
+### Redaction
+
+Saturn automatically redacts sensitive patterns:
+
+- Passwords: `password=secret123` → `password=***REDACTED***`
+- API keys: `api_key: abc123def456` → `api_key: ***REDACTED***`
+- Bearer tokens: `Bearer eyJ0eXAi...` → `Bearer ***REDACTED***`
+- AWS credentials: `AWS_SECRET_ACCESS_KEY=...` → `AWS_SECRET_ACCESS_KEY=***REDACTED***`
+- Private keys: `-----BEGIN PRIVATE KEY-----` → `***REDACTED***`
+
+See [Security/Redaction](../security/redaction) for full list.
+
+### Best Practices
+
+✅ **Do**:
+- Include relevant context (file counts, sizes, errors)
+- Keep output concise (summary, not full logs)
+- Use structured output (JSON) for parsing
+
+❌ **Don't**:
+- Send binary data
+- Include full stack traces (summarize instead)
+- Log sensitive data without redaction
+
+## Authentication
+
+### Method 1: Authorization Header (Recommended)
+
+```bash
+curl -X POST https://api.saturnmonitor.com/api/ping/YOUR_MONITOR_ID/success \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+### Method 2: Query Parameter
+
+```bash
+curl -X POST "https://api.saturnmonitor.com/api/ping/YOUR_MONITOR_ID/success?token=YOUR_TOKEN"
+```
+
+:::warning Security
+Use Authorization header in production. Query parameters are logged by proxies and servers.
+:::
+
+## Rate Limiting
+
+**Limit**: 60 requests per minute per monitor
+
+If exceeded, you'll receive:
+
+```http
+HTTP/1.1 429 Too Many Requests
+Retry-After: 30
+
+{"error": "Rate limit exceeded"}
+```
+
+**Mitigation**:
+- Don't send pings more frequently than your monitor's schedule
+- Use start ping only for long-running jobs
+- Batch multiple job runs if possible
+
+## Response Codes
+
+| Code | Meaning | Action |
+|------|---------|--------|
+| 200 | Ping accepted | Continue |
+| 401 | Invalid token | Check authorization |
+| 404 | Monitor not found | Verify monitor ID |
+| 422 | Invalid payload | Check JSON format |
+| 429 | Rate limit exceeded | Wait and retry |
+| 500 | Server error | Retry with exponential backoff |
+
+## Idempotency
+
+Pings are **not idempotent** — each ping creates a new run record.
+
+If you accidentally send duplicate pings:
+- Multiple success pings → Creates multiple "successful runs"
+- Multiple start pings → Ignored (only first counts)
+
+## Next Steps
+
+- [Grace Periods](./grace-periods) — Configure timing tolerance
+- [Output Capture](../output-capture/overview) — Deep dive on output storage
+- [CLI Reference](../cli/reference) — Use CLI instead of manual pings
+

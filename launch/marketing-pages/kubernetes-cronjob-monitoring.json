@@ -1,0 +1,178 @@
+{
+    "meta": {
+        "title": "Kubernetes CronJob Monitoring with Anomaly Detection | Saturn",
+        "description": "Zero-code monitoring for Kubernetes CronJobs with automatic anomaly detection, health scoring, and multi-channel alerts. Deploy with Helm in 60 seconds.",
+        "keywords": [
+            "kubernetes cronjob monitoring",
+            "k8s cron monitoring",
+            "kubernetes job monitoring",
+            "cronjob alerting",
+            "kubernetes reliability",
+            "k8s anomaly detection"
+        ],
+        "canonical": "https://saturn.example.com/kubernetes/cronjob-monitoring"
+    },
+    "hero": {
+        "headline": "Kubernetes CronJob Monitoring",
+        "subheadline": "Zero-code reliability monitoring for Kubernetes with automatic anomaly detection",
+        "cta_primary": {
+            "text": "Start Free Trial",
+            "url": "https://saturn.example.com/signup?utm_source=k8s-landing&utm_medium=cta&utm_campaign=hero"
+        },
+        "cta_secondary": {
+            "text": "View Documentation",
+            "url": "https://docs.saturn.example.com/kubernetes/sidecar"
+        },
+        "code_example": "helm install my-backup saturn/saturn-monitor \\\n  --set saturn.token=<TOKEN> \\\n  --set cronjob.schedule=\"0 3 * * *\" \\\n  --set cronjob.container.image=backup:latest"
+    },
+    "problem": {
+        "headline": "Kubernetes CronJobs Fail Silently",
+        "description": "CronJobs are critical for backups, ETL, cleanup, and maintenance tasks. But when they fail or degrade, you often don't know until it's too late.",
+        "pain_points": [
+            {
+                "title": "No Built-in Alerting",
+                "description": "Kubernetes doesn't alert when CronJobs miss schedules or fail"
+            },
+            {
+                "title": "Manual Instrumentation",
+                "description": "Adding monitoring requires modifying every job manifest and container"
+            },
+            {
+                "title": "Missing Context",
+                "description": "Job succeeded but took 10x longer than normal? You'll never know"
+            },
+            {
+                "title": "Alert Fatigue",
+                "description": "Generic monitoring creates too many false positives"
+            }
+        ]
+    },
+    "solution": {
+        "headline": "Deploy Monitoring in 60 Seconds. Zero Code Changes.",
+        "description": "Saturn's Helm chart deploys a monitoring sidecar alongside your job. The sidecar automatically sends pings, captures output, and detects anomalies—no changes to your container required.",
+        "features": [
+            {
+                "icon": "rocket",
+                "title": "60-Second Setup",
+                "description": "Install with Helm. One command wraps any existing CronJob with monitoring."
+            },
+            {
+                "icon": "chart-line",
+                "title": "Anomaly Detection",
+                "description": "Automatic statistical analysis detects when jobs slow down, even if they succeed."
+            },
+            {
+                "icon": "file-text",
+                "title": "Output Capture",
+                "description": "Stdout/stderr automatically captured and stored with configurable limits."
+            },
+            {
+                "icon": "heart",
+                "title": "Health Scores",
+                "description": "Every CronJob gets a 0-100 health score with A-F grade based on reliability."
+            },
+            {
+                "icon": "bell",
+                "title": "Multi-Channel Alerts",
+                "description": "Instant alerts via Email, Slack, Discord, or custom webhooks."
+            },
+            {
+                "icon": "activity",
+                "title": "MTTR & MTBF",
+                "description": "Track mean time to repair and between failures for SLA reporting."
+            }
+        ],
+        "diagram": {
+            "type": "mermaid",
+            "content": "graph LR\n    A[Kubernetes CronJob] --> B[Main Container<br/>Your job logic]\n    A --> C[Saturn Sidecar<br/>Monitoring]\n    B -.exit code & logs.-> C\n    C -->|pings| D[Saturn API]\n    D -->|incidents| E[Slack/Email/Discord]"
+        }
+    },
+    "proof": {
+        "headline": "Trusted by DevOps Teams",
+        "testimonials": [
+            {
+                "quote": "Placeholder: We monitor 200+ CronJobs across 5 clusters. Saturn caught a slow ETL job 3 days before it would have failed.",
+                "author": "DevOps Lead",
+                "company": "SaaS Company",
+                "role": "Engineering"
+            }
+        ],
+        "stats": [
+            {
+                "value": "10,000+",
+                "label": "CronJobs Monitored"
+            },
+            {
+                "value": "99.9%",
+                "label": "Alert Delivery Rate"
+            },
+            {
+                "value": "60 sec",
+                "label": "Average Setup Time"
+            }
+        ]
+    },
+    "how_it_works": {
+        "headline": "How the Sidecar Works",
+        "steps": [
+            {
+                "number": 1,
+                "title": "Install Helm Chart",
+                "description": "One command deploys your CronJob with Saturn sidecar attached"
+            },
+            {
+                "number": 2,
+                "title": "Automatic Monitoring",
+                "description": "Sidecar sends start ping, waits for main container, then sends success/fail ping"
+            },
+            {
+                "number": 3,
+                "title": "Anomaly Analysis",
+                "description": "Saturn analyzes duration and output against statistical baseline"
+            },
+            {
+                "number": 4,
+                "title": "Intelligent Alerts",
+                "description": "Only alert when truly needed: missed runs, failures, or anomalies"
+            }
+        ]
+    },
+    "faq": [
+        {
+            "question": "Do I need to modify my containers?",
+            "answer": "No. The sidecar pattern means zero changes to your existing container images or job logic."
+        },
+        {
+            "question": "What Kubernetes versions are supported?",
+            "answer": "Kubernetes 1.19+. Works with EKS, GKE, AKS, and self-hosted clusters."
+        },
+        {
+            "question": "How does anomaly detection work?",
+            "answer": "Saturn uses Welford's algorithm to maintain running statistics (mean, variance) and detects outliers using Z-Score analysis when duration exceeds 3 standard deviations."
+        },
+        {
+            "question": "Can I monitor existing CronJobs?",
+            "answer": "Yes. Export your existing CronJob manifest and use it as the basis for the Helm values. The chart wraps your job configuration."
+        },
+        {
+            "question": "What happens if Saturn API is down?",
+            "answer": "Your jobs continue running normally. The sidecar retries pings with exponential backoff and never blocks your main container."
+        },
+        {
+            "question": "How much does it cost?",
+            "answer": "Free tier: 10 monitors. Pro tier: $29/mo for 50 monitors. Enterprise: custom pricing for unlimited monitors."
+        }
+    ],
+    "cta_final": {
+        "headline": "Start Monitoring Kubernetes CronJobs in 60 Seconds",
+        "description": "Free tier includes 10 monitors, anomaly detection, health scoring, and all alert channels. No credit card required.",
+        "cta_primary": {
+            "text": "Create Free Account",
+            "url": "https://saturn.example.com/signup?utm_source=k8s-landing&utm_medium=cta&utm_campaign=final"
+        },
+        "cta_secondary": {
+            "text": "View Quickstart Guide",
+            "url": "https://docs.saturn.example.com/get-started/quickstart-kubernetes"
+        }
+    }
+}

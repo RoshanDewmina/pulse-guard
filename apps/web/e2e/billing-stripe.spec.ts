@@ -130,7 +130,7 @@ test.describe('Stripe Checkout Flow - PRO Plan', () => {
     try {
       const emailInput = page.locator('input[type="email"]');
       if (await emailInput.isVisible({ timeout: 2000 })) {
-        await emailInput.fill('test@tokiflow.co');
+        await emailInput.fill('test@saturn.co');
       }
     } catch (e) {
       // Email might be pre-filled
@@ -242,6 +242,7 @@ test.describe('Billing Page UI/UX', () => {
     await expect(page.getByText(/Business/i)).toBeVisible();
   });
 });
+
 
 
 

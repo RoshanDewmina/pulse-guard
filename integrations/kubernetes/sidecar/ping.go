@@ -9,10 +9,10 @@ import (
 	"time"
 )
 
-// Send ping to Tokiflow API
+// Send ping to Saturn API
 func sendPing(config *Config, state string, exitCode int, output string, durationMs *int) error {
 	// Build URL with query parameters
-	pingURL := fmt.Sprintf("%s/api/ping/%s", config.TokiflowAPI, config.MonitorToken)
+	pingURL := fmt.Sprintf("%s/api/ping/%s", config.SaturnAPI, config.MonitorToken)
 	
 	params := url.Values{}
 	params.Add("state", state)
@@ -48,7 +48,7 @@ func sendPing(config *Config, state string, exitCode int, output string, duratio
 		}
 	}
 
-	req.Header.Set("User-Agent", "Tokiflow-K8s-Sidecar/1.0")
+	req.Header.Set("User-Agent", "Saturn-K8s-Sidecar/1.0")
 
 	// Send request with timeout
 	client := &http.Client{
@@ -69,6 +69,7 @@ func sendPing(config *Config, state string, exitCode int, output string, duratio
 
 	return nil
 }
+
 
 
 

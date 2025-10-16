@@ -1,12 +1,12 @@
 #!/bin/bash
 #
-# Comprehensive Test Runner for Tokiflow
+# Comprehensive Test Runner for Saturn
 # Runs all available tests and generates a summary report
 #
 
 set -e
 
-echo "🧪 Tokiflow - Comprehensive Test Suite"
+echo "🧪 Saturn - Comprehensive Test Suite"
 echo "========================================"
 echo ""
 
@@ -84,5 +84,6 @@ else
     echo "Run: sudo npx playwright install-deps"
     exit 1
 fi
+
 
 

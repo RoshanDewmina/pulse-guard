@@ -1,19 +1,19 @@
 {
-    "name": "tokiflow",
+    "name": "saturn",
     "version": "0.1.0",
-    "description": "Tokiflow — Cron & job monitoring with smart Slack alerts, runtime analytics, and anomaly detection.",
+    "description": "Saturn — Cron & job monitoring with smart Slack alerts, runtime analytics, and anomaly detection.",
     "private": true,
     "workspaces": [
         "apps/*",
         "packages/*"
     ],
     "scripts": {
-        "dev": "bun run --filter=web dev & bun run --filter=worker dev",
-        "build": "bun run --filter=web build && bun run --filter=worker build",
-        "db:generate": "bun run --filter=db generate",
-        "db:push": "bun run --filter=db push",
-        "db:migrate": "bun run --filter=db migrate",
-        "db:seed": "bun run --filter=db seed"
+        "dev": "bun run --filter='@tokiflow/web' dev & bun run --filter='@tokiflow/worker' dev",
+        "build": "bun run --filter='@tokiflow/web' build && bun run --filter='@tokiflow/worker' build",
+        "db:generate": "bun run --filter='@tokiflow/db' generate",
+        "db:push": "bun run --filter='@tokiflow/db' push",
+        "db:migrate": "bun run --filter='@tokiflow/db' migrate",
+        "db:seed": "bun run --filter='@tokiflow/db' seed"
     },
     "devDependencies": {
         "@types/node": "^22.7.5",

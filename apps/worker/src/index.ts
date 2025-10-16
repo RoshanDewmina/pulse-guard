@@ -14,7 +14,7 @@ const logger = createLogger('main');
 initializeSentry();
 
 async function main() {
-  logger.info('🚀 Starting PulseGuard Worker...');
+  logger.info('🚀 Starting Saturn Worker...');
 
   try {
     // Test database connection
@@ -55,7 +55,7 @@ async function main() {
       process.exit(0);
     });
   } catch (error) {
-    logger.error('Failed to start worker:', error);
+    logger.error({ err: error }, 'Failed to start worker');
     captureJobError(error as Error, 'worker-startup');
     process.exit(1);
   }

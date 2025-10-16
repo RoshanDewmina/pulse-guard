@@ -1,0 +1,71 @@
+---
+id: overview
+title: Output Capture
+description: Capture job output with MinIO storage, redaction patterns, and size limits
+keywords: [output capture, logs, minio, s3, redaction]
+---
+
+# Output Capture
+
+Saturn captures job output (stdout/stderr) for debugging failed runs.
+
+## How It Works
+
+1. **Send with ping**: Include `output` field in success/fail ping
+2. **Redaction**: Sensitive data automatically redacted
+3. **Storage**: Stored in MinIO/S3
+4. **Retrieval**: View in dashboard or via API
+
+## Configuration
+
+\`\`\`json
+{
+  "name": "My Monitor",
+  "maxOutputSizeKb": 10,  // 10 KB limit
+  "captureOutput": true
+}
+\`\`\`
+
+## Sending Output
+
+\`\`\`bash
+OUTPUT=$(./backup.sh 2>&1)
+EXIT_CODE=$?
+
+if [ $EXIT_CODE -eq 0 ]; then
+  curl -X POST .../success \
+    -d "{\"output\": $(echo "$OUTPUT" | jq -Rs .)}"
+else
+  curl -X POST .../fail \
+    -d "{\"exitCode\": $EXIT_CODE, \"output\": $(echo "$OUTPUT" | jq -Rs .)}"
+fi
+\`\`\`
+
+## Viewing Output
+
+**Dashboard**: Click incident → View Output
+
+**API**:
+\`\`\`bash
+GET /api/runs/<RUN_ID>/output
+\`\`\`
+
+## Redaction
+
+Automatically redacts:
+- Passwords (`password=secret`)
+- API keys (`api_key: abc123`)
+- Bearer tokens (`Bearer eyJ...`)
+- AWS credentials
+- Private keys
+- Credit card numbers
+
+## Size Limits
+
+- **Default**: 10 KB
+- **Max**: 100 KB (Enterprise)
+- Truncated if exceeded
+
+## Next Steps
+
+- [Security](../security/redaction) — Redaction patterns

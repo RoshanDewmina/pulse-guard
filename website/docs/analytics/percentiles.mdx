@@ -1,0 +1,174 @@
+---
+id: percentiles
+title: Duration Percentiles
+description: P50, P95, P99 percentiles for understanding job performance distribution
+keywords: [percentiles, p50, p95, p99, median, performance, latency]
+---
+
+# Duration Percentiles
+
+Percentiles show the distribution of job durations, helping you understand typical performance and identify outliers.
+
+## What are Percentiles?
+
+**P50 (Median)**: 50% of runs complete faster than this  
+**P95**: 95% of runs complete faster than this  
+**P99**: 99% of runs complete faster than this
+
+### Example
+
+```
+100 runs of a backup job:
+Durations (sorted): 8, 9, 9, 10, 10, 10, 11, 11, 12, 12, 13, ..., 45 minutes
+
+P50: 12 minutes (half are faster)
+P95: 18 minutes (95% are faster)
+P99: 25 minutes (99% are faster)
+Max: 45 minutes (outlier)
+```
+
+## Why Percentiles Matter
+
+### Mean Can Be Misleading
+
+```
+Job A: [10, 11, 12, 13, 14] minutes
+Mean: 12 minutes
+P95: 14 minutes
+
+Job B: [10, 11, 12, 13, 120] minutes
+Mean: 33.2 minutes (skewed by outlier!)
+P95: 120 minutes
+```
+
+**P95 is more informative** for setting expectations and SLAs.
+
+## Standard Percentiles
+
+| Percentile | Use Case |
+|------------|----------|
+| **P50 (Median)** | Typical user experience |
+| **P75** | Above-average performance |
+| **P90** | Detecting slow runs |
+| **P95** | SLA commitments |
+| **P99** | Worst-case (excluding outliers) |
+| **P99.9** | Extreme edge cases |
+| **Max** | Absolute worst case |
+
+## Dashboard Visualization
+
+```
+Monitor: ETL Pipeline (Last 100 runs)
+
+Duration Distribution:
+────────────────────────────────────────────
+Min:  5.2 min  │
+P50: 12.3 min  │ ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓
+P75: 15.1 min  │ ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓
+P90: 18.7 min  │ ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓
+P95: 21.2 min  │ ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓
+P99: 28.5 min  │ ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓
+Max: 45.0 min  │ ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓
+
+Histogram:
+ 5-10 min:  ████████ (18)
+10-15 min:  ████████████████████ (42)
+15-20 min:  ████████████ (25)
+20-25 min:  ████ (10)
+25-30 min:  ██ (4)
+30-45 min:  █ (1)
+```
+
+## Setting SLAs with Percentiles
+
+### Conservative: Use P95
+
+```json
+{
+  "name": "API Health Check",
+  "sla": {
+    "durationTarget": "p95",  // 95% complete within target
+    "maxDurationMs": 5000  // 5 seconds
+  }
+}
+```
+
+**Realistic**: Allows for occasional slowness without SLA breach.
+
+### Aggressive: Use P99
+
+```json
+{
+  "name": "Payment Processing",
+  "sla": {
+    "durationTarget": "p99",
+    "maxDurationMs": 30000  // 30 seconds
+  }
+}
+```
+
+**Strict**: 99% must complete within 30s.
+
+## Percentile Trends
+
+Track how percentiles change over time:
+
+```
+P95 Duration Trend (30 days)
+
+20 min ┤                         ╭─────
+       │                     ╭───╯
+18 min ┤                 ╭───╯
+       │             ╭───╯
+16 min ┤         ╭───╯
+       │     ╭───╯
+14 min ┤─────╯
+       └┬────────┬────────┬────────┬───
+        Week 1   Week 2   Week 3   Week 4
+
+Analysis: P95 degrading +30% over month → investigate
+```
+
+## Capacity Planning
+
+Use P95/P99 for capacity planning:
+
+```
+Current P95: 15 minutes
+Target P95: 10 minutes
+
+Options:
+1. Optimize code (reduce duration)
+2. Scale resources (more CPU/memory)
+3. Parallelize work (split job)
+```
+
+## API Access
+
+```bash
+GET /api/monitors/YOUR_MONITOR_ID/percentiles?window=30d
+
+Response:
+{
+  "monitorId": "mon_abc123",
+  "period": "30d",
+  "sampleSize": 100,
+  "percentiles": {
+    "p50": 12300,  // milliseconds
+    "p75": 15100,
+    "p90": 18700,
+    "p95": 21200,
+    "p99": 28500,
+    "max": 45000
+  },
+  "mean": 14250,
+  "stddev": 5120
+}
+```
+
+## Next Steps
+
+- [Health Scores](./health-score) — Overall monitor health
+- [Anomaly Detection](../anomalies/overview) — Detect outliers automatically
+- [MTBF/MTTR](./mtbf-mttr) — Reliability metrics
+

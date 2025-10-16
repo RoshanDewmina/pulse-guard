@@ -1,11 +1,11 @@
 <?php
 /**
- * Tokiflow Monitor Class
+ * Saturn Monitor Class
  * 
  * Handles wp-cron monitoring and pinging
  */
 
-class Tokiflow_Monitor {
+class Saturn_Monitor {
     
     private $api;
     
@@ -17,7 +17,7 @@ class Tokiflow_Monitor {
      * Send ping when WP-Cron runs
      */
     public function ping_on_cron_run() {
-        $token = get_option('tokiflow_token');
+        $token = get_option('Saturn_token');
         if (empty($token)) {
             return;
         }
@@ -26,11 +26,11 @@ class Tokiflow_Monitor {
         $result = $this->api->send_ping($token, 'success');
         
         if ($result) {
-            update_option('tokiflow_last_ping', time());
-            update_option('tokiflow_last_status', 'success');
-            update_option('tokiflow_ping_count', get_option('tokiflow_ping_count', 0) + 1);
+            update_option('Saturn_last_ping', time());
+            update_option('Saturn_last_status', 'success');
+            update_option('Saturn_ping_count', get_option('Saturn_ping_count', 0) + 1);
         } else {
-            update_option('tokiflow_last_status', 'failed');
+            update_option('Saturn_last_status', 'failed');
         }
     }
     
@@ -59,7 +59,7 @@ class Tokiflow_Monitor {
         $is_running = ($doing_cron && (time() - $doing_cron < 60));
         
         // Check last ping
-        $last_ping = get_option('tokiflow_last_ping', 0);
+        $last_ping = get_option('Saturn_last_ping', 0);
         $last_ping_hours = $last_ping > 0 ? (time() - $last_ping) / 3600 : 999;
         
         $status = 'healthy';

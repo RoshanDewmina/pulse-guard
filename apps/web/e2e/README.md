@@ -1,6 +1,6 @@
 # E2E Tests
 
-End-to-end tests for Tokiflow using Playwright.
+End-to-end tests for Saturn using Playwright.
 
 ## Setup
 

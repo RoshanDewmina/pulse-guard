@@ -1,13 +1,13 @@
 /**
- * Tokiflow Admin Styles
+ * Saturn Admin Styles
  */
 
-#tokiflow-test-result .notice {
+#Saturn-test-result .notice {
     margin: 0;
     padding: 10px;
 }
 
-.tokiflow-status-indicator {
+.Saturn-status-indicator {
     display: inline-block;
     width: 12px;
     height: 12px;
@@ -15,51 +15,51 @@
     margin-right: 8px;
 }
 
-.tokiflow-status-healthy {
+.Saturn-status-healthy {
     background-color: #46b450;
 }
 
-.tokiflow-status-warning {
+.Saturn-status-warning {
     background-color: #ffb900;
 }
 
-.tokiflow-status-error {
+.Saturn-status-error {
     background-color: #dc3232;
 }
 
-.tokiflow-help-section {
+.Saturn-help-section {
     background: #f9f9f9;
     border-left: 4px solid #2271b1;
     padding: 15px;
     margin: 20px 0;
 }
 
-.tokiflow-help-section h4 {
+.Saturn-help-section h4 {
     margin-top: 0;
 }
 
-.tokiflow-stats-grid {
+.Saturn-stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 15px;
     margin: 20px 0;
 }
 
-.tokiflow-stat-card {
+.Saturn-stat-card {
     background: #fff;
     border: 1px solid #c3c4c7;
     padding: 15px;
     border-radius: 4px;
 }
 
-.tokiflow-stat-card .stat-label {
+.Saturn-stat-card .stat-label {
     font-size: 13px;
     color: #646970;
     text-transform: uppercase;
     margin-bottom: 5px;
 }
 
-.tokiflow-stat-card .stat-value {
+.Saturn-stat-card .stat-value {
     font-size: 32px;
     font-weight: 600;
     color: #1d2327;

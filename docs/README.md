@@ -1,168 +1,46 @@
-# Tokiflow Documentation
+# Documentation
 
-Complete documentation for Tokiflow - Cron & Job Monitoring with Smart Alerts.
+Complete documentation for Saturn.
 
-## 📚 Documentation Files
+## Core Guides
 
-### Core Guides
+- **[DEVELOPMENT.md](DEVELOPMENT.md)** - Development setup and architecture
+- **[VERCEL_DEPLOYMENT.md](VERCEL_DEPLOYMENT.md)** - Production deployment guide
+- **[TESTING.md](TESTING.md)** - Testing procedures
 
-- **[GUIDE.md](GUIDE.md)** - Complete setup, usage, and deployment guide
-  - Quick start (< 5 minutes)
-  - Project structure
-  - Development commands
-  - Integration examples
-  - Troubleshooting
+## Setup Guides
 
 - **[STRIPE.md](STRIPE.md)** - Stripe billing integration
-  - Quick setup (automated)
-  - Manual configuration
-  - Testing guide
-  - Pricing tiers
-  - Scripts included
+- **[REDIS_SETUP.md](REDIS_SETUP.md)** - Redis/BullMQ setup
+- **[SENTRY_SETUP.md](SENTRY_SETUP.md)** - Error tracking setup
+- **[SECURITY.md](SECURITY.md)** - Security best practices
 
-- **[TESTING.md](TESTING.md)** - Testing guide and results
-  - Test coverage (50/50 passed)
-  - Manual testing procedures
-  - E2E tests with Playwright
-  - Test scripts
+## Root Documentation
 
-- **[DEVELOPMENT.md](DEVELOPMENT.md)** - Developer documentation
-  - Technology stack
-  - Architecture details
-  - Database schema
-  - API routes
-  - Common development tasks
-
-- **[ARCHIVE.md](ARCHIVE.md)** - Project history and completion status
-  - MVP completion summary
-  - Test results
-  - Implementation details
-  - Statistics
-
-### Root Documentation
-
-Essential files in the project root:
-
-- **[../README.md](../README.md)** - Main project README
-- **[../CONTRIBUTING.md](../CONTRIBUTING.md)** - How to contribute
+- **[../README.md](../README.md)** - Main project overview
+- **[../FEATURE_STATUS.md](../FEATURE_STATUS.md)** - Feature implementation status
 - **[../ROADMAP.md](../ROADMAP.md)** - Product roadmap
+- **[../CONTRIBUTING.md](../CONTRIBUTING.md)** - Contributing guidelines
 
-## 🚀 Quick Navigation
+## Quick Navigation
 
-### New to Tokiflow?
-1. Start with [GUIDE.md](GUIDE.md#quick-start)
-2. Review [Main README](../README.md)
-3. Check [ARCHIVE.md](ARCHIVE.md) for what's complete
+**New to Saturn?**
+1. Start with [../README.md](../README.md)
+2. Setup development: [DEVELOPMENT.md](DEVELOPMENT.md)
+3. Deploy to production: [VERCEL_DEPLOYMENT.md](VERCEL_DEPLOYMENT.md)
 
-### Setting Up Development?
-1. Follow [GUIDE.md](GUIDE.md#setup)
-2. Configure [Stripe](STRIPE.md) if working on billing
-3. Check [DEVELOPMENT.md](DEVELOPMENT.md) for architecture
+**Setting Up Integrations?**
+1. Billing: [STRIPE.md](STRIPE.md)
+2. Monitoring: [SENTRY_SETUP.md](SENTRY_SETUP.md)
+3. Queue: [REDIS_SETUP.md](REDIS_SETUP.md)
 
-### Testing?
-1. See [TESTING.md](TESTING.md) for test procedures
-2. Run `make test` for quick tests
-3. Use scripts in `stripe/` and `testing/` folders
-
-### Deploying?
-1. Review [GUIDE.md](GUIDE.md#deployment)
-2. Follow production checklist
-3. Configure Stripe for live mode
-
-## 📁 Additional Resources
-
-### Scripts
-
-**Stripe Scripts** (`stripe/`):
-- `setup-stripe.sh` - Initial setup
-- `create-stripe-products.sh` - Create products/prices
-- `verify-stripe-setup.sh` - Verify configuration
-- `test-stripe-api.sh` - Test API
-- `test-stripe-billing.sh` - Test billing flow
-
-**Testing Scripts** (`testing/`):
-- `test-stripe-api.sh` - Stripe API tests
-- `test-stripe-billing.sh` - Billing flow tests
-
-### Historical Documents
-
-See `archive/` folder for historical completion reports (preserved for reference).
-
-## 💡 Common Questions
-
-**How do I get started?**  
-→ [GUIDE.md](GUIDE.md#quick-start)
-
-**How do I setup Stripe?**  
-→ [STRIPE.md](STRIPE.md#quick-setup)
-
-**How do I run tests?**  
-→ [TESTING.md](TESTING.md#quick-test)
-
-**What's the architecture?**  
-→ [DEVELOPMENT.md](DEVELOPMENT.md#architecture)
-
-**What's been completed?**  
-→ [ARCHIVE.md](ARCHIVE.md)
-
-**What's next?**  
-→ [ROADMAP.md](../ROADMAP.md)
-
-## 🔍 Documentation Structure
-
-```
-docs/
-├── README.md           # This file - documentation index
-├── GUIDE.md            # Complete guide (setup, usage, deployment)
-├── STRIPE.md           # Stripe integration guide
-├── TESTING.md          # Testing guide and procedures
-├── DEVELOPMENT.md      # Developer documentation
-├── ARCHIVE.md          # Project history and status
-├── stripe/             # Stripe setup scripts
-├── testing/            # Test scripts
-└── archive/            # Historical reports (reference only)
-```
-
-## 🎯 Quick Commands
+## Quick Commands
 
 ```bash
-# Setup
-make setup
-
-# Development
-make dev
-
-# Testing
-make test
-
-# Database
-make migrate
-make seed
-
-# Stripe
-cd docs/stripe && ./setup-stripe.sh
-
-# Cleanup
-make reset
+make setup      # Setup from scratch
+make dev        # Start dev servers
+make migrate    # Run migrations
+make seed       # Seed test data
 ```
 
-## 📖 Documentation Standards
-
-When adding documentation:
-1. Keep it concise and actionable
-2. Use code examples where helpful
-3. Link to related docs
-4. Update this index
-
-## 🤝 Getting Help
-
-1. Check relevant documentation above
-2. Review [troubleshooting section](GUIDE.md#troubleshooting)
-3. See [DEVELOPMENT.md](DEVELOPMENT.md#troubleshooting)
-4. Check git history for detailed implementation notes
-
----
-
-**Last Updated**: October 2025  
-**Version**: v1.0 MVP Complete  
-**Status**: Production Ready ✅
+See individual guides for detailed instructions.

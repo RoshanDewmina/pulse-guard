@@ -1,0 +1,35 @@
+{
+  "id": "analytics/health-score",
+  "title": "Health Scores",
+  "description": "Understanding Saturn's 0-100 health scoring system with A-F grades for monitors and organizations",
+  "source": "@site/docs/analytics/health-score.mdx",
+  "sourceDirName": "analytics",
+  "slug": "/analytics/health-score",
+  "permalink": "/analytics/health-score",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/saturn/saturn/tree/main/website/docs/analytics/health-score.mdx",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "id": "health-score",
+    "title": "Health Scores",
+    "description": "Understanding Saturn's 0-100 health scoring system with A-F grades for monitors and organizations",
+    "keywords": [
+      "health score",
+      "grades",
+      "A-F rating",
+      "monitor health",
+      "reliability metrics"
+    ]
+  },
+  "sidebar": "docsSidebar",
+  "previous": {
+    "title": "Anomaly Tuning",
+    "permalink": "/anomalies/tuning"
+  },
+  "next": {
+    "title": "Uptime & SLA Tracking",
+    "permalink": "/analytics/uptime-sla"
+  }
+}

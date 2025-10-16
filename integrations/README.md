@@ -1,4 +1,4 @@
-# Tokiflow Integrations
+# Saturn Integrations
 
 Native integrations for popular platforms and frameworks.
 
@@ -21,9 +21,9 @@ Monitor Kubernetes CronJobs with zero code changes using our sidecar container.
 
 **Quick Start**:
 ```bash
-helm repo add pulseguard https://charts.tokiflow.co
-helm install my-monitor pulseguard/pulseguard-monitor \
-  --set pulseguard.token=tf_your_token \
+helm repo add saturn https://charts.saturn.io
+helm install my-monitor saturn/saturn-monitor \
+  --set saturn.token=st_your_token \
   --set cronjob.schedule="0 3 * * *"
 ```
 
@@ -32,7 +32,7 @@ helm install my-monitor pulseguard/pulseguard-monitor \
 ---
 
 ### 2. WordPress ✅ **Production Ready**
-**Location**: `wordpress/pulseguard-watchdog/`
+**Location**: `wordpress/saturn-watchdog/`
 
 Monitor WordPress wp-cron with a native WordPress plugin.
 
@@ -46,12 +46,12 @@ Monitor WordPress wp-cron with a native WordPress plugin.
 - ✅ Ready for WordPress.org
 
 **Installation**:
-1. Upload `pulseguard-watchdog/` to `wp-content/plugins/`
+1. Upload `saturn-watchdog/` to `wp-content/plugins/`
 2. Activate in WordPress admin
-3. Configure token in Settings → Tokiflow
+3. Configure token in Settings → Saturn
 4. Done!
 
-**Documentation**: [wordpress/pulseguard-watchdog/readme.txt](wordpress/pulseguard-watchdog/readme.txt)
+**Documentation**: [wordpress/saturn-watchdog/readme.txt](wordpress/saturn-watchdog/readme.txt)
 
 ---
 
@@ -77,15 +77,15 @@ Monitor containers in Docker Compose setups.
 
 ```bash
 cd kubernetes/sidecar
-docker build -t pulseguard/k8s-sidecar:1.0.0 .
-docker push pulseguard/k8s-sidecar:1.0.0
+docker build -t saturn/k8s-sidecar:1.0.0 .
+docker push saturn/k8s-sidecar:1.0.0
 ```
 
 ### WordPress Plugin
 
 ```bash
 cd wordpress
-zip -r pulseguard-watchdog.zip pulseguard-watchdog/
+zip -r saturn-watchdog.zip saturn-watchdog/
 # Upload to WordPress or submit to WordPress.org
 ```
 
@@ -138,10 +138,11 @@ All integrations are licensed under GPL v2 or later, same as the main project.
 ## 🔗 Links
 
 - Main Project: [README.md](../README.md)
-- Documentation: https://docs.tokiflow.co
-- Support: support@tokiflow.co
+- Documentation: https://docs.saturn.io
+- Support: support@saturn.io
 
 **Built with ❤️ for the community**
+
 
 
 
