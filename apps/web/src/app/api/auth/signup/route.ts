@@ -39,9 +39,10 @@ export async function POST(req: Request) {
     // Create user
     const user = await prisma.user.create({
       data: {
+          id: crypto.randomUUID(),
         email,
         name: name || null,
-        password: hashedPassword,
+        updatedAt: new Date(),
       },
       select: {
         id: true,
@@ -51,22 +52,40 @@ export async function POST(req: Request) {
       },
     });
 
+    // Create a credentials account for password-based auth
+    await prisma.account.create({
+      data: {
+          id: crypto.randomUUID(),
+        userId: user.id,
+        provider: 'credentials',
+        providerId: user.email,
+        accessToken: hashedPassword, // Store hashed password in accessToken
+        updatedAt: new Date(),
+      },
+    });
+
     // Create a default organization for the user
     const org = await prisma.org.create({
       data: {
+          id: crypto.randomUUID(),
         name: `${name || email.split('@')[0]}'s Organization`,
         slug: `${email.split('@')[0]}-${Date.now()}`,
-        memberships: {
+        updatedAt: new Date(),
+        Membership: {
           create: {
+            id: crypto.randomUUID(),
             userId: user.id,
             role: 'OWNER',
+            updatedAt: new Date(),
           },
         },
-        subscriptionPlan: {
+        SubscriptionPlan: {
           create: {
+            id: crypto.randomUUID(),
             plan: 'FREE',
             monitorLimit: 5,
             userLimit: 1,
+            updatedAt: new Date(),
           },
         },
       },
@@ -75,7 +94,7 @@ export async function POST(req: Request) {
     return NextResponse.json(
       { 
         message: 'User created successfully',
-        user: {
+        User: {
           id: user.id,
           email: user.email,
           name: user.name,

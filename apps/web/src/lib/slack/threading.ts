@@ -25,7 +25,7 @@ type Incident = {
   resolvedAt?: Date | null;
   slackMessageTs?: string | null;
   slackChannelId?: string | null;
-  monitor: Monitor;
+  Monitor: Monitor;  // Capitalized to match Prisma relation name
 };
 import { WebClient } from '@slack/web-api';
 import { prisma } from '@tokiflow/db';
@@ -145,7 +145,7 @@ function buildUpdatedMessageBlocks(incident: Incident): any[] {
       type: 'header',
       text: {
         type: 'plain_text',
-        text: `${statusEmoji[incident.status]} ${kindEmoji[incident.kind]} ${incident.monitor.name}`,
+        text: `${statusEmoji[incident.status]} ${kindEmoji[incident.kind]} ${incident.Monitor.name}`,
       },
     },
     {
@@ -194,19 +194,19 @@ function buildUpdatedMessageBlocks(incident: Incident): any[] {
     fields: [
       {
         type: 'mrkdwn',
-        text: `*Last Run:* ${incident.monitor.lastRunAt ? new Date(incident.monitor.lastRunAt).toLocaleString() : 'Never'}`,
+        text: `*Last Run:* ${incident.Monitor.lastRunAt ? new Date(incident.Monitor.lastRunAt).toLocaleString() : 'Never'}`,
       },
       {
         type: 'mrkdwn',
-        text: `*Duration:* ${incident.monitor.lastDurationMs ? `${incident.monitor.lastDurationMs}ms` : 'N/A'}`,
+        text: `*Duration:* ${incident.Monitor.lastDurationMs ? `${incident.Monitor.lastDurationMs}ms` : 'N/A'}`,
       },
       {
         type: 'mrkdwn',
-        text: `*Exit Code:* ${incident.monitor.lastExitCode ?? 'N/A'}`,
+        text: `*Exit Code:* ${incident.Monitor.lastExitCode ?? 'N/A'}`,
       },
       {
         type: 'mrkdwn',
-        text: `*Next Due:* ${incident.monitor.nextDueAt ? new Date(incident.monitor.nextDueAt).toLocaleString() : 'N/A'}`,
+        text: `*Next Due:* ${incident.Monitor.nextDueAt ? new Date(incident.Monitor.nextDueAt).toLocaleString() : 'N/A'}`,
       },
     ],
   });

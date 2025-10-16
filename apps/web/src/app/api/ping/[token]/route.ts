@@ -51,9 +51,9 @@ async function handlePing(request: NextRequest, token: string) {
     const monitor = await prisma.monitor.findUnique({
       where: { token },
       include: {
-        org: {
+        Org: {
           include: {
-            subscriptionPlan: true,
+            SubscriptionPlan: true,
           },
         },
       },
@@ -95,6 +95,7 @@ async function handlePing(request: NextRequest, token: string) {
       // Create a STARTED run
       await prisma.run.create({
         data: {
+          id: crypto.randomUUID(),
           monitorId: monitor.id,
           startedAt: now,
           outcome: 'STARTED',
@@ -162,6 +163,7 @@ async function handlePing(request: NextRequest, token: string) {
         })
       : await prisma.run.create({
           data: {
+          id: crypto.randomUUID(),
             monitorId: monitor.id,
             startedAt: now,
             finishedAt: now,
@@ -223,6 +225,7 @@ async function handlePing(request: NextRequest, token: string) {
       if (!existingIncident) {
         await prisma.incident.create({
           data: {
+            id: crypto.randomUUID(),
             monitorId: monitor.id,
             kind,
             summary,

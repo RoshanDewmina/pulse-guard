@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
         role: { in: ['OWNER', 'ADMIN'] }, // Only owners/admins can invite
       },
       include: {
-        org: true,
+        Org: true,
       },
     });
 
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
     const existingMember = await prisma.membership.findFirst({
       where: {
         orgId: membership.orgId,
-        user: {
+        User: {
           email,
         },
       },
@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
       email,
       role,
       orgId: membership.orgId,
-      orgName: membership.org.name,
+      orgName: membership.Org.name,
       invitedBy: session.user.email,
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
       status: 'pending',

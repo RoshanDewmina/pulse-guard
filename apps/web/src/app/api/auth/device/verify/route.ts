@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
     // Get user's org
     const membership = await prisma.membership.findFirst({
       where: {
-        user: {
+        User: {
           email: session.user.email,
         },
       },
@@ -81,6 +81,7 @@ export async function POST(request: NextRequest) {
     // Create API key in database
     const createdKey = await prisma.apiKey.create({
       data: {
+          id: crypto.randomUUID(),
         name: 'CLI Device Auth',
         tokenHash: apiKeyHash,
         userId: session.user.id,

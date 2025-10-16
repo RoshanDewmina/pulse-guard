@@ -37,12 +37,12 @@ export default async function IncidentsPage() {
 
   const incidents = await prisma.incident.findMany({
     where: {
-      monitor: {
+      Monitor: {
         orgId: org.id,
       },
     },
     include: {
-      monitor: true,
+      Monitor: true,
     },
     orderBy: {
       openedAt: 'desc',
@@ -145,7 +145,7 @@ export default async function IncidentsPage() {
                         href={`/app/monitors/${incident.monitorId}`}
                         className="hover:underline font-medium text-[#37322F]"
                       >
-                        {incident.monitor.name}
+                        {incident.Monitor.name}
                       </Link>
                     </SaturnTableCell>
                     <SaturnTableCell className="max-w-md truncate text-[rgba(55,50,47,0.80)]">

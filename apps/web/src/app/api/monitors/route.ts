@@ -64,8 +64,8 @@ export async function GET(request: NextRequest) {
       include: {
         _count: {
           select: {
-            runs: true,
-            incidents: {
+            Run: true,
+            Incident: {
               where: {
                 status: { in: ['OPEN', 'ACKED'] },
               },
@@ -110,9 +110,9 @@ export async function POST(request: NextRequest) {
     const org = await prisma.org.findUnique({
       where: { id: data.orgId },
       include: {
-        subscriptionPlan: true,
+        SubscriptionPlan: true,
         _count: {
-          select: { monitors: true },
+          select: { Monitor: true },
         },
       },
     });
@@ -121,8 +121,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Organization not found' }, { status: 404 });
     }
 
-    const monitorLimit = org.subscriptionPlan?.monitorLimit || 5;
-    if (org._count.monitors >= monitorLimit) {
+    const monitorLimit = org.SubscriptionPlan?.monitorLimit || 5;
+    if (org._count.Monitor >= monitorLimit) {
       return NextResponse.json(
         { error: `Monitor limit reached (${monitorLimit}). Please upgrade your plan.` },
         { status: 403 }
@@ -157,16 +157,19 @@ export async function POST(request: NextRequest) {
 
     const monitor = await prisma.monitor.create({
       data: {
+        id: crypto.randomUUID(),
         ...data,
         token,
         nextDueAt,
         status: 'OK',
+        updatedAt: new Date(),
       },
     });
 
     // Create audit log
     await prisma.auditLog.create({
       data: {
+          id: crypto.randomUUID(),
         orgId: data.orgId,
         userId: session.user.id,
         action: 'monitor.created',

@@ -48,18 +48,18 @@ export default async function MonitorDetailPage({
   const monitor = await prisma.monitor.findUnique({
     where: { id },
     include: {
-      org: {
+      Org: {
         include: {
-          subscriptionPlan: true,
+          SubscriptionPlan: true,
         },
       },
-      runs: {
+      Run: {
         take: 50,
         orderBy: {
           startedAt: 'desc',
         },
       },
-      incidents: {
+      Incident: {
         take: 20,
         orderBy: {
           openedAt: 'desc',
@@ -67,8 +67,8 @@ export default async function MonitorDetailPage({
       },
       _count: {
         select: {
-          runs: true,
-          incidents: true,
+          Run: true,
+          Incident: true,
         },
       },
     },
@@ -184,9 +184,9 @@ export default async function MonitorDetailPage({
         <SaturnCard>
           <div className="p-6">
             <div className="text-[rgba(55,50,47,0.80)] text-sm font-medium font-sans mb-3">Total Runs</div>
-            <div className="text-2xl font-bold text-[#37322F] font-sans">{monitor._count.runs}</div>
+            <div className="text-2xl font-bold text-[#37322F] font-sans">{monitor._count.Run}</div>
             <p className="text-xs text-[rgba(55,50,47,0.60)] font-sans mt-1">
-              {monitor._count.incidents} open incident{monitor._count.incidents !== 1 ? 's' : ''}
+              {monitor._count.Incident} open incident{monitor._count.Incident !== 1 ? 's' : ''}
             </p>
           </div>
         </SaturnCard>
@@ -245,14 +245,14 @@ curl http://localhost:3000/api/ping/${monitor.token}?state=success&exitCode=0`}
             content: (
               <div className="space-y-6">
                 {/* Duration Chart */}
-                {monitor.runs.length > 0 && (
+                {monitor.Run.length > 0 && (
                   <SaturnCard>
                     <SaturnCardHeader>
                       <SaturnCardTitle as="h3">Duration Trend</SaturnCardTitle>
                       <SaturnCardDescription>Job execution time over last 20 runs</SaturnCardDescription>
                     </SaturnCardHeader>
                     <SaturnCardContent>
-                      <DurationChart runs={monitor.runs} />
+                      <DurationChart runs={monitor.Run} />
                     </SaturnCardContent>
                   </SaturnCard>
                 )}
@@ -262,13 +262,13 @@ curl http://localhost:3000/api/ping/${monitor.token}?state=success&exitCode=0`}
                     <div className="flex justify-between items-start">
                       <div>
                         <SaturnCardTitle as="h3">Recent Runs</SaturnCardTitle>
-                        <SaturnCardDescription>Last {monitor.runs.length} execution attempts</SaturnCardDescription>
+                        <SaturnCardDescription>Last {monitor.Run.length} execution attempts</SaturnCardDescription>
                       </div>
-                      <RunSparkline runs={monitor.runs.slice(0, 10)} />
+                      <RunSparkline runs={monitor.Run.slice(0, 10)} />
                     </div>
                   </SaturnCardHeader>
                   <SaturnCardContent>
-                    {monitor.runs.length === 0 ? (
+                    {monitor.Run.length === 0 ? (
                       <div className="text-center py-8 text-[rgba(55,50,47,0.80)] font-sans">
                         No runs yet. Send your first ping to see it here.
                       </div>
@@ -285,7 +285,7 @@ curl http://localhost:3000/api/ping/${monitor.token}?state=success&exitCode=0`}
                           </SaturnTableRow>
                         </SaturnTableHeader>
                         <SaturnTableBody>
-                          {monitor.runs.map((run) => (
+                          {monitor.Run.map((run) => (
                             <SaturnTableRow key={run.id}>
                               <SaturnTableCell>
                                 <div className="flex items-center gap-2">
@@ -351,7 +351,7 @@ curl http://localhost:3000/api/ping/${monitor.token}?state=success&exitCode=0`}
           },
           {
             id: 'incidents',
-            label: `Incidents (${monitor._count.incidents})`,
+            label: `Incidents (${monitor._count.Incident})`,
             content: (
               <SaturnCard>
                 <SaturnCardHeader>
@@ -359,13 +359,13 @@ curl http://localhost:3000/api/ping/${monitor.token}?state=success&exitCode=0`}
                   <SaturnCardDescription>Issues detected for this monitor</SaturnCardDescription>
                 </SaturnCardHeader>
                 <SaturnCardContent>
-                  {monitor.incidents.length === 0 ? (
+                  {monitor.Incident.length === 0 ? (
                     <div className="text-center py-8 text-[rgba(55,50,47,0.80)] font-sans">
                       No incidents. This monitor is running smoothly! 🎉
                     </div>
                   ) : (
                     <div className="space-y-3">
-                      {monitor.incidents.map((incident) => (
+                      {monitor.Incident.map((incident) => (
                         <Link
                           key={incident.id}
                           href={`/app/incidents/${incident.id}`}

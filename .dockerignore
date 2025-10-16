@@ -1,10 +1,55 @@
+# Dependencies
 node_modules
-.next
+**/node_modules
+bun.lock
+
+# Build outputs
 dist
+.next
+out
+build
+*.tsbuildinfo
+
+# Environment files
 .env
 .env.local
-.git
-*.log
+.env.development
+.env.test
+.env.production
+env.txt
+
+# Testing
 coverage
+.nyc_output
+test-results
+playwright-report
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
 .DS_Store
 
+# Git
+.git
+.gitignore
+.github
+
+# Documentation
+*.md
+docs
+
+# Logs
+logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Misc
+.turbo
+.cache
+tmp
+temp

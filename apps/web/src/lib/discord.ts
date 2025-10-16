@@ -26,7 +26,7 @@ type Incident = {
   resolvedAt?: Date | null;
   slackMessageTs?: string | null;
   slackChannelId?: string | null;
-  monitor: Monitor;
+  Monitor: Monitor;
 };
 
 export interface DiscordConfig {
@@ -148,7 +148,7 @@ export function buildIncidentEmbed(
   const fields: Array<{ name: string; value: string; inline?: boolean }> = [
     {
       name: '📊 Monitor',
-      value: incident.monitor.name,
+      value: incident.Monitor.name,
       inline: true,
     },
     {
@@ -163,26 +163,26 @@ export function buildIncidentEmbed(
     },
   ];
 
-  if (incident.monitor.lastRunAt) {
+  if (incident.Monitor.lastRunAt) {
     fields.push({
       name: '⏰ Last Run',
-      value: new Date(incident.monitor.lastRunAt).toLocaleString(),
+      value: new Date(incident.Monitor.lastRunAt).toLocaleString(),
       inline: true,
     });
   }
 
-  if (incident.monitor.nextDueAt) {
+  if (incident.Monitor.nextDueAt) {
     fields.push({
       name: '⏭️ Next Due',
-      value: new Date(incident.monitor.nextDueAt).toLocaleString(),
+      value: new Date(incident.Monitor.nextDueAt).toLocaleString(),
       inline: true,
     });
   }
 
-  if (incident.monitor.lastDurationMs) {
+  if (incident.Monitor.lastDurationMs) {
     fields.push({
       name: '⏱️ Duration',
-      value: `${incident.monitor.lastDurationMs}ms`,
+      value: `${incident.Monitor.lastDurationMs}ms`,
       inline: true,
     });
   }
@@ -242,7 +242,7 @@ export async function sendIncidentResolution(
   incident: Incident
 ): Promise<boolean> {
   const embed: DiscordEmbed = {
-    title: `✅ Incident Resolved: ${incident.monitor.name}`,
+    title: `✅ Incident Resolved: ${incident.Monitor.name}`,
     description: incident.summary,
     color: 0x00ff00, // Green
     fields: [

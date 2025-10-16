@@ -33,11 +33,11 @@ export default async function RunDetailPage({
     where: {
       id: runId,
       monitorId: id,
-      monitor: {
-        org: {
-          memberships: {
+      Monitor: {
+        Org: {
+          Membership: {
             some: {
-              user: {
+              User: {
                 email: session.user.email,
               },
             },
@@ -46,7 +46,7 @@ export default async function RunDetailPage({
       },
     },
     include: {
-      monitor: {
+      Monitor: {
         select: {
           id: true,
           name: true,
@@ -78,11 +78,11 @@ export default async function RunDetailPage({
             </SaturnBadge>
           </div>
         }
-        description={`${run.monitor.name} • ${format(run.startedAt, 'MMM d, yyyy HH:mm:ss')}`}
+        description={`${run.Monitor.name} • ${format(run.startedAt, 'MMM d, yyyy HH:mm:ss')}`}
         breadcrumbs={[
           { label: 'Dashboard', href: '/app' },
           { label: 'Monitors', href: '/app/monitors' },
-          { label: run.monitor.name, href: `/app/monitors/${id}` },
+          { label: run.Monitor.name, href: `/app/monitors/${id}` },
           { label: 'Run' },
         ]}
       />

@@ -74,12 +74,14 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   await prisma.subscriptionPlan.upsert({
     where: { orgId },
     create: {
+      id: crypto.randomUUID(),
       orgId,
       stripeCustomerId: customerId,
       stripeSubId: subscriptionId,
       plan,
       monitorLimit,
       userLimit,
+      updatedAt: new Date(),
     },
     update: {
       stripeCustomerId: customerId,
@@ -87,6 +89,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
       plan,
       monitorLimit,
       userLimit,
+      updatedAt: new Date(),
     },
   });
 

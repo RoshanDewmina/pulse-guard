@@ -201,7 +201,8 @@ export async function createAnomalyIncident(
   // Create new anomaly incident
   await prisma.incident.create({
     data: {
-      monitorId,
+          id: crypto.randomUUID(),
+        monitorId,
       kind: 'ANOMALY',
       summary: anomaly.message || 'Performance anomaly detected',
       details: JSON.stringify({

@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
     // TODO: Log export request for audit trail
 
     const userData = {
-      user: {
+      User: {
         id: session.user.id,
         email: session.user.email,
         name: session.user.name,
@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
       // TODO: Add monitors
       monitors: [],
       // TODO: Add incidents
-      incidents: [],
+      Incident: [],
       // TODO: Add memberships
       organizations: [],
       // TODO: Add alert configurations

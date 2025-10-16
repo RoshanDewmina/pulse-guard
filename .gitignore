@@ -44,3 +44,4 @@ client_secret_*.json
 *.pem
 *.key
 env.txt
+.vercel

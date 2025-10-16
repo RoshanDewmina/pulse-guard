@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
     }
 
     const where: any = {
-      monitor: {
+      Monitor: {
         orgId,
       },
     };
@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
         openedAt: 'desc',
       },
       include: {
-        monitor: {
+        Monitor: {
           select: {
             id: true,
             name: true,

@@ -27,21 +27,21 @@ async function getStatusPageData(slug: string) {
   const statusPage = await prisma.statusPage.findUnique({
     where: { slug },
     include: {
-      org: {
+      Org: {
         include: {
-          monitors: {
+          Monitor: {
             where: {
               status: { not: 'DISABLED' },
             },
             include: {
-              runs: {
+              Run: {
                 where: {
                   startedAt: { gte: subDays(new Date(), 90) },
                 },
                 orderBy: { startedAt: 'desc' },
                 take: 90,
               },
-              incidents: {
+              Incident: {
                 where: {
                   openedAt: { gte: subDays(new Date(), 30) },
                 },
@@ -62,7 +62,7 @@ async function getStatusPageData(slug: string) {
   const components = (statusPage.components as any[]) || [];
   const componentsWithData = components.map((component: any) => {
     // Find monitors associated with this component
-    const componentMonitors = statusPage.org.monitors.filter((m: any) =>
+    const componentMonitors = statusPage.Org.Monitor.filter((m: any) =>
       component.monitorIds?.includes(m.id)
     );
 
@@ -79,8 +79,8 @@ async function getStatusPageData(slug: string) {
     let successfulRuns = 0;
     
     componentMonitors.forEach((monitor: any) => {
-      totalRuns += monitor.runs.length;
-      successfulRuns += monitor.runs.filter((r: any) => r.outcome === 'SUCCESS').length;
+      totalRuns += monitor.Run.length;
+      successfulRuns += monitor.Run.filter((r: any) => r.outcome === 'SUCCESS').length;
     });
 
     const uptime = totalRuns > 0 ? ((successfulRuns / totalRuns) * 100).toFixed(2) : '100.00';
@@ -94,15 +94,15 @@ async function getStatusPageData(slug: string) {
   });
 
   // Get recent incidents across all monitors
-  const recentIncidents = statusPage.org.monitors
-    .flatMap((m: any) => m.incidents.map((inc: any) => ({ ...inc, monitorName: m.name })))
+  const recentIncidents = statusPage.Org.Monitor
+    .flatMap((m: any) => m.Incident.map((inc: any) => ({ ...inc, monitorName: m.name })))
     .sort((a: any, b: any) => b.openedAt.getTime() - a.openedAt.getTime())
     .slice(0, 10);
 
   return {
     statusPage,
     components: componentsWithData,
-    incidents: recentIncidents,
+    Incident: recentIncidents,
   };
 }
 
@@ -114,7 +114,7 @@ export default async function PublicStatusPage({ params }: StatusPageProps) {
     notFound();
   }
 
-  const { statusPage, components, incidents } = data;
+  const { statusPage, components, Incident: incidents } = data;
   const theme = (statusPage.theme as any) || {};
 
   // Determine overall status
@@ -214,8 +214,8 @@ export default async function PublicStatusPage({ params }: StatusPageProps) {
                 <div className="mt-4 flex gap-1">
                   {Array.from({ length: 90 }).map((_, i) => {
                     const date = subDays(new Date(), 89 - i);
-                    const dayRuns = component.monitors.flatMap((m: any) =>
-                      m.runs.filter((r: any) => {
+                    const dayRuns = component.Monitor.flatMap((m: any) =>
+                      m.Run.filter((r: any) => {
                         const runDate = new Date(r.startedAt);
                         return (
                           runDate.getDate() === date.getDate() &&

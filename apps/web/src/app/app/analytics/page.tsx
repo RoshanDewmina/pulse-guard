@@ -31,21 +31,21 @@ export default async function AnalyticsPage() {
   // Get user's org
   const membership = await prisma.membership.findFirst({
     where: {
-      user: {
+      User: {
         email: session.user.email,
       },
     },
     include: {
-      org: {
+      Org: {
         include: {
-          monitors: {
+          Monitor: {
             where: {
               status: {
                 not: 'DISABLED',
               },
             },
             include: {
-              runs: {
+              Run: {
                 where: {
                   startedAt: {
                     gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
@@ -63,11 +63,11 @@ export default async function AnalyticsPage() {
     redirect('/');
   }
 
-  const org = membership.org;
+  const org = membership.Org;
 
   // Calculate analytics for each monitor
   const monitorAnalytics = await Promise.all(
-    org.monitors.map(async (monitor) => {
+    org.Monitor.map(async (monitor) => {
       const healthScore = await calculateHealthScore(monitor.id, 7);
       const uptime7d = await calculateUptime(monitor.id, 7);
       const uptime30d = await calculateUptime(monitor.id, 30);
@@ -86,7 +86,7 @@ export default async function AnalyticsPage() {
   );
 
   // Calculate overall org statistics
-  const totalMonitors = org.monitors.length;
+  const totalMonitors = org.Monitor.length;
   const avgHealthScore = monitorAnalytics.length > 0
     ? monitorAnalytics.reduce((sum, m) => sum + m.healthScore.score, 0) / monitorAnalytics.length
     : 100;
@@ -96,7 +96,7 @@ export default async function AnalyticsPage() {
 
   const activeIncidents = await prisma.incident.count({
     where: {
-      monitor: {
+      Monitor: {
         orgId: org.id,
       },
       status: {
@@ -106,9 +106,9 @@ export default async function AnalyticsPage() {
   });
 
   // Get total runs in last 7 days
-  const totalRuns = org.monitors.reduce((sum, m) => sum + m.runs.length, 0);
-  const successfulRuns = org.monitors.reduce(
-    (sum, m) => sum + m.runs.filter(r => r.outcome === 'SUCCESS' || r.outcome === 'LATE').length,
+  const totalRuns = org.Monitor.reduce((sum, m) => sum + m.Run.length, 0);
+  const successfulRuns = org.Monitor.reduce(
+    (sum, m) => sum + m.Run.filter(r => r.outcome === 'SUCCESS' || r.outcome === 'LATE').length,
     0
   );
 
@@ -143,7 +143,7 @@ export default async function AnalyticsPage() {
             </div>
             <p className="text-3xl font-bold text-[#37322F] font-sans">{totalMonitors}</p>
             <p className="text-sm text-[rgba(55,50,47,0.60)] font-sans mt-1">
-              {org.monitors.filter(m => m.status === 'OK').length} healthy
+              {org.Monitor.filter(m => m.status === 'OK').length} healthy
             </p>
           </div>
         </SaturnCard>

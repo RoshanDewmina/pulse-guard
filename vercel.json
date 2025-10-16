@@ -1,18 +1,12 @@
 {
   "version": 2,
-  "buildCommand": "cd apps/web && bun install && bunx prisma generate && bun run build",
+  "buildCommand": "bun install && cd packages/db && bunx prisma generate && cd ../../apps/web && bun run build",
   "outputDirectory": "apps/web/.next",
   "installCommand": "bun install",
   "framework": "nextjs",
   "regions": ["iad1"],
   "env": {
     "NODE_ENV": "production"
-  },
-  "crons": [
-    {
-      "path": "/api/cron/check-missed",
-      "schedule": "* * * * *"
-    }
-  ]
+  }
 }
 

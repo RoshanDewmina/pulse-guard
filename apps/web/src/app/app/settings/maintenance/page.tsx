@@ -30,14 +30,14 @@ export default async function MaintenancePage() {
 
   const membership = await prisma.membership.findFirst({
     where: {
-      user: {
+      User: {
         email: session.user.email,
       },
     },
     include: {
-      org: {
+      Org: {
         include: {
-          monitors: {
+          Monitor: {
             select: {
               id: true,
               name: true,

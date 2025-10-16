@@ -31,9 +31,9 @@ export async function POST(
     const statusPage = await prisma.statusPage.findUnique({
       where: { id },
       include: {
-        org: {
+        Org: {
           include: {
-            memberships: {
+            Membership: {
               where: { userId: session.user.id },
             },
           },
@@ -46,7 +46,7 @@ export async function POST(
     }
 
     // Check if user has access
-    const membership = statusPage.org.memberships[0];
+    const membership = statusPage.Org.Membership[0];
     if (!membership || membership.role === 'VIEWER' as any) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
@@ -74,7 +74,8 @@ export async function POST(
       // Create audit log
       await prisma.auditLog.create({
         data: {
-          orgId: statusPage.orgId,
+          id: crypto.randomUUID(),
+        orgId: statusPage.orgId,
           userId: session.user.id,
           action: 'DOMAIN_VERIFIED',
           targetId: statusPage.id,

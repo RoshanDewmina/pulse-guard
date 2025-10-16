@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
     // Build Slack OAuth URL
     const slackClientId = process.env.SLACK_CLIENT_ID;
     const redirectUri = `${process.env.NEXTAUTH_URL}/api/slack/callback`;
-    const scopes = ['chat:write', 'commands', 'channels:read', 'users:read'];
+    const scopes = ['chat:write', 'commands', 'AlertChannel:read', 'users:read'];
     
     const state = Buffer.from(JSON.stringify({ orgId, userId: session.user.id })).toString('base64');
 

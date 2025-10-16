@@ -24,7 +24,7 @@ export function getSlackApp(): App {
       scopes: [
         'chat:write',
         'commands',
-        'channels:read',
+        'AlertChannel:read',
         'users:read',
       ],
     });
@@ -140,7 +140,7 @@ export function buildIncidentBlocks(data: IncidentCardData) {
       elements: [
         {
           type: 'mrkdwn',
-          text: `Recent runs: ${recentRunsText}`,
+          text: `Recent Run: ${recentRunsText}`,
         },
       ],
     });

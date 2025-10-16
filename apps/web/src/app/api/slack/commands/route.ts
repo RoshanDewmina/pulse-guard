@@ -106,7 +106,7 @@ async function handleList(teamId: string) {
       },
     },
     include: {
-      org: true,
+      Org: true,
     },
   });
 
@@ -190,7 +190,7 @@ async function handleStatus(teamId: string, monitorName: string) {
       },
     },
     include: {
-      org: true,
+      Org: true,
     },
   });
 
@@ -219,7 +219,7 @@ async function handleStatus(teamId: string, monitorName: string) {
       },
     },
     include: {
-      runs: {
+      Run: {
         take: 10,
         orderBy: {
           startedAt: 'desc',
@@ -236,7 +236,7 @@ async function handleStatus(teamId: string, monitorName: string) {
   }
 
   // Generate sparkline with better visualization
-  const recentRuns = monitor.runs.reverse().slice(-7);
+  const recentRuns = monitor.Run.reverse().slice(-7);
   const sparkline = recentRuns.map(run => {
     switch (run.outcome) {
       case 'SUCCESS': return '✅';
@@ -320,14 +320,14 @@ async function handleStatus(teamId: string, monitorName: string) {
     elements: [
       {
         type: 'mrkdwn',
-        text: `Recent runs: ${sparkline || 'No runs yet'}`,
+        text: `Recent Run: ${sparkline || 'No runs yet'}`,
       },
     ],
   });
 
   // Add last run details if available
-  if (monitor.lastRunAt && monitor.runs.length > 0) {
-    const lastRun = monitor.runs[0];
+  if (monitor.lastRunAt && monitor.Run.length > 0) {
+    const lastRun = monitor.Run[0];
     const timeSinceRun = Math.floor((Date.now() - new Date(lastRun.startedAt).getTime()) / 1000 / 60);
     blocks.push({
       type: 'context',
@@ -375,12 +375,12 @@ async function handleAck(teamId: string, incidentId: string, userId?: string | n
   const incident = await prisma.incident.findFirst({
     where: { 
       id: incidentId,
-      monitor: {
+      Monitor: {
         orgId: channel.orgId,
       },
     },
     include: {
-      monitor: true,
+      Monitor: true,
     },
   });
 
@@ -408,7 +408,8 @@ async function handleAck(teamId: string, incidentId: string, userId?: string | n
 
   await prisma.incidentEvent.create({
     data: {
-      incidentId,
+          id: crypto.randomUUID(),
+        incidentId,
       eventType: 'acknowledged',
       message: `Acknowledged via /pulse command by ${userId || 'Slack user'}`,
       metadata: {
@@ -425,7 +426,7 @@ async function handleAck(teamId: string, incidentId: string, userId?: string | n
         type: 'section',
         text: {
           type: 'mrkdwn',
-          text: `✅ *Incident Acknowledged*\n\nMonitor: *${incident.monitor.name}*\nKind: ${incident.kind}\nIncident ID: \`${incidentId}\``,
+          text: `✅ *Incident Acknowledged*\n\nMonitor: *${incident.Monitor.name}*\nKind: ${incident.kind}\nIncident ID: \`${incidentId}\``,
         },
       },
       {

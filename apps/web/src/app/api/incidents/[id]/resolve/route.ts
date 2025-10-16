@@ -20,7 +20,7 @@ export async function POST(
     const incident = await prisma.incident.findUnique({
       where: { id },
       include: {
-        monitor: true,
+        Monitor: true,
       },
     });
 
@@ -33,7 +33,7 @@ export async function POST(
       where: {
         userId_orgId: {
           userId: session.user.id,
-          orgId: incident.monitor.orgId,
+          orgId: incident.Monitor.orgId,
         },
       },
     });
@@ -49,13 +49,14 @@ export async function POST(
         resolvedAt: new Date(),
       },
       include: {
-        monitor: true,
+        Monitor: true,
       },
     });
 
     // Create incident event
     await prisma.incidentEvent.create({
       data: {
+          id: crypto.randomUUID(),
         incidentId: id,
         eventType: 'resolved',
         message: `Resolved by ${session.user.email}`,
@@ -70,7 +71,7 @@ export async function POST(
       // Get Slack access token from alert channel
       const slackChannel = await prisma.alertChannel.findFirst({
         where: {
-          orgId: incident.monitor.orgId,
+          orgId: incident.Monitor.orgId,
           type: 'SLACK',
         },
       });

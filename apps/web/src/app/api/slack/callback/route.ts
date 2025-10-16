@@ -42,19 +42,21 @@ export async function GET(request: NextRequest) {
     // Store Slack credentials
     await prisma.account.create({
       data: {
+        id: crypto.randomUUID(),
         userId,
-        type: 'oauth',
         provider: 'slack',
-        providerAccountId: tokenData.team.id,
-        access_token: tokenData.access_token,
-        refresh_token: tokenData.refresh_token,
+        providerId: tokenData.team.id,
+        accessToken: tokenData.access_token,
+        refreshToken: tokenData.refresh_token,
         scope: tokenData.scope,
+        updatedAt: new Date(),
       },
     });
 
     // Create default Slack alert channel
     await prisma.alertChannel.create({
       data: {
+        id: crypto.randomUUID(),
         orgId,
         type: 'SLACK',
         label: `Slack - ${tokenData.team.name}`,
@@ -66,6 +68,7 @@ export async function GET(request: NextRequest) {
           channelId: tokenData.incoming_webhook?.channel_id,
         },
         isDefault: true,
+        updatedAt: new Date(),
       },
     });
 

@@ -94,6 +94,7 @@ export async function POST(request: NextRequest) {
 
     const statusPage = await prisma.statusPage.create({
       data: {
+        id: crypto.randomUUID(),
         orgId: org.id,
         title: validatedData.title,
         slug: validatedData.slug,
@@ -101,12 +102,14 @@ export async function POST(request: NextRequest) {
         accessToken,
         components: validatedData.components as any,
         theme: validatedData.theme as any,
+        updatedAt: new Date(),
       },
     });
 
     // Create audit log
     await prisma.auditLog.create({
       data: {
+        id: crypto.randomUUID(),
         orgId: org.id,
         userId: session.user.id,
         action: 'STATUS_PAGE_CREATED',

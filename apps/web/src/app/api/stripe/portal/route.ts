@@ -38,11 +38,11 @@ export async function POST(request: NextRequest) {
     const org = await prisma.org.findUnique({
       where: { id: orgId },
       include: {
-        subscriptionPlan: true,
+        SubscriptionPlan: true,
       },
     });
 
-    if (!org?.subscriptionPlan?.stripeCustomerId) {
+    if (!org?.SubscriptionPlan?.stripeCustomerId) {
       return NextResponse.json(
         { error: 'No active subscription found' },
         { status: 404 }
@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
     }
 
     const portalSession = await createCustomerPortalSession(
-      org.subscriptionPlan.stripeCustomerId,
+      org.SubscriptionPlan.stripeCustomerId,
       `${process.env.NEXTAUTH_URL}/app/settings/billing`
     );
 

@@ -23,7 +23,7 @@ export default async function BillingPage() {
     return <div className="text-[#37322F] font-sans">No organization found</div>;
   }
 
-  const plan = org.subscriptionPlan || {
+  const plan = org.SubscriptionPlan || {
     plan: 'FREE',
     monitorLimit: 5,
     userLimit: 3,

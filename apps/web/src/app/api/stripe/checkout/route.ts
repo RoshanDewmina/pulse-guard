@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
     const org = await prisma.org.findUnique({
       where: { id: orgId },
       include: {
-        subscriptionPlan: true,
+        SubscriptionPlan: true,
       },
     });
 
@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
     }
 
     const checkoutSession = await createCheckoutSession({
-      customerId: org.subscriptionPlan?.stripeCustomerId || undefined,
+      customerId: org.SubscriptionPlan?.stripeCustomerId || undefined,
       customerEmail: session.user.email!,
       priceId,
       successUrl: `${process.env.NEXTAUTH_URL}/app/settings/billing?success=true`,

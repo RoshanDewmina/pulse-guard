@@ -75,7 +75,7 @@ export function generateIncidentEmail(data: IncidentEmailData): string {
     .info-row { display: flex; justify-content: space-between; margin: 10px 0; padding: 10px; background: #fff; border-radius: 4px; }
     .info-label { font-weight: 600; color: #666; }
     .info-value { color: #333; }
-    .runs { display: flex; gap: 8px; margin: 15px 0; }
+    .Run { display: flex; gap: 8px; margin: 15px 0; }
     .run { width: 12px; height: 12px; border-radius: 50%; }
     .run-success { background: #27ae60; }
     .run-fail { background: #e74c3c; }

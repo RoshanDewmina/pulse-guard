@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
         ...(orgId ? { orgId } : {}),
       },
       include: {
-        org: true,
+        Org: true,
       },
     });
 
@@ -98,7 +98,7 @@ export async function POST(request: NextRequest) {
         role: { in: ['OWNER', 'ADMIN'] },
       },
       include: {
-        org: true,
+        Org: true,
       },
     });
 

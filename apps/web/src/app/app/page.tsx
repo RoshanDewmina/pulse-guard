@@ -25,7 +25,7 @@ export default async function DashboardPage() {
     include: {
       _count: {
         select: {
-          incidents: {
+          Incident: {
             where: {
               status: { in: ['OPEN', 'ACKED'] },
             },
@@ -49,13 +49,13 @@ export default async function DashboardPage() {
   // Get recent incidents
   const incidents = await prisma.incident.findMany({
     where: {
-      monitor: {
+      Monitor: {
         orgId: org.id,
       },
       status: { in: ['OPEN', 'ACKED'] },
     },
     include: {
-      monitor: true,
+      Monitor: true,
     },
     take: 10,
     orderBy: {
@@ -220,9 +220,9 @@ export default async function DashboardPage() {
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
-                      {monitor._count.incidents > 0 && (
+                      {monitor._count.Incident > 0 && (
                         <span className="text-xs text-red-600 font-medium font-sans">
-                          {monitor._count.incidents} incident{monitor._count.incidents !== 1 ? 's' : ''}
+                          {monitor._count.Incident} incident{monitor._count.Incident !== 1 ? 's' : ''}
                         </span>
                       )}
                       <div className={`px-2 py-1 rounded-full text-xs font-medium font-sans ${
@@ -258,7 +258,7 @@ export default async function DashboardPage() {
                 <Link key={incident.id} href={`/app/incidents/${incident.id}`}>
                   <div className="flex items-center justify-between p-4 border border-[rgba(55,50,47,0.08)] rounded-lg hover:bg-[#F7F5F3] transition-colors">
                     <div className="flex-1">
-                      <div className="font-medium text-[#37322F] font-sans">{incident.monitor.name}</div>
+                      <div className="font-medium text-[#37322F] font-sans">{incident.Monitor.name}</div>
                       <div className="text-sm text-[rgba(55,50,47,0.60)] font-sans">
                         {incident.kind} • Opened {new Date(incident.openedAt).toLocaleDateString()}
                       </div>

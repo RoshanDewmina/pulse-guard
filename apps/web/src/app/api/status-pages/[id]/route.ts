@@ -36,9 +36,9 @@ export async function GET(
     const statusPage = await prisma.statusPage.findUnique({
       where: { id },
       include: {
-        org: {
+        Org: {
           include: {
-            memberships: {
+            Membership: {
               where: { userId: session.user.id },
             },
           },
@@ -51,7 +51,7 @@ export async function GET(
     }
 
     // Check if user has access
-    if (statusPage.org.memberships.length === 0) {
+    if (statusPage.Org.Membership.length === 0) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
@@ -79,9 +79,9 @@ export async function PATCH(
     const statusPage = await prisma.statusPage.findUnique({
       where: { id },
       include: {
-        org: {
+        Org: {
           include: {
-            memberships: {
+            Membership: {
               where: { userId: session.user.id },
             },
           },
@@ -94,7 +94,7 @@ export async function PATCH(
     }
 
     // Check if user has access and is not a viewer
-    const membership = statusPage.org.memberships[0];
+    const membership = statusPage.Org.Membership[0];
     if (!membership || membership.role === 'VIEWER' as any) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
@@ -144,9 +144,9 @@ export async function DELETE(
     const statusPage = await prisma.statusPage.findUnique({
       where: { id },
       include: {
-        org: {
+        Org: {
           include: {
-            memberships: {
+            Membership: {
               where: { userId: session.user.id },
             },
           },
@@ -159,7 +159,7 @@ export async function DELETE(
     }
 
     // Check if user is admin or owner
-    const membership = statusPage.org.memberships[0];
+    const membership = statusPage.Org.Membership[0];
     if (!membership || !['OWNER', 'ADMIN'].includes(membership.role)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }

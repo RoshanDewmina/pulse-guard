@@ -44,12 +44,12 @@ export default async function MonitorsPage() {
     include: {
       _count: {
         select: {
-          incidents: {
+          Incident: {
             where: {
               status: { in: ['OPEN', 'ACKED'] },
             },
           },
-          runs: true,
+          Run: true,
         },
       },
     },
@@ -108,8 +108,8 @@ export default async function MonitorsPage() {
           <SaturnCardHeader>
             <SaturnCardTitle as="h2">Your Monitors ({monitors.length})</SaturnCardTitle>
             <SaturnCardDescription>
-              {org.subscriptionPlan
-                ? `Using ${monitors.length} of ${org.subscriptionPlan.monitorLimit} monitors`
+              {org.SubscriptionPlan
+                ? `Using ${monitors.length} of ${org.SubscriptionPlan.monitorLimit} monitors`
                 : 'Manage your monitors'}
             </SaturnCardDescription>
           </SaturnCardHeader>
@@ -170,9 +170,9 @@ export default async function MonitorsPage() {
                       )}
                     </SaturnTableCell>
                     <SaturnTableCell>
-                      {monitor._count.incidents > 0 ? (
+                      {monitor._count.Incident > 0 ? (
                         <SaturnBadge variant="error" size="sm">
-                          {monitor._count.incidents}
+                          {monitor._count.Incident}
                         </SaturnBadge>
                       ) : (
                         <span className="text-[rgba(55,50,47,0.40)]">—</span>

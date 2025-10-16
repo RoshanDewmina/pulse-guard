@@ -32,7 +32,7 @@ export default async function TeamPage() {
   const memberships = await prisma.membership.findMany({
     where: { orgId: org.id },
     include: {
-      user: true,
+      User: true,
     },
     orderBy: {
       createdAt: 'asc',
@@ -77,10 +77,10 @@ export default async function TeamPage() {
           </div>
         </SaturnCardHeader>
         <SaturnCardContent>
-          {org.subscriptionPlan && memberships.length >= org.subscriptionPlan.userLimit && (
+          {org.SubscriptionPlan && memberships.length >= org.SubscriptionPlan.userLimit && (
             <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
               <p className="text-sm text-yellow-800 font-sans">
-                ⚠️ You&apos;ve reached your team member limit ({org.subscriptionPlan.userLimit} members).
+                ⚠️ You&apos;ve reached your team member limit ({org.SubscriptionPlan.userLimit} members).
                 Upgrade your plan to add more members.
               </p>
             </div>
@@ -101,14 +101,14 @@ export default async function TeamPage() {
                   <SaturnTableCell>
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-[rgba(55,50,47,0.12)] flex items-center justify-center text-[#37322F] font-medium font-sans">
-                        {membership.user.name?.[0] || membership.user.email[0].toUpperCase()}
+                        {membership.User.name?.[0] || membership.User.email[0].toUpperCase()}
                       </div>
                       <div>
                         <div className="font-medium text-[#37322F] font-sans">
-                          {membership.user.name || membership.user.email}
+                          {membership.User.name || membership.User.email}
                         </div>
                         <div className="text-sm text-[rgba(55,50,47,0.60)] font-sans">
-                          {membership.user.email}
+                          {membership.User.email}
                         </div>
                       </div>
                     </div>

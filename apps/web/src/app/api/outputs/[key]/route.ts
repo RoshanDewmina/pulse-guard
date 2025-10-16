@@ -23,13 +23,13 @@ export async function GET(
         outputKey,
       },
       include: {
-        monitor: {
+        Monitor: {
           include: {
-            org: {
+            Org: {
               include: {
-                memberships: {
+                Membership: {
                   where: {
-                    user: {
+                    User: {
                       email: session.user.email,
                     },
                   },
@@ -46,7 +46,7 @@ export async function GET(
     }
 
     // Check if user has access to this org
-    if (run.monitor.org.memberships.length === 0) {
+    if (run.Monitor.Org.Membership.length === 0) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 

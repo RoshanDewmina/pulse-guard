@@ -38,7 +38,7 @@ export default async function AlertsPage() {
   const rules = await prisma.rule.findMany({
     where: { orgId: org.id },
     include: {
-      org: true,
+      Org: true,
     },
     orderBy: {
       createdAt: 'desc',

@@ -52,7 +52,7 @@ export interface WebhookPayload {
     acknowledgedAt?: string;
     resolvedAt?: string;
   };
-  monitor: {
+  Monitor: {
     id: string;
     name: string;
     status: string;
@@ -166,7 +166,7 @@ export function buildWebhookPayload(
       acknowledgedAt: incident.acknowledgedAt?.toISOString(),
       resolvedAt: incident.resolvedAt?.toISOString(),
     },
-    monitor: {
+    Monitor: {
       id: monitor.id,
       name: monitor.name,
       status: monitor.status,
@@ -250,7 +250,7 @@ export async function testWebhook(config: WebhookConfig): Promise<{ success: boo
       summary: 'Test incident from Saturn',
       openedAt: new Date().toISOString(),
     },
-    monitor: {
+    Monitor: {
       id: 'test-monitor-id',
       name: 'Test Monitor',
       status: 'FAILING',

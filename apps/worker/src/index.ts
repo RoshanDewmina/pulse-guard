@@ -6,6 +6,7 @@ import { startEmailWorker } from './jobs/email';
 import { startSlackWorker } from './jobs/slack';
 import { startDiscordWorker } from './jobs/discord';
 import { startWebhookWorker } from './jobs/webhook';
+import { startHealthCheckServer } from './health';
 import { prisma } from '@tokiflow/db';
 
 const logger = createLogger('main');
@@ -14,9 +15,14 @@ const logger = createLogger('main');
 initializeSentry();
 
 async function main() {
-  logger.info('🚀 Starting Saturn Worker...');
+  logger.info('🚀 Starting PulseGuard Worker...');
 
   try {
+    // Start health check server (for Fly.io health checks)
+    const port = Number(process.env.PORT) || 8080;
+    startHealthCheckServer(port);
+    logger.info(`✅ Health check server started on port ${port}`);
+
     // Test database connection
     await prisma.$connect();
     logger.info('✅ Database connected');

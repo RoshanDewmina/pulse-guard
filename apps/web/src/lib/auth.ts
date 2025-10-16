@@ -7,70 +7,77 @@ import { prisma } from '@tokiflow/db';
 import bcrypt from 'bcryptjs';
 import { Resend } from 'resend';
 
-export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma),
-  providers: [
-    CredentialsProvider({
-      name: 'credentials',
-      credentials: {
-        email: { label: 'Email', type: 'email' },
-        password: { label: 'Password', type: 'password' },
+// Build providers array conditionally
+const providers: any[] = [
+  CredentialsProvider({
+    name: 'credentials',
+    credentials: {
+      email: { label: 'Email', type: 'email' },
+      password: { label: 'Password', type: 'password' },
+    },
+    async authorize(credentials) {
+      if (!credentials?.email || !credentials?.password) {
+        throw new Error('Email and password are required');
+      }
+
+      const user = await prisma.user.findUnique({
+        where: { email: credentials.email },
+        include: {
+          Account: {
+            where: {
+              provider: 'credentials'
+            }
+          }
+        }
+      });
+
+      if (!user || user.Account.length === 0 || !user.Account[0].accessToken) {
+        throw new Error('Invalid email or password');
+      }
+
+      const hashedPassword = user.Account[0].accessToken;
+      const isPasswordValid = await bcrypt.compare(
+        credentials.password,
+        hashedPassword
+      );
+
+      if (!isPasswordValid) {
+        throw new Error('Invalid email or password');
+      }
+
+      return {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        image: user.imageUrl,
+      };
+    },
+  }),
+  EmailProvider({
+    server: process.env.EMAIL_SERVER_HOST ? {
+      host: process.env.EMAIL_SERVER_HOST,
+      port: Number(process.env.EMAIL_SERVER_PORT),
+      auth: {
+        user: process.env.EMAIL_SERVER_USER,
+        pass: process.env.EMAIL_SERVER_PASSWORD,
       },
-      async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          throw new Error('Email and password are required');
-        }
+    } : undefined,
+    from: process.env.EMAIL_FROM || 'noreply@saturn.co',
+    sendVerificationRequest: async ({ identifier, url, provider }) => {
+      // Always log to console for debugging
+      console.log('\n🔗 Magic Link for', identifier);
+      console.log('📧 Sign in URL:', url);
+      console.log('');
 
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email },
-        });
-
-        if (!user || !user.password) {
-          throw new Error('Invalid email or password');
-        }
-
-        const isPasswordValid = await bcrypt.compare(
-          credentials.password,
-          user.password
-        );
-
-        if (!isPasswordValid) {
-          throw new Error('Invalid email or password');
-        }
-
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          image: user.imageUrl,
-        };
-      },
-    }),
-    EmailProvider({
-      server: process.env.EMAIL_SERVER_HOST ? {
-        host: process.env.EMAIL_SERVER_HOST,
-        port: Number(process.env.EMAIL_SERVER_PORT),
-        auth: {
-          user: process.env.EMAIL_SERVER_USER,
-          pass: process.env.EMAIL_SERVER_PASSWORD,
-        },
-      } : undefined,
-      from: process.env.EMAIL_FROM || 'noreply@saturn.co',
-      sendVerificationRequest: async ({ identifier, url, provider }) => {
-        // Always log to console for debugging
-        console.log('\n🔗 Magic Link for', identifier);
-        console.log('📧 Sign in URL:', url);
-        console.log('');
-
-        // Send actual email if Resend API key is configured
-        if (process.env.RESEND_API_KEY) {
-          try {
-            const resend = new Resend(process.env.RESEND_API_KEY);
-            const { data, error } = await resend.emails.send({
-              from: provider.from,
-              to: identifier,
-              subject: 'Sign in to Saturn',
-              html: `
+      // Send actual email if Resend API key is configured
+      if (process.env.RESEND_API_KEY) {
+        try {
+          const resend = new Resend(process.env.RESEND_API_KEY);
+          const { data, error } = await resend.emails.send({
+            from: provider.from,
+            to: identifier,
+            subject: 'Sign in to Saturn',
+            html: `
                 <!DOCTYPE html>
                 <html>
                   <head>
@@ -125,26 +132,38 @@ export const authOptions: NextAuthOptions = {
                   </body>
                 </html>
               `,
-            });
+          });
 
-            if (error) {
-              console.error('Failed to send magic link email:', error);
-            } else {
-              console.log('✅ Magic link email sent successfully to', identifier);
-            }
-          } catch (error) {
-            console.error('Error sending magic link email:', error);
+          if (error) {
+            console.error('Failed to send magic link email:', error);
+          } else {
+            console.log('✅ Magic link email sent successfully to', identifier);
           }
-        } else {
-          console.warn('⚠️  RESEND_API_KEY not configured - magic link only logged to console');
+        } catch (error) {
+          console.error('Error sending magic link email:', error);
         }
-      },
-    }),
+      } else {
+        console.warn('⚠️  RESEND_API_KEY not configured - magic link only logged to console');
+      }
+    },
+  }),
+];
+
+// Only add Google provider if credentials are configured
+if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+  providers.push(
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-    }),
-  ],
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    })
+  );
+} else {
+  console.warn('⚠️  Google OAuth not configured - Google sign-in will not be available');
+}
+
+export const authOptions: NextAuthOptions = {
+  adapter: PrismaAdapter(prisma),
+  providers,
   pages: {
     signIn: '/auth/signin',
     signOut: '/auth/signout',
@@ -170,19 +189,25 @@ export const authOptions: NextAuthOptions = {
           
           await prisma.org.create({
             data: {
+              id: crypto.randomUUID(),
               name: `${userName}'s Organization`,
               slug: `${user.email?.split('@')[0]}-${timestamp}`,
-              memberships: {
+              updatedAt: new Date(),
+              Membership: {
                 create: {
+                  id: crypto.randomUUID(),
                   userId: user.id,
                   role: 'OWNER',
+                  updatedAt: new Date(),
                 },
               },
-              subscriptionPlan: {
+              SubscriptionPlan: {
                 create: {
+                  id: crypto.randomUUID(),
                   plan: 'FREE',
                   monitorLimit: 5,
                   userLimit: 1,
+                  updatedAt: new Date(),
                 },
               },
             },
@@ -213,11 +238,11 @@ export async function getCurrentUser(userId: string) {
   return await prisma.user.findUnique({
     where: { id: userId },
     include: {
-      memberships: {
+      Membership: {
         include: {
-          org: {
+          Org: {
             include: {
-              subscriptionPlan: true,
+              SubscriptionPlan: true,
             },
           },
         },
@@ -231,9 +256,9 @@ export async function getUserPrimaryOrg(userId: string) {
   const membership = await prisma.membership.findFirst({
     where: { userId },
     include: {
-      org: {
+      Org: {
         include: {
-          subscriptionPlan: true,
+          SubscriptionPlan: true,
         },
       },
     },
@@ -242,7 +267,7 @@ export async function getUserPrimaryOrg(userId: string) {
     },
   });
 
-  return membership?.org;
+  return membership?.Org;
 }
 
 // Helper to check if user has access to org

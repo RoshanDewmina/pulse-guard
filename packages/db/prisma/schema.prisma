@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,147 +7,265 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id            String    @id @default(cuid())
-  email         String    @unique
-  emailVerified DateTime?
-  password      String?   // For credentials auth, nullable for OAuth/Email users
-  name          String?
-  imageUrl      String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-
-  accounts    Account[]
-  sessions    Session[]
-  memberships Membership[]
-  apiKeys     ApiKey[]
-  auditLogs   AuditLog[]
-}
-
-// NextAuth.js Models
 model Account {
-  id                String  @id @default(cuid())
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String? @db.Text
-  session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerAccountId])
-  @@index([userId])
-}
-
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
+  id           String   @id
   userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider     String
+  providerId   String
+  accessToken  String
+  refreshToken String?
+  scope        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime
+  User         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@unique([provider, providerId])
   @@index([userId])
 }
 
-model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
+model AlertChannel {
+  id         String      @id
+  orgId      String
+  type       ChannelType
+  label      String
+  configJson Json
+  isDefault  Boolean     @default(false)
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime
+  Org        Org         @relation(fields: [orgId], references: [id], onDelete: Cascade)
 
-  @@unique([identifier, token])
+  @@index([orgId])
 }
 
-model Org {
-  id        String   @id @default(cuid())
-  name      String
-  slug      String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model ApiKey {
+  id         String    @id
+  userId     String
+  orgId      String
+  name       String
+  tokenHash  String    @unique
+  lastUsedAt DateTime?
+  createdAt  DateTime  @default(now())
+  Org        Org       @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  User       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  memberships        Membership[]
-  monitors           Monitor[]
-  channels           AlertChannel[]
-  rules              Rule[]
-  subscriptionPlan   SubscriptionPlan?
-  auditLogs          AuditLog[]
-  apiKeys            ApiKey[]
-  maintenanceWindows MaintenanceWindow[]
+  @@index([orgId])
+  @@index([userId])
+}
+
+model AuditLog {
+  id        String   @id
+  orgId     String
+  userId    String?
+  action    String
+  targetId  String?
+  meta      Json?
+  createdAt DateTime @default(now())
+  Org       Org      @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  User      User?    @relation(fields: [userId], references: [id])
+
+  @@index([createdAt])
+  @@index([orgId])
+  @@index([userId])
+}
+
+model Incident {
+  id             String          @id
+  monitorId      String
+  status         IncidentStatus  @default(OPEN)
+  kind           IncidentKind
+  openedAt       DateTime        @default(now())
+  acknowledgedAt DateTime?
+  resolvedAt     DateTime?
+  summary        String
+  details        String?
+  lastAlertedAt  DateTime?
+  dedupeHash     String?
+  suppressUntil  DateTime?
+  slackMessageTs String?
+  slackChannelId String?
+  Monitor        Monitor         @relation(fields: [monitorId], references: [id], onDelete: Cascade)
+  IncidentEvent  IncidentEvent[]
+
+  @@index([dedupeHash])
+  @@index([monitorId])
+  @@index([status])
+}
+
+model IncidentEvent {
+  id         String   @id
+  incidentId String
+  eventType  String
+  message    String?
+  metadata   Json?
+  createdAt  DateTime @default(now())
+  Incident   Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+
+  @@index([incidentId])
 }
 
 model Membership {
-  id        String   @id @default(cuid())
+  id        String   @id
   userId    String
   orgId     String
   role      Role
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  org  Org  @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  updatedAt DateTime
+  Org       Org      @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  User      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, orgId])
-  @@index([userId])
   @@index([orgId])
-}
-
-enum Role {
-  OWNER
-  ADMIN
-  MEMBER
+  @@index([userId])
 }
 
 model Monitor {
-  id             String        @id @default(cuid())
-  orgId          String
-  name           String
-  token          String        @unique
-  scheduleType   ScheduleType
-  intervalSec    Int?
-  cronExpr       String?
-  timezone       String        @default("UTC")
-  graceSec       Int           @default(300)
-  status         MonitorStatus @default(OK)
-  lastRunAt      DateTime?
-  lastDurationMs Int?
-  lastExitCode   Int?
-  lastOutputKey  String?
-  nextDueAt      DateTime?
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
-  tags           String[]      @default([])
-  captureOutput  Boolean       @default(false)
-  captureLimitKb Int           @default(32)
-  
-  // Welford rolling statistics for anomaly detection
-  durationCount  Int           @default(0)
-  durationMean   Float?
-  durationM2     Float?        // For variance calculation (sum of squared differences)
-  durationMedian Float?
-  durationMin    Int?
-  durationMax    Int?
+  id              String        @id
+  orgId           String
+  name            String
+  token           String        @unique
+  scheduleType    ScheduleType
+  intervalSec     Int?
+  cronExpr        String?
+  timezone        String        @default("UTC")
+  graceSec        Int           @default(300)
+  status          MonitorStatus @default(OK)
+  lastRunAt       DateTime?
+  lastDurationMs  Int?
+  lastExitCode    Int?
+  lastOutputKey   String?
+  nextDueAt       DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime
+  tags            String[]      @default([])
+  captureOutput   Boolean       @default(false)
+  captureLimitKb  Int           @default(32)
+  durationCount   Int           @default(0)
+  durationMean    Float?
+  durationM2      Float?
+  durationMin     Int?
+  durationMax     Int?
+  durationMedian  Float?
+  Incident        Incident[]
+  Org             Org           @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  Run             Run[]
 
-  org                 Org                   @relation(fields: [orgId], references: [id], onDelete: Cascade)
-  runs                Run[]
-  incidents           Incident[]
-  dependencies        MonitorDependency[]   @relation("DependentMonitor")
-  dependedOnBy        MonitorDependency[]   @relation("DependsOnMonitor")
-  maintenanceWindows  MaintenanceWindow[]
-
-  @@index([orgId])
-  @@index([token])
   @@index([nextDueAt])
+  @@index([orgId])
   @@index([status])
+  @@index([token])
 }
 
-enum ScheduleType {
-  INTERVAL
-  CRON
+model Org {
+  id               String            @id
+  name             String
+  slug             String            @unique
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime
+  AlertChannel     AlertChannel[]
+  ApiKey           ApiKey[]
+  AuditLog         AuditLog[]
+  Membership       Membership[]
+  Monitor          Monitor[]
+  Rule             Rule[]
+  StatusPage       StatusPage[]
+  SubscriptionPlan SubscriptionPlan?
+}
+
+model Rule {
+  id              String   @id
+  orgId           String
+  name            String
+  monitorIds      String[] @default([])
+  channelIds      String[] @default([])
+  suppressMinutes Int?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime
+  Org             Org      @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@index([orgId])
+}
+
+model Run {
+  id         String     @id
+  monitorId  String
+  startedAt  DateTime
+  finishedAt DateTime?
+  durationMs Int?
+  exitCode   Int?
+  outcome    RunOutcome
+  outputKey  String?
+  sizeBytes  Int?
+  createdAt  DateTime   @default(now())
+  Monitor    Monitor    @relation(fields: [monitorId], references: [id], onDelete: Cascade)
+
+  @@index([monitorId])
+  @@index([startedAt])
+}
+
+model StatusPage {
+  id           String   @id
+  orgId        String
+  slug         String   @unique
+  title        String
+  isPublic     Boolean  @default(true)
+  customDomain String?
+  accessToken  String
+  components   Json     @default("[]")
+  theme        Json     @default("{}")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime
+  Org          Org      @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@index([orgId])
+  @@index([slug])
+}
+
+model SubscriptionPlan {
+  id               String   @id
+  orgId            String   @unique
+  stripeCustomerId String?  @unique
+  stripeSubId      String?  @unique
+  plan             String   @default("FREE")
+  monitorLimit     Int      @default(5)
+  userLimit        Int      @default(3)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime
+  Org              Org      @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@index([stripeCustomerId])
+}
+
+model User {
+  id         String       @id
+  email      String       @unique
+  name       String?
+  imageUrl   String?
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime
+  Account    Account[]
+  ApiKey     ApiKey[]
+  AuditLog   AuditLog[]
+  Membership Membership[]
+}
+
+enum ChannelType {
+  EMAIL
+  SLACK
+  DISCORD
+  WEBHOOK
+}
+
+enum IncidentKind {
+  MISSED
+  LATE
+  FAIL
+  ANOMALY
+}
+
+enum IncidentStatus {
+  OPEN
+  ACKED
+  RESOLVED
 }
 
 enum MonitorStatus {
@@ -161,22 +276,10 @@ enum MonitorStatus {
   DISABLED
 }
 
-model Run {
-  id         String      @id @default(cuid())
-  monitorId  String
-  startedAt  DateTime
-  finishedAt DateTime?
-  durationMs Int?
-  exitCode   Int?
-  outcome    RunOutcome
-  outputKey  String?
-  sizeBytes  Int?
-  createdAt  DateTime    @default(now())
-
-  monitor Monitor @relation(fields: [monitorId], references: [id], onDelete: Cascade)
-
-  @@index([monitorId])
-  @@index([startedAt])
+enum Role {
+  OWNER
+  ADMIN
+  MEMBER
 }
 
 enum RunOutcome {
@@ -188,199 +291,7 @@ enum RunOutcome {
   MISSED
 }
 
-model Incident {
-  id             String         @id @default(cuid())
-  monitorId      String
-  status         IncidentStatus @default(OPEN)
-  kind           IncidentKind
-  openedAt       DateTime       @default(now())
-  acknowledgedAt DateTime?
-  resolvedAt     DateTime?
-  summary        String
-  details        String?
-  lastAlertedAt  DateTime?
-  dedupeHash     String?
-  suppressUntil  DateTime?
-  
-  // Slack message threading
-  slackMessageTs  String?       // Slack message timestamp for updates
-  slackChannelId  String?       // Channel where message was posted
-
-  monitor Monitor         @relation(fields: [monitorId], references: [id], onDelete: Cascade)
-  events  IncidentEvent[]
-
-  @@index([monitorId])
-  @@index([status])
-  @@index([dedupeHash])
-}
-
-enum IncidentStatus {
-  OPEN
-  ACKED
-  RESOLVED
-}
-
-enum IncidentKind {
-  MISSED
-  LATE
-  FAIL
-  ANOMALY
-}
-
-model IncidentEvent {
-  id         String   @id @default(cuid())
-  incidentId String
-  eventType  String
-  message    String?
-  metadata   Json?
-  createdAt  DateTime @default(now())
-
-  incident Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
-
-  @@index([incidentId])
-}
-
-model AlertChannel {
-  id         String      @id @default(cuid())
-  orgId      String
-  type       ChannelType
-  label      String
-  configJson Json
-  isDefault  Boolean     @default(false)
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
-
-  org Org @relation(fields: [orgId], references: [id], onDelete: Cascade)
-
-  @@index([orgId])
-}
-
-enum ChannelType {
-  EMAIL
-  SLACK
-  DISCORD
-  WEBHOOK
-}
-
-model Rule {
-  id              String   @id @default(cuid())
-  orgId           String
-  name            String
-  monitorIds      String[] @default([])
-  channelIds      String[] @default([])
-  suppressMinutes Int?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  org Org @relation(fields: [orgId], references: [id], onDelete: Cascade)
-
-  @@index([orgId])
-}
-
-// Removed - replaced with NextAuth Account model above
-
-model ApiKey {
-  id         String    @id @default(cuid())
-  userId     String
-  orgId      String
-  name       String
-  tokenHash  String    @unique
-  lastUsedAt DateTime?
-  createdAt  DateTime  @default(now())
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  org  Org  @relation(fields: [orgId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([orgId])
-}
-
-model SubscriptionPlan {
-  id               String   @id @default(cuid())
-  orgId            String   @unique
-  stripeCustomerId String?  @unique
-  stripeSubId      String?  @unique
-  plan             String   @default("FREE")
-  monitorLimit     Int      @default(5)
-  userLimit        Int      @default(3)
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-
-  org Org @relation(fields: [orgId], references: [id], onDelete: Cascade)
-
-  @@index([stripeCustomerId])
-}
-
-model AuditLog {
-  id        String   @id @default(cuid())
-  orgId     String
-  userId    String?
-  action    String
-  targetId  String?
-  meta      Json?
-  createdAt DateTime @default(now())
-
-  org  Org   @relation(fields: [orgId], references: [id], onDelete: Cascade)
-  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
-
-  @@index([orgId])
-  @@index([userId])
-  @@index([createdAt])
-}
-
-model MonitorDependency {
-  id          String   @id @default(cuid())
-  monitorId   String   // Dependent monitor (runs second)
-  dependsOnId String   // Dependency (must run first)
-  required    Boolean  @default(true) // Fail if dependency fails
-  createdAt   DateTime @default(now())
-
-  monitor   Monitor @relation("DependentMonitor", fields: [monitorId], references: [id], onDelete: Cascade)
-  dependsOn Monitor @relation("DependsOnMonitor", fields: [dependsOnId], references: [id], onDelete: Cascade)
-
-  @@unique([monitorId, dependsOnId])
-  @@index([monitorId])
-  @@index([dependsOnId])
-}
-
-model MaintenanceWindow {
-  id          String    @id @default(cuid())
-  monitorId   String?   // Null = applies to all monitors in org
-  orgId       String
-  name        String
-  startTime   DateTime
-  endTime     DateTime
-  recurring   Boolean   @default(false)
-  rrule       String?   // RFC 5545 recurrence rule (e.g., "FREQ=WEEKLY;BYDAY=SU")
-  enabled     Boolean   @default(true)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-
-  monitor Monitor? @relation(fields: [monitorId], references: [id], onDelete: Cascade)
-  org     Org      @relation(fields: [orgId], references: [id], onDelete: Cascade)
-
-  @@index([monitorId])
-  @@index([orgId])
-  @@index([startTime, endTime])
-  @@index([enabled])
-}
-
-
-model StatusPage {
-  id            String   @id @default(cuid())
-  orgId         String
-  slug          String   @unique
-  title         String
-  isPublic      Boolean  @default(true)
-  customDomain  String?
-  accessToken   String
-  components    Json     @default("[]")
-  theme         Json     @default("{}")
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  org Org @relation(fields: [orgId], references: [id], onDelete: Cascade)
-
-  @@index([orgId])
-  @@index([slug])
+enum ScheduleType {
+  INTERVAL
+  CRON
 }

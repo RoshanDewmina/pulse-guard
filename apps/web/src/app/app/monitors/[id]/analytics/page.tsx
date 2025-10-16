@@ -25,10 +25,10 @@ export default async function MonitorAnalyticsPage({
   const monitor = await prisma.monitor.findFirst({
     where: {
       id,
-      org: {
-        memberships: {
+      Org: {
+        Membership: {
           some: {
-            user: {
+            User: {
               email: session.user.email,
             },
           },
@@ -36,7 +36,7 @@ export default async function MonitorAnalyticsPage({
       },
     },
     include: {
-      runs: {
+      Run: {
         where: {
           outcome: 'SUCCESS',
           durationMs: { not: null },
@@ -62,7 +62,7 @@ export default async function MonitorAnalyticsPage({
   const mttr = await calculateMTTR(monitor.id);
 
   // Calculate duration percentiles
-  const durations = monitor.runs.map(r => r.durationMs!).filter(d => d > 0);
+  const durations = monitor.Run.map(r => r.durationMs!).filter(d => d > 0);
   const p50 = durations.length > 0 ? calculatePercentile(durations, 50) : null;
   const p95 = durations.length > 0 ? calculatePercentile(durations, 95) : null;
   const p99 = durations.length > 0 ? calculatePercentile(durations, 99) : null;

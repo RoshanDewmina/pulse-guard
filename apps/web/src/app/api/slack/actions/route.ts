@@ -33,7 +33,7 @@ async function handleAcknowledge(incidentId: string, payload: any) {
   const incident = await prisma.incident.findUnique({
     where: { id: incidentId },
     include: {
-      monitor: true,
+      Monitor: true,
     },
   });
 
@@ -53,7 +53,8 @@ async function handleAcknowledge(incidentId: string, payload: any) {
   // Create event
   await prisma.incidentEvent.create({
     data: {
-      incidentId,
+          id: crypto.randomUUID(),
+        incidentId,
       eventType: 'acknowledged',
       message: `Acknowledged via Slack by ${payload.user.name}`,
       metadata: {
@@ -65,7 +66,7 @@ async function handleAcknowledge(incidentId: string, payload: any) {
 
   // Update Slack message
   const updatedBlocks = buildIncidentBlocks({
-    monitorName: incident.monitor.name,
+    monitorName: incident.Monitor.name,
     incidentId: incident.id,
     incidentKind: incident.kind,
     summary: `✅ ACKNOWLEDGED - ${incident.summary}`,
@@ -75,7 +76,7 @@ async function handleAcknowledge(incidentId: string, payload: any) {
   // Get Slack access token from alert channel
   const channel = await prisma.alertChannel.findFirst({
     where: {
-      orgId: incident.monitor.orgId,
+      orgId: incident.Monitor.orgId,
       type: 'SLACK',
     },
   });
@@ -95,7 +96,7 @@ async function handleMute(incidentId: string, payload: any) {
   const incident = await prisma.incident.findUnique({
     where: { id: incidentId },
     include: {
-      monitor: true,
+      Monitor: true,
     },
   });
 
@@ -116,7 +117,8 @@ async function handleMute(incidentId: string, payload: any) {
   // Create event
   await prisma.incidentEvent.create({
     data: {
-      incidentId,
+          id: crypto.randomUUID(),
+        incidentId,
       eventType: 'muted',
       message: `Muted for 2h via Slack by ${payload.user.name}`,
       metadata: {

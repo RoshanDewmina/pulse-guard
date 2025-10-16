@@ -113,7 +113,11 @@ export async function POST(request: NextRequest) {
     }
 
     const rule = await prisma.rule.create({
-      data,
+      data: {
+        id: crypto.randomUUID(),
+        ...data,
+        updatedAt: new Date(),
+      },
     });
 
     return NextResponse.json({ rule }, { status: 201 });

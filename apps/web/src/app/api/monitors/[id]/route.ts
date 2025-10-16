@@ -19,8 +19,8 @@ export async function GET(
     const monitor = await prisma.monitor.findFirst({
       where: {
         id,
-        org: {
-          memberships: {
+        Org: {
+          Membership: {
             some: {
               userId: session.user.id,
             },
@@ -28,8 +28,8 @@ export async function GET(
         },
       },
       include: {
-        org: true,
-        runs: {
+        Org: true,
+        Run: {
           take: 20,
           orderBy: { startedAt: 'desc' },
         },
@@ -68,8 +68,8 @@ export async function PATCH(
     const monitor = await prisma.monitor.findFirst({
       where: {
         id,
-        org: {
-          memberships: {
+        Org: {
+          Membership: {
             some: {
               userId: session.user.id,
               role: { in: ['OWNER', 'ADMIN'] }, // Only owners/admins can edit
@@ -127,8 +127,8 @@ export async function DELETE(
     const monitor = await prisma.monitor.findFirst({
       where: {
         id,
-        org: {
-          memberships: {
+        Org: {
+          Membership: {
             some: {
               userId: session.user.id,
               role: { in: ['OWNER', 'ADMIN'] },
@@ -139,8 +139,8 @@ export async function DELETE(
       include: {
         _count: {
           select: {
-            runs: true,
-            incidents: true,
+            Run: true,
+            Incident: true,
           },
         },
       },
@@ -167,8 +167,8 @@ export async function DELETE(
       success: true,
       message: `Monitor "${monitor.name}" deleted successfully`,
       deletedCounts: {
-        runs: monitor._count.runs,
-        incidents: monitor._count.incidents,
+        Run: monitor._count.Run,
+        Incident: monitor._count.Incident,
       },
     });
   } catch (error) {

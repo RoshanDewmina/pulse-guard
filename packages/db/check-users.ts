@@ -6,10 +6,10 @@ async function checkUsers() {
   try {
     const users = await prisma.user.findMany({
       include: {
-        accounts: true,
-        memberships: {
+        Account: true,
+        Membership: {
           include: {
-            org: true
+            Org: true
           }
         }
       }
@@ -25,11 +25,11 @@ async function checkUsers() {
         console.log(`      Email: ${user.email}`);
         console.log(`      ID: ${user.id}`);
         console.log(`      Created: ${user.createdAt}`);
-        console.log(`      Accounts: ${user.accounts.length} (${user.accounts.map(a => a.provider).join(', ')})`);
-        console.log(`      Organizations: ${user.memberships.length}`);
-        if (user.memberships.length > 0) {
-          user.memberships.forEach(m => {
-            console.log(`         - ${m.org.name} (${m.role})`);
+        console.log(`      Accounts: ${user.Account.length} (${user.Account.map(a => a.provider).join(', ')})`);
+        console.log(`      Organizations: ${user.Membership.length}`);
+        if (user.Membership.length > 0) {
+          user.Membership.forEach(m => {
+            console.log(`         - ${m.Org.name} (${m.role})`);
           });
         }
       });
