@@ -53,3 +53,11 @@ env.txt
 new*.txt
 vercel-production.env
 
+
+# Secret files
+.env.production
+.env.local
+env.txt
+new*.txt
+vercel-production.env
+DEPLOY_CLI.md
