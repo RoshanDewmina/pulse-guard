@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# Pre-push hook to ensure the code builds before pushing
+# This prevents broken code from being pushed to the repository
+
+echo "🔨 Running pre-push build check..."
+echo ""
+
+# Run the build with production environment
+if NODE_ENV=production bun run build; then
+    echo ""
+    echo "✅ Build successful! Proceeding with push..."
+    exit 0
+else
+    echo ""
+    echo "❌ Build failed! Push aborted."
+    echo "💡 Fix the build errors above before pushing."
+    echo "💡 To skip this check (not recommended), use: git push --no-verify"
+    exit 1
+fi
+

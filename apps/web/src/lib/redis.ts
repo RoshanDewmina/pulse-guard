@@ -6,29 +6,46 @@
 
 import Redis from 'ioredis';
 
-if (!process.env.REDIS_URL) {
+// Skip Redis connection during build time to avoid rate limiting
+const IS_BUILD_TIME = process.env.NEXT_PHASE === 'phase-production-build' || 
+                      process.env.npm_lifecycle_event === 'build';
+
+if (!process.env.REDIS_URL && !IS_BUILD_TIME) {
   throw new Error('REDIS_URL environment variable is not set');
 }
 
 /**
  * Main Redis client instance
+ * Note: Returns a mock client during build time to avoid rate limiting
  */
-export const redis = new Redis(process.env.REDIS_URL, {
-  maxRetriesPerRequest: 3,
-  retryStrategy(times) {
-    const delay = Math.min(times * 50, 2000);
-    return delay;
-  },
-  lazyConnect: false,
-});
+export const redis = IS_BUILD_TIME || !process.env.REDIS_URL
+  ? ({
+      get: async () => null,
+      set: async () => 'OK',
+      del: async () => 1,
+      incr: async () => 1,
+      expire: async () => 1,
+      quit: async () => 'OK',
+      on: () => {},
+    } as any as Redis)
+  : new Redis(process.env.REDIS_URL, {
+      maxRetriesPerRequest: 3,
+      retryStrategy(times) {
+        const delay = Math.min(times * 50, 2000);
+        return delay;
+      },
+      lazyConnect: false,
+    });
 
-redis.on('error', (error) => {
-  console.error('❌ Redis connection error:', error);
-});
+if (!IS_BUILD_TIME && redis && typeof redis.on === 'function') {
+  redis.on('error', (error) => {
+    console.error('❌ Redis connection error:', error);
+  });
 
-redis.on('connect', () => {
-  console.log('✅ Redis connected');
-});
+  redis.on('connect', () => {
+    console.log('✅ Redis connected');
+  });
+}
 
 /**
  * Redis connection for BullMQ queues

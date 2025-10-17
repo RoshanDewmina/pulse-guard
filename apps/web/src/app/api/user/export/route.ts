@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
         Account: {
           select: {
             provider: true,
-            providerId: true,
+            providerAccountId: true,
             createdAt: true,
           },
         },
