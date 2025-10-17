@@ -176,46 +176,58 @@ export const authOptions: NextAuthOptions = {
   debug: true,
   callbacks: {
     async signIn({ user, account, profile }) {
-      // When a user signs in with OAuth for the first time, create an organization
-      if (account && (account.provider === 'google' || account.provider === 'email')) {
-        const existingMembership = await prisma.membership.findFirst({
-          where: { userId: user.id },
-        });
-
-        // Only create org if user doesn't have one
-        if (!existingMembership) {
-          const userName = user.name || user.email?.split('@')[0] || 'User';
-          const timestamp = Date.now();
-          
-          await prisma.org.create({
-            data: {
-              id: crypto.randomUUID(),
-              name: `${userName}'s Organization`,
-              slug: `${user.email?.split('@')[0]}-${timestamp}`,
-              updatedAt: new Date(),
-              Membership: {
-                create: {
-                  id: crypto.randomUUID(),
-                  userId: user.id,
-                  role: 'OWNER',
-                  updatedAt: new Date(),
-                },
-              },
-              SubscriptionPlan: {
-                create: {
-                  id: crypto.randomUUID(),
-                  plan: 'FREE',
-                  monitorLimit: 5,
-                  userLimit: 1,
-                  updatedAt: new Date(),
-                },
-              },
-            },
+      try {
+        // When a user signs in with OAuth for the first time, create an organization
+        if (account && (account.provider === 'google' || account.provider === 'email')) {
+          const existingMembership = await prisma.membership.findFirst({
+            where: { userId: user.id },
           });
-          console.log(`✅ Created organization for new user: ${user.email}`);
+
+          // Only create org if user doesn't have one
+          if (!existingMembership) {
+            const userName = user.name || user.email?.split('@')[0] || 'User';
+            const timestamp = Date.now();
+            
+            try {
+              await prisma.org.create({
+                data: {
+                  id: crypto.randomUUID(),
+                  name: `${userName}'s Organization`,
+                  slug: `${user.email?.split('@')[0]}-${timestamp}`,
+                  updatedAt: new Date(),
+                  Membership: {
+                    create: {
+                      id: crypto.randomUUID(),
+                      userId: user.id,
+                      role: 'OWNER',
+                      updatedAt: new Date(),
+                    },
+                  },
+                  SubscriptionPlan: {
+                    create: {
+                      id: crypto.randomUUID(),
+                      plan: 'FREE',
+                      monitorLimit: 5,
+                      userLimit: 1,
+                      updatedAt: new Date(),
+                    },
+                  },
+                },
+              });
+              console.log(`✅ Created organization for new user: ${user.email}`);
+            } catch (orgError) {
+              console.error('❌ Failed to create organization for user:', user.email, orgError);
+              // Continue with sign-in even if org creation fails
+              // User can create org manually later
+            }
+          }
         }
+        return true;
+      } catch (error) {
+        console.error('❌ Error in signIn callback:', error);
+        // Allow sign-in to continue even if there's an error
+        return true;
       }
-      return true;
     },
     async session({ session, token }) {
       if (session.user) {
