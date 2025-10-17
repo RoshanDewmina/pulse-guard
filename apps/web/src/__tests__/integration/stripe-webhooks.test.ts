@@ -7,11 +7,17 @@ import crypto from 'crypto';
  * 
  * Tests the Stripe webhook endpoint which handles billing events.
  * This is CRITICAL for production - billing must work correctly.
+ * 
+ * NOTE: These tests require a running server. Run with:
+ * TEST_URL=http://localhost:3000 bun test
+ * 
+ * Or start the server first: bun run dev
  */
 
 const BASE_URL = process.env.TEST_URL || 'http://localhost:3000';
+const SKIP_INTEGRATION = !process.env.TEST_URL && !process.env.RUN_INTEGRATION_TESTS;
 
-describe('Stripe Webhook Integration', () => {
+describe.skipIf(SKIP_INTEGRATION)('Stripe Webhook Integration', () => {
   describe('POST /api/stripe/webhook', () => {
     it('should reject webhooks without signature', async () => {
       const response = await request(BASE_URL)

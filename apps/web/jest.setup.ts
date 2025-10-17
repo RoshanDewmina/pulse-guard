@@ -5,9 +5,91 @@ import { TextEncoder, TextDecoder } from 'util';
 global.TextEncoder = TextEncoder as any;
 global.TextDecoder = TextDecoder as any;
 
+// Mock Next.js Web APIs for API route tests
+class MockHeaders extends Map {
+  append(name: string, value: string) {
+    this.set(name, value);
+  }
+  getSetCookie() {
+    return [];
+  }
+}
+
+class MockRequest {
+  url: string;
+  method: string;
+  headers: MockHeaders;
+  body: any;
+
+  constructor(url: string, init?: any) {
+    this.url = url;
+    this.method = init?.method || 'GET';
+    this.headers = new MockHeaders();
+    this.body = init?.body;
+    
+    if (init?.headers) {
+      Object.entries(init.headers).forEach(([key, value]) => {
+        this.headers.set(key, value as string);
+      });
+    }
+  }
+
+  async json() {
+    return JSON.parse(this.body || '{}');
+  }
+
+  async text() {
+    return this.body || '';
+  }
+}
+
+class MockResponse {
+  status: number;
+  statusText: string;
+  headers: MockHeaders;
+  body: any;
+
+  constructor(body?: any, init?: any) {
+    this.body = body;
+    this.status = init?.status || 200;
+    this.statusText = init?.statusText || 'OK';
+    this.headers = new MockHeaders();
+    
+    if (init?.headers) {
+      Object.entries(init.headers).forEach(([key, value]) => {
+        this.headers.set(key, value as string);
+      });
+    }
+  }
+
+  async json() {
+    return typeof this.body === 'string' ? JSON.parse(this.body) : this.body;
+  }
+
+  async text() {
+    return typeof this.body === 'string' ? this.body : JSON.stringify(this.body);
+  }
+
+  static json(data: any, init?: any) {
+    return new MockResponse(data, {
+      ...init,
+      headers: { 'content-type': 'application/json', ...init?.headers },
+    });
+  }
+}
+
+// Set up Web API polyfills for Jest
+if (!global.Request) {
+  global.Request = MockRequest as any;
+}
+if (!global.Response) {
+  global.Response = MockResponse as any;
+}
+if (!global.Headers) {
+  global.Headers = MockHeaders as any;
+}
+
 process.env.TZ = 'UTC';
-// Use production-like settings for testing
-process.env.NODE_ENV = 'test';
 
 // Mock environment variables for testing (production-realistic)
 process.env.DATABASE_URL = "postgresql://test:test@localhost:5432/test";
@@ -48,5 +130,3 @@ jest.mock('next/navigation', () => ({
   }),
   usePathname: () => '/',
 }));
-
-

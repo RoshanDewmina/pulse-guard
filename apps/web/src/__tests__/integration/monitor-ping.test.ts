@@ -6,11 +6,17 @@ import request from 'supertest';
  * 
  * Tests the core monitoring feature - the /api/ping/[token] endpoint.
  * This is the most critical endpoint as it receives pings from monitored jobs.
+ * 
+ * NOTE: These tests require a running server. Run with:
+ * TEST_URL=http://localhost:3000 bun test
+ * 
+ * Or start the server first: bun run dev
  */
 
 const BASE_URL = process.env.TEST_URL || 'http://localhost:3000';
+const SKIP_INTEGRATION = !process.env.TEST_URL && !process.env.RUN_INTEGRATION_TESTS;
 
-describe('Monitor Ping Integration', () => {
+describe.skipIf(SKIP_INTEGRATION)('Monitor Ping Integration', () => {
   describe('GET /api/ping/[token]', () => {
     it('should return 404 for invalid token', async () => {
       const response = await request(BASE_URL)

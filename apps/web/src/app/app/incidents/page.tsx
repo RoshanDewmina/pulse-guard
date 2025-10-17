@@ -148,8 +148,13 @@ export default async function IncidentsPage() {
                         {incident.Monitor.name}
                       </Link>
                     </SaturnTableCell>
-                    <SaturnTableCell className="max-w-md truncate text-[rgba(55,50,47,0.80)]">
-                      {incident.summary}
+                    <SaturnTableCell className="max-w-md truncate">
+                      <Link
+                        href={`/app/incidents/${incident.id}`}
+                        className="hover:underline text-blue-600 font-medium"
+                      >
+                        {incident.summary}
+                      </Link>
                     </SaturnTableCell>
                     <SaturnTableCell className="text-[#37322F]">
                       {format(incident.openedAt, 'MMM d, HH:mm')}

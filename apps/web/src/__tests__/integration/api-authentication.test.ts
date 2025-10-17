@@ -6,11 +6,17 @@ import request from 'supertest';
  * 
  * Tests authentication and authorization across all protected endpoints.
  * Verifies that unauthenticated requests are properly rejected.
+ * 
+ * NOTE: These tests require a running server. Run with:
+ * TEST_URL=http://localhost:3000 bun test
+ * 
+ * Or start the server first: bun run dev
  */
 
 const BASE_URL = process.env.TEST_URL || 'http://localhost:3000';
+const SKIP_INTEGRATION = !process.env.TEST_URL && !process.env.RUN_INTEGRATION_TESTS;
 
-describe('API Authentication Integration', () => {
+describe.skipIf(SKIP_INTEGRATION)('API Authentication Integration', () => {
   describe('Protected API Routes', () => {
     const protectedEndpoints = [
       { method: 'GET', path: '/api/monitors' },

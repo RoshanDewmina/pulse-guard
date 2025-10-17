@@ -12,10 +12,14 @@ export default function SettingsLayout({
   const pathname = usePathname();
   
   const tabs = [
-    { name: 'Billing', href: '/app/settings/billing' },
-    { name: 'Team', href: '/app/settings/team' },
+    { name: 'Organization', href: '/app/settings' },
     { name: 'Alerts', href: '/app/settings/alerts' },
     { name: 'API Keys', href: '/app/settings/api-keys' },
+    { name: 'Team', href: '/app/settings/team' },
+    { name: 'Billing', href: '/app/settings/billing' },
+    { name: 'Data', href: '/app/settings/data' },
+    { name: 'Maintenance', href: '/app/settings/maintenance' },
+    { name: 'Audit Logs', href: '/app/settings/audit-logs' },
   ];
 
   return (
@@ -25,21 +29,20 @@ export default function SettingsLayout({
         <p className="text-[rgba(55,50,47,0.80)] font-sans mt-2">Manage your organization settings</p>
       </div>
 
-      <div className="flex gap-2 border-b border-[rgba(55,50,47,0.12)] overflow-x-auto">
+      <div className="flex gap-2 border-b border-[rgba(55,50,47,0.12)] overflow-x-auto pb-px">
         {tabs.map((tab) => {
-          const isActive = pathname === tab.href;
+          const isActive = pathname === tab.href || (tab.href === '/app/settings' && pathname === '/app/settings');
           return (
             <Link key={tab.href} href={tab.href}>
-              <SaturnButton 
-                variant={isActive ? "primary" : "ghost"} 
-                className={`rounded-b-none whitespace-nowrap ${
-                  isActive 
-                    ? 'border-b-2 border-[#37322F]' 
-                    : 'border-b-2 border-transparent'
+              <button
+                className={`px-4 py-2 text-sm font-medium font-sans whitespace-nowrap border-b-2 transition-colors ${
+                  isActive
+                    ? 'border-[#37322F] text-[#37322F]'
+                    : 'border-transparent text-[rgba(55,50,47,0.60)] hover:text-[#37322F] hover:border-[rgba(55,50,47,0.20)]'
                 }`}
               >
                 {tab.name}
-              </SaturnButton>
+              </button>
             </Link>
           );
         })}

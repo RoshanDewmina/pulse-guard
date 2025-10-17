@@ -1,0 +1,9 @@
+[test]
+# Use jsdom environment for React component tests
+preload = ["./apps/web/bun.test.setup.ts"]
+
+# Exclude Playwright e2e tests and Jest-based API tests from bun test
+# Playwright tests should run with: npx playwright test
+# Jest-based API tests should run with: npm test (uses Jest)
+exclude = ["**/e2e/**", "**/__tests__/api/**"]
+

@@ -57,6 +57,11 @@ export default async function AppLayout({
                         Analytics
                       </div>
                     </Link>
+                    <Link href="/app/integrations" className="flex justify-start items-center hover:opacity-70 transition-opacity">
+                      <div className="flex flex-col justify-center text-[rgba(49,45,43,0.80)] text-xs md:text-[13px] font-medium leading-[14px] font-sans">
+                        Integrations
+                      </div>
+                    </Link>
                     <Link href="/app/settings" className="flex justify-start items-center hover:opacity-70 transition-opacity">
                       <div className="flex flex-col justify-center text-[rgba(49,45,43,0.80)] text-xs md:text-[13px] font-medium leading-[14px] font-sans">
                         Settings
@@ -76,11 +81,15 @@ export default async function AppLayout({
                         {userInitial}
                       </div>
                     </div>
-                    <div className="absolute right-0 top-full mt-2 w-48 bg-white shadow-[0px_0px_0px_2px_white,0px_4px_12px_rgba(55,50,47,0.12)] rounded-lg overflow-hidden opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                    <div className="absolute right-0 top-full mt-2 w-48 bg-white shadow-[0px_0px_0px_2px_white,0px_4px_12px_rgba(55,50,47,0.12)] rounded-lg overflow-hidden opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                       <div className="p-3 border-b border-[rgba(55,50,47,0.12)]">
                         <div className="text-[#37322F] text-sm font-medium font-sans">{session.user?.name}</div>
                         <div className="text-[rgba(55,50,47,0.60)] text-xs font-sans">{session.user?.email}</div>
                       </div>
+                      <Link href="/app/profile" className="block px-3 py-2 text-[#37322F] text-sm font-medium font-sans hover:bg-[#F7F5F3] transition-colors">
+                        <User className="w-4 h-4 inline-block mr-2" />
+                        Profile
+                      </Link>
                       <Link href="/api/auth/signout" className="block px-3 py-2 text-[#37322F] text-sm font-medium font-sans hover:bg-[#F7F5F3] transition-colors">
                         <LogOut className="w-4 h-4 inline-block mr-2" />
                         Sign Out

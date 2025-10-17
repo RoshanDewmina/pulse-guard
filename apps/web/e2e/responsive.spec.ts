@@ -10,9 +10,9 @@ import { test, expect, devices } from '@playwright/test';
  */
 
 test.describe('Responsive - Mobile (375px)', () => {
-  test.use({ ...devices['iPhone 12'] });
 
   test('homepage should be mobile-friendly @mobile', async ({ page }) => {
+    await page.setViewportSize(devices['iPhone 12'].viewport);
     await page.goto('/');
     await page.waitForTimeout(500);
     
@@ -28,6 +28,7 @@ test.describe('Responsive - Mobile (375px)', () => {
   });
 
   test('dashboard should adapt to mobile @mobile', async ({ page }) => {
+    await page.setViewportSize(devices['iPhone 12'].viewport);
     await page.goto('/app');
     await page.waitForTimeout(500);
     
@@ -42,6 +43,7 @@ test.describe('Responsive - Mobile (375px)', () => {
   });
 
   test('forms should be usable on mobile @mobile', async ({ page }) => {
+    await page.setViewportSize(devices['iPhone 12'].viewport);
     await page.goto('/auth/signin');
     await page.waitForTimeout(500);
     
@@ -58,6 +60,7 @@ test.describe('Responsive - Mobile (375px)', () => {
   });
 
   test('tables should scroll horizontally @mobile', async ({ page }) => {
+    await page.setViewportSize(devices['iPhone 12'].viewport);
     await page.goto('/app/monitors');
     await page.waitForTimeout(500);
     
@@ -74,9 +77,9 @@ test.describe('Responsive - Mobile (375px)', () => {
 });
 
 test.describe('Responsive - Tablet (768px)', () => {
-  test.use({ ...devices['iPad'] });
 
   test('dashboard should use tablet layout @tablet', async ({ page }) => {
+    await page.setViewportSize(devices['iPad'].viewport);
     await page.goto('/app');
     await page.waitForTimeout(500);
     
@@ -94,6 +97,7 @@ test.describe('Responsive - Tablet (768px)', () => {
   });
 
   test('navigation should be accessible @tablet', async ({ page }) => {
+    await page.setViewportSize(devices['iPad'].viewport);
     await page.goto('/app');
     await page.waitForTimeout(500);
     
@@ -108,6 +112,7 @@ test.describe('Responsive - Tablet (768px)', () => {
   });
 
   test('modals should fit on tablet @tablet', async ({ page }) => {
+    await page.setViewportSize(devices['iPad'].viewport);
     await page.goto('/app/monitors');
     await page.waitForTimeout(500);
     
@@ -130,9 +135,9 @@ test.describe('Responsive - Tablet (768px)', () => {
 });
 
 test.describe('Responsive - Desktop (1920px)', () => {
-  test.use({ viewport: { width: 1920, height: 1080 } });
 
   test('homepage should use full width @desktop', async ({ page }) => {
+    await page.setViewportSize({ width: 1920, height: 1080 });
     await page.goto('/');
     await page.waitForTimeout(500);
     
@@ -148,6 +153,7 @@ test.describe('Responsive - Desktop (1920px)', () => {
   });
 
   test('dashboard should show all panels @desktop', async ({ page }) => {
+    await page.setViewportSize({ width: 1920, height: 1080 });
     await page.goto('/app');
     await page.waitForTimeout(500);
     
@@ -162,6 +168,7 @@ test.describe('Responsive - Desktop (1920px)', () => {
   });
 
   test('analytics charts should scale properly @desktop', async ({ page }) => {
+    await page.setViewportSize({ width: 1920, height: 1080 });
     await page.goto('/app/analytics');
     await page.waitForTimeout(1000);
     
@@ -177,9 +184,9 @@ test.describe('Responsive - Desktop (1920px)', () => {
 });
 
 test.describe('Responsive - 4K (2560px)', () => {
-  test.use({ viewport: { width: 2560, height: 1440 } });
 
   test('layout should not break on 4K @desktop', async ({ page }) => {
+    await page.setViewportSize({ width: 2560, height: 1440 });
     await page.goto('/');
     await page.waitForTimeout(500);
     
@@ -192,6 +199,7 @@ test.describe('Responsive - 4K (2560px)', () => {
   });
 
   test('dashboard should utilize space efficiently @desktop', async ({ page }) => {
+    await page.setViewportSize({ width: 2560, height: 1440 });
     await page.goto('/app');
     await page.waitForTimeout(500);
     
@@ -207,9 +215,9 @@ test.describe('Responsive - 4K (2560px)', () => {
 });
 
 test.describe('Responsive - Touch Interactions', () => {
-  test.use({ ...devices['iPhone 12'], hasTouch: true });
 
   test('buttons should have adequate touch targets @mobile', async ({ page }) => {
+    await page.setViewportSize(devices['iPhone 12'].viewport);
     await page.goto('/');
     await page.waitForTimeout(500);
     
@@ -228,6 +236,7 @@ test.describe('Responsive - Touch Interactions', () => {
   });
 
   test('dropdowns should work with touch @mobile', async ({ page }) => {
+    await page.setViewportSize(devices['iPhone 12'].viewport);
     await page.goto('/app/monitors');
     await page.waitForTimeout(500);
     
@@ -247,9 +256,9 @@ test.describe('Responsive - Touch Interactions', () => {
 });
 
 test.describe('Responsive - Navigation', () => {
-  test.use({ ...devices['iPhone 12'] });
 
   test('mobile menu should be accessible @mobile', async ({ page }) => {
+    await page.setViewportSize(devices['iPhone 12'].viewport);
     await page.goto('/app');
     await page.waitForTimeout(500);
     
@@ -271,6 +280,7 @@ test.describe('Responsive - Navigation', () => {
   });
 
   test('mobile menu should close after navigation @mobile', async ({ page }) => {
+    await page.setViewportSize(devices['iPhone 12'].viewport);
     await page.goto('/app');
     await page.waitForTimeout(500);
     
@@ -298,9 +308,9 @@ test.describe('Responsive - Navigation', () => {
 });
 
 test.describe('Responsive - Images and Media', () => {
-  test.use({ ...devices['iPhone 12'] });
 
   test('images should be responsive @mobile', async ({ page }) => {
+    await page.setViewportSize(devices['iPhone 12'].viewport);
     await page.goto('/');
     await page.waitForTimeout(500);
     
@@ -321,9 +331,9 @@ test.describe('Responsive - Images and Media', () => {
 });
 
 test.describe('Responsive - Forms', () => {
-  test.use({ ...devices['iPhone 12'] });
 
   test('form inputs should be appropriately sized @mobile', async ({ page }) => {
+    await page.setViewportSize(devices['iPhone 12'].viewport);
     await page.goto('/auth/signin');
     await page.waitForTimeout(500);
     
@@ -340,6 +350,7 @@ test.describe('Responsive - Forms', () => {
   });
 
   test('form labels should be visible @mobile', async ({ page }) => {
+    await page.setViewportSize(devices['iPhone 12'].viewport);
     await page.goto('/auth/signin');
     await page.waitForTimeout(500);
     

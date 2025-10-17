@@ -60,10 +60,14 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: process.env.SKIP_SERVER ? undefined : {
-    command: 'bun run dev',
+    command: 'bun --bun run dev',
     url: process.env.BASE_URL || 'http://localhost:3000',
     reuseExistingServer: true,
     timeout: 120000,
+    env: {
+      NODE_ENV: 'development',
+      ...process.env,
+    },
   },
 });
 

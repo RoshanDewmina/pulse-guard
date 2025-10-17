@@ -61,7 +61,7 @@ describe('Homepage Accessibility', () => {
   it('should have accessible navigation', async () => {
     const Navigation = () => (
       <nav aria-label="Main navigation">
-        <a href="/">Home</a>
+        <a href="/external">External Link</a>
         <a href="/pricing">Pricing</a>
         <a href="/docs">Docs</a>
       </nav>
