@@ -8,18 +8,24 @@ datasource db {
 }
 
 model Account {
-  id           String   @id
-  userId       String
-  provider     String
-  providerId   String
-  accessToken  String
-  refreshToken String?
-  scope        String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime
-  User         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                String   @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?  @db.Text
+  access_token      String?  @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?  @db.Text
+  session_state     String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  User User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([provider, providerId])
+  @@unique([provider, providerAccountId])
   @@index([userId])
 }
 

@@ -31,11 +31,11 @@ const providers: any[] = [
         }
       });
 
-      if (!user || user.Account.length === 0 || !user.Account[0].accessToken) {
+      if (!user || user.Account.length === 0 || !user.Account[0].access_token) {
         throw new Error('Invalid email or password');
       }
 
-      const hashedPassword = user.Account[0].accessToken;
+      const hashedPassword = user.Account[0].access_token;
       const isPasswordValid = await bcrypt.compare(
         credentials.password,
         hashedPassword

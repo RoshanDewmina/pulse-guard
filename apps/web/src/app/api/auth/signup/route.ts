@@ -55,11 +55,12 @@ export async function POST(req: Request) {
     // Create a credentials account for password-based auth
     await prisma.account.create({
       data: {
-          id: crypto.randomUUID(),
+        id: crypto.randomUUID(),
         userId: user.id,
+        type: 'credentials',
         provider: 'credentials',
-        providerId: user.email,
-        accessToken: hashedPassword, // Store hashed password in accessToken
+        providerAccountId: user.email,
+        access_token: hashedPassword, // Store hashed password in access_token
         updatedAt: new Date(),
       },
     });
