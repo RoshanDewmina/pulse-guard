@@ -2,7 +2,7 @@
 FROM node:20-alpine AS base
 
 # Install bun
-RUN apk add --no-cache curl unzip \
+RUN apk add --no-cache curl unzip bash \
     && curl -fsSL https://bun.sh/install | bash \
     && ln -s /root/.bun/bin/bun /usr/local/bin/bun
 
@@ -18,22 +18,25 @@ RUN cd packages/db && bun install
 RUN cd apps/worker && bun install
 
 # Generate Prisma client
-RUN cd packages/db && bunx prisma generate
+RUN cd packages/db && /usr/local/bin/bun x prisma generate
 
 # Build worker
 WORKDIR /app/apps/worker
-RUN bun run build
+RUN /usr/local/bin/bun run build
 
 # Production stage
 FROM node:20-alpine AS production
 
 WORKDIR /app
 
-# Copy built artifacts and dependencies
+# Copy built artifacts and dependencies  
 COPY --from=base /app/apps/worker/dist ./dist
 COPY --from=base /app/apps/worker/package.json ./
 COPY --from=base /app/apps/worker/node_modules ./node_modules
-COPY --from=base /app/packages/db/node_modules/.prisma ./node_modules/.prisma
+# Copy Prisma schema and generated client (bun stores in root node_modules/.bun)
+COPY --from=base /app/packages/db/package.json ./packages/db/
+COPY --from=base /app/packages/db/prisma ./packages/db/prisma
+COPY --from=base /app/node_modules/.bun ./node_modules/.bun
 
 # Set environment
 ENV NODE_ENV=production

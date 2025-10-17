@@ -9,34 +9,34 @@ interface FAQItem {
 
 const faqData: FAQItem[] = [
   {
-    question: "What is Saturn and who is it for?",
+    question: "How does anomaly detection work?",
     answer:
-      "Saturn is a comprehensive cron monitoring platform designed for DevOps teams that need reliable job monitoring. It's perfect for businesses running critical scheduled tasks, data pipelines, and automated processes.",
+      "Saturn uses Welford's algorithm to calculate incremental mean and variance for each cron job. When a job's runtime deviates 3+ standard deviations from its baseline (Z-Score analysis), you get alerted—even if the job technically succeeded. This catches performance degradation before complete failure.",
   },
   {
-    question: "How does the custom contract billing work?",
+    question: "What makes Saturn different from Cronitor or Healthchecks.io?",
     answer:
-      "Our platform automatically processes your custom contracts, calculates billing amounts based on your specific terms, and generates invoices. You can set up complex pricing structures, usage-based billing, and custom billing cycles.",
+      "Traditional monitors only tell you pass/fail. Saturn's statistical anomaly detection catches slowdowns before they become failures. We also offer health scoring (A-F grades), MTTR/MTBF analytics, native Kubernetes Helm charts, and a WordPress plugin for bulk wp-cron management.",
   },
   {
-    question: "Can I integrate Saturn with my existing tools?",
+    question: "How do I set up monitoring for Kubernetes CronJobs?",
     answer:
-      "Yes! Saturn integrates seamlessly with popular monitoring systems, alerting tools, and CI/CD pipelines. We support APIs and webhooks for custom integrations with your existing workflow.",
+      "Use our Helm chart: helm repo add saturn https://charts.saturn.example.com && helm install your-monitor saturn/saturn-monitor --set saturn.token=YOUR_TOKEN. The Go sidecar automatically reports job status with zero code changes. Deployment takes under 60 seconds.",
   },
   {
-    question: "What kind of support do you provide?",
+    question: "Does Saturn support WordPress wp-cron monitoring?",
     answer:
-      "We offer 24/7 customer support, dedicated account managers for enterprise clients, comprehensive documentation, and onboarding assistance to help you get started quickly.",
+      "Yes! Our WordPress plugin is designed for agencies managing hundreds of sites. Install the plugin, add your API token, and monitor all wp-cron jobs from one dashboard. Bulk management, health scoring, and anomaly detection included.",
   },
   {
-    question: "Is my data secure with Saturn?",
+    question: "What alert channels does Saturn support?",
     answer:
-      "Absolutely. We use enterprise-grade security measures including end-to-end encryption, SOC 2 compliance, and regular security audits. Your data is stored in secure, redundant data centers.",
+      "Saturn integrates with Email, Slack, Discord, and webhooks. You can configure multiple channels per monitor, set up escalation rules, and customize alert thresholds. All alerts include incident context with acknowledgment and resolution workflows.",
   },
   {
-    question: "How do I get started with Saturn?",
+    question: "How is pricing calculated?",
     answer:
-      "Getting started is simple! Sign up for our free trial, connect your existing systems, and our onboarding team will help you set up your first custom billing workflow within 24 hours.",
+      "We have three tiers: Free (5 monitors, 3 team members), Pro ($19/month for 100 monitors, 10 members), and Business ($49/month for 500 monitors, unlimited members). Annual billing saves 20%. All plans include anomaly detection and core features.",
   },
 ]
 
@@ -71,9 +71,9 @@ export default function FAQSection() {
             Frequently Asked Questions
           </div>
           <div className="w-full text-[#605A57] text-base font-normal leading-7 font-sans">
-            Explore your data, build your dashboard,
+            Common questions about anomaly detection,
             <br className="hidden md:block" />
-            bring your team together.
+            integrations, and how Saturn works.
           </div>
         </div>
 

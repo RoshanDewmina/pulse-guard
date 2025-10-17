@@ -1,5 +1,5 @@
-# Fly.io configuration for PulseGuard Worker
-app = "pulseguard-worker"
+# Fly.io configuration for Saturn Worker
+app = "saturn-worker"
 primary_region = "iad"
 
 [build]
@@ -9,42 +9,13 @@ primary_region = "iad"
 [env]
   NODE_ENV = "production"
 
-[processes]
-  app = "node dist/index.js"
-
-[[services]]
-  internal_port = 8080
-  protocol = "tcp"
-
-  [[services.ports]]
-    handlers = ["http"]
-    port = 80
-
-  [[services.ports]]
-    handlers = ["tls", "http"]
-    port = 443
-
-  [services.concurrency]
-    hard_limit = 25
-    soft_limit = 20
-    type = "connections"
-
-  [[services.tcp_checks]]
-    grace_period = "10s"
-    interval = "30s"
-    restart_limit = 0
-    timeout = "5s"
-
-# Scale configuration - worker doesn't need autoscaling
 [http_service]
+  internal_port = 8080
+  force_https = false
   auto_stop_machines = false
-  auto_start_machines = true
+  auto_start_machines = false
   min_machines_running = 1
-  processes = ["app"]
 
-# Resource allocation
-[vm]
-  cpu_kind = "shared"
-  cpus = 1
-  memory_mb = 512
-
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "256mb"

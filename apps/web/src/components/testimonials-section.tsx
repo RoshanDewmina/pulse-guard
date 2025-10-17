@@ -23,25 +23,25 @@ export default function TestimonialsSection() {
   const testimonials = [
     {
       quote:
-        "In just a few minutes, we transformed our data into actionable insights. The process was seamless and incredibly efficient!",
-      name: "Jamie Marshall",
-      company: "Co-founder, Exponent",
+        "Saturn caught our backup job slowing down from 10 to 35 minutes over two weeks. We fixed the database index before it timed out. That's the kind of proactive monitoring we've been missing.",
+      name: "Alex Chen",
+      company: "SRE Lead, DataFlow Systems",
       image:
         "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/ChatGPT%20Image%20Sep%2011%2C%202025%2C%2011_35_19%20AM-z4zSRLsbOQDp7MJS1t8EXmGNB6Al9Z.png",
     },
     {
       quote:
-        "Saturn has revolutionized how we handle cron monitoring. The anomaly detection saves us hours every week and prevents failures completely.",
-      name: "Sarah Chen",
-      company: "VP Operations, TechFlow",
+        "Managing wp-cron across 200+ client sites was a nightmare. Saturn's WordPress plugin gives us one dashboard to monitor everything. We catch issues before clients even notice.",
+      name: "Maria Santos",
+      company: "Operations Director, WebScale Agency",
       image:
         "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/ChatGPT%20Image%20Sep%2011%2C%202025%2C%2010_54_18%20AM-nbiecp92QNdTudmCrHr97uekrIPzCP.png",
     },
     {
       quote:
-        "The billing automation is a game-changer. What used to take our team days now happens automatically with perfect accuracy.",
-      name: "Marcus Rodriguez",
-      company: "Finance Director, InnovateCorp",
+        "The Kubernetes Helm integration took 60 seconds to deploy. No code changes, no sidecar configuration headaches. Our entire CronJob fleet is now monitored with anomaly detection.",
+      name: "David Kumar",
+      company: "Platform Engineer, CloudNative Inc",
       image:
         "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/ChatGPT%20Image%20Sep%2011%2C%202025%2C%2011_01_05%20AM-TBOe92trRxKn4G5So1m9D2h7LRH4PG.png",
     },

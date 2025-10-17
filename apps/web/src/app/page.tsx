@@ -140,14 +140,14 @@ export default function LandingPage() {
               <div className="w-full max-w-[937px] lg:w-[937px] flex flex-col justify-center items-center gap-3 sm:gap-4 md:gap-5 lg:gap-6">
                 <div className="self-stretch rounded-[3px] flex flex-col justify-center items-center gap-4 sm:gap-5 md:gap-6 lg:gap-8">
                   <div className="w-full max-w-[748.71px] lg:w-[748.71px] text-center flex justify-center flex-col text-[#37322F] text-[24px] xs:text-[28px] sm:text-[36px] md:text-[52px] lg:text-[80px] font-normal leading-[1.1] sm:leading-[1.15] md:leading-[1.2] lg:leading-24 font-serif px-2 sm:px-4 md:px-0">
-                    Cron monitoring with
+                    Catch cron failures
                     <br />
-                    anomaly detection
+                    before they happen
                   </div>
                   <div className="w-full max-w-[506.08px] lg:w-[506.08px] text-center flex justify-center flex-col text-[rgba(55,50,47,0.80)] sm:text-lg md:text-xl leading-[1.4] sm:leading-[1.45] md:leading-[1.5] lg:leading-7 font-sans px-2 sm:px-4 md:px-0 lg:text-lg font-medium text-sm">
-                    Statistical anomaly detection catches slowdowns before failures.
+                    Saturn detects performance degradation using statistical analysis.
                     <br className="hidden sm:block" />
-                    Built for DevOps teams monitoring business-critical jobs.
+                    Get alerts when jobs slow down 3x—before complete failure.
                   </div>
                 </div>
               </div>
@@ -249,22 +249,22 @@ export default function LandingPage() {
                 <div className="flex-1 px-0 sm:px-2 md:px-0 flex flex-col md:flex-row justify-center items-stretch gap-0">
                   {/* Feature Cards */}
                   <FeatureCard
-                    title="Plan your schedules"
-                    description="Streamline customer subscriptions and billing with automated scheduling tools."
+                    title="Anomaly detection"
+                    description="Z-Score analysis establishes baselines and detects when jobs slow down—even if they succeed."
                     isActive={activeCard === 0}
                     progress={activeCard === 0 ? progress : 0}
                     onClick={() => handleCardClick(0)}
                   />
                   <FeatureCard
-                    title="Analytics & insights"
-                    description="Transform your business data into actionable insights with real-time analytics."
+                    title="Health scores & MTTR/MTBF"
+                    description="Track reliability with A-F health grades, mean time metrics, and P50/P95/P99 percentiles."
                     isActive={activeCard === 1}
                     progress={activeCard === 1 ? progress : 0}
                     onClick={() => handleCardClick(1)}
                   />
                   <FeatureCard
-                    title="Collaborate seamlessly"
-                    description="Keep your team aligned with shared dashboards and collaborative workflows."
+                    title="Zero-code integrations"
+                    description="Kubernetes Helm chart deploys in 60 seconds. WordPress plugin for bulk wp-cron management."
                     isActive={activeCard === 2}
                     progress={activeCard === 2 ? progress : 0}
                     onClick={() => handleCardClick(2)}
@@ -308,12 +308,12 @@ export default function LandingPage() {
                       text="Social Proof"
                     />
                     <div className="w-full max-w-[472.55px] text-center flex justify-center flex-col text-[#49423D] text-xl sm:text-2xl md:text-3xl lg:text-5xl font-semibold leading-tight md:leading-[60px] font-sans tracking-tight">
-                      Confidence backed by results
+                      Trusted by DevOps teams
                     </div>
                     <div className="self-stretch text-center text-[#605A57] text-sm sm:text-base font-normal leading-6 sm:leading-7 font-sans">
-                      Our customers achieve more each day
+                      Engineering teams prevent failures and reduce MTTR
                       <br className="hidden sm:block" />
-                      because their tools are simple, powerful, and clear.
+                      with proactive anomaly detection for critical cron jobs.
                     </div>
                   </div>
                 </div>
@@ -402,12 +402,12 @@ export default function LandingPage() {
                       text="Bento grid"
                     />
                     <div className="w-full max-w-[598.06px] lg:w-[598.06px] text-center flex justify-center flex-col text-[#49423D] text-xl sm:text-2xl md:text-3xl lg:text-5xl font-semibold leading-tight md:leading-[60px] font-sans tracking-tight">
-                      Built for absolute clarity and focused work
+                      Proactive monitoring that prevents failures
                     </div>
                     <div className="self-stretch text-center text-[#605A57] text-sm sm:text-base font-normal leading-6 sm:leading-7 font-sans">
-                      Stay focused with tools that organize, connect
+                      Go beyond simple ping monitoring with statistical analysis
                       <br />
-                      and turn information into confident decisions.
+                      that catches performance issues before they cause outages.
                     </div>
                   </div>
                 </div>
@@ -431,10 +431,10 @@ export default function LandingPage() {
                     <div className="border-b border-r-0 md:border-r border-[rgba(55,50,47,0.12)] p-4 sm:p-6 md:p-8 lg:p-12 flex flex-col justify-start items-start gap-4 sm:gap-6">
                       <div className="flex flex-col gap-2">
                         <h3 className="text-[#37322F] text-lg sm:text-xl font-semibold leading-tight font-sans">
-                          Smart. Simple. Brilliant.
+                          Statistical anomaly detection
                         </h3>
                         <p className="text-[#605A57] text-sm md:text-base font-normal leading-relaxed font-sans">
-                          Your data is beautifully organized so you see everything clearly without the clutter.
+                          Welford's algorithm tracks incremental mean and variance to establish baselines. Z-Score analysis flags jobs running 3+ standard deviations from normal.
                         </p>
                       </div>
                       <div className="w-full h-[200px] sm:h-[250px] md:h-[300px] rounded-lg flex items-center justify-center overflow-hidden">
@@ -451,10 +451,10 @@ export default function LandingPage() {
                     <div className="border-b border-[rgba(55,50,47,0.12)] p-4 sm:p-6 md:p-8 lg:p-12 flex flex-col justify-start items-start gap-4 sm:gap-6">
                       <div className="flex flex-col gap-2">
                         <h3 className="text-[#37322F] font-semibold leading-tight font-sans text-lg sm:text-xl">
-                          Your work, in sync
+                          Real-time alerts & incidents
                         </h3>
                         <p className="text-[#605A57] text-sm md:text-base font-normal leading-relaxed font-sans">
-                          Every update flows instantly across your team and keeps collaboration effortless and fast.
+                          Multi-channel alerts via Email, Slack, Discord, and webhooks. Track incidents with acknowledgment, resolution workflows, and team escalation.
                         </p>
                       </div>
                       <div className="w-full h-[200px] sm:h-[250px] md:h-[300px] rounded-lg flex overflow-hidden text-right items-center justify-center">
@@ -471,10 +471,10 @@ export default function LandingPage() {
                     <div className="border-r-0 md:border-r border-[rgba(55,50,47,0.12)] p-4 sm:p-6 md:p-8 lg:p-12 flex flex-col justify-start items-start gap-4 sm:gap-6 bg-transparent">
                       <div className="flex flex-col gap-2">
                         <h3 className="text-[#37322F] text-lg sm:text-xl font-semibold leading-tight font-sans">
-                          Effortless integration
+                          Kubernetes & WordPress native
                         </h3>
                         <p className="text-[#605A57] text-sm md:text-base font-normal leading-relaxed font-sans">
-                          All your favorite tools connect in one place and work together seamlessly by design.
+                          Helm chart with Go sidecar deploys in 60 seconds—zero code changes. WordPress plugin monitors wp-cron across hundreds of sites from one dashboard.
                         </p>
                       </div>
                       <div className="w-full h-[200px] sm:h-[250px] md:h-[300px] rounded-lg flex overflow-hidden justify-center items-center relative bg-transparent">
@@ -490,10 +490,10 @@ export default function LandingPage() {
                     <div className="p-4 sm:p-6 md:p-8 lg:p-12 flex flex-col justify-start items-start gap-4 sm:gap-6">
                       <div className="flex flex-col gap-2">
                         <h3 className="text-[#37322F] text-lg sm:text-xl font-semibold leading-tight font-sans">
-                          Numbers that speak
+                          Health scores & reliability metrics
                         </h3>
                         <p className="text-[#605A57] text-sm md:text-base font-normal leading-relaxed font-sans">
-                          Track growth with precision and turn raw data into confident decisions you can trust.
+                          A-F health grades (0-100 score), MTBF/MTTR tracking, P50/P95/P99 percentiles, and uptime trends. Monitor SLOs with precision.
                         </p>
                       </div>
                       <div className="w-full h-[200px] sm:h-[250px] md:h-[300px] rounded-lg flex overflow-hidden items-center justify-center relative">
