@@ -3,8 +3,10 @@ app = "saturn-worker"
 primary_region = "iad"
 
 [build]
-  dockerfile = "Dockerfile"
+  dockerfile = "apps/worker/Dockerfile"
   build-target = "production"
+  [build.args]
+    BUILDCONTEXT = "."
 
 [env]
   NODE_ENV = "production"

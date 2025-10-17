@@ -3,6 +3,8 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@tokiflow/db';
 import { z } from 'zod';
+import crypto from 'crypto';
+import { sendEmail } from '@/lib/email';
 
 const inviteSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -68,32 +70,60 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // TODO: Create invitation record in database
-    // TODO: Generate invitation token
-    // TODO: Set expiration date (e.g., 7 days)
-    // TODO: Send invitation email via Resend
-    // TODO: Include accept/reject links
-    // TODO: Track invitation status (pending/accepted/rejected/expired)
-
-    // Placeholder response
-    const invitation = {
-      id: `invite_${Date.now()}`,
+    // Generate secure invitation token (JWT-like)
+    const inviteData = {
       email,
       role,
       orgId: membership.orgId,
       orgName: membership.Org.name,
       invitedBy: session.user.email,
-      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
-      status: 'pending',
+      expiresAt: Date.now() + 7 * 24 * 60 * 60 * 1000, // 7 days
     };
 
-    console.log('TODO: Send invitation email to', email);
-    console.log('TODO: Create invitation record in database');
+    // Create signed token
+    const token = Buffer.from(JSON.stringify(inviteData)).toString('base64');
+    const signature = crypto
+      .createHmac('sha256', process.env.JWT_SECRET || 'fallback-secret')
+      .update(token)
+      .digest('hex');
+
+    const inviteToken = `${token}.${signature}`;
+
+    // Generate invitation URL
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const inviteUrl = `${appUrl}/team/accept-invite?token=${encodeURIComponent(inviteToken)}`;
+
+    // Send invitation email
+    try {
+      await sendEmail({
+        to: email,
+        subject: `You're invited to join ${membership.Org.name} on PulseGuard`,
+        html: `
+          <h2>You're invited!</h2>
+          <p>${session.user.name || session.user.email} has invited you to join <strong>${membership.Org.name}</strong> as a ${role}.</p>
+          <p><a href="${inviteUrl}" style="display:inline-block;padding:12px 24px;background:#10B981;color:white;text-decoration:none;border-radius:6px;">Accept Invitation</a></p>
+          <p style="color:#666;font-size:14px;">This invitation expires in 7 days.</p>
+          <p style="color:#999;font-size:12px;margin-top:24px;">Or copy and paste this link: ${inviteUrl}</p>
+        `,
+      });
+    } catch (emailError) {
+      console.error('Failed to send invitation email:', emailError);
+      return NextResponse.json(
+        { error: 'Failed to send invitation email. Please try again.' },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({
       success: true,
       message: `Invitation sent to ${email}`,
-      invitation,
+      invitation: {
+        email,
+        role,
+        orgName: membership.Org.name,
+        invitedBy: session.user.email,
+        expiresAt: new Date(inviteData.expiresAt),
+      },
     });
   } catch (error) {
     console.error('Error sending invitation:', error);
@@ -102,6 +132,9 @@ export async function POST(request: NextRequest) {
 }
 
 // GET /api/team/invite - List pending invitations
+// Note: With token-based invitations, we can't list pending invites from database
+// This would require storing invitations if needed. For now, return empty array
+// Organizations can track who they've invited externally if needed
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
@@ -128,14 +161,14 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // TODO: Fetch pending invitations from database
-    // TODO: Filter by organization
-    // TODO: Include invitation metadata (sent date, expires, etc.)
-
-    // Placeholder response
+    // Token-based invitations don't have persistent storage
+    // To implement this, add an Invitation model to Prisma schema
     const invitations: any[] = [];
 
-    return NextResponse.json({ invitations });
+    return NextResponse.json({
+      invitations,
+      note: 'Token-based invitations are not stored. To track invitations, add an Invitation model to the database schema.',
+    });
   } catch (error) {
     console.error('Error fetching invitations:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

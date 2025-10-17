@@ -36,35 +36,40 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Organization not found' }, { status: 404 });
     }
 
-    // TODO: Fetch API keys from database
-    // TODO: Filter by organization
-    // TODO: Include metadata (created date, last used, expires)
-    // TODO: Mask the key (show only last 4 chars)
-    // TODO: Sort by creation date
-
-    // Placeholder response
-    const apiKeys = [
-      {
-        id: 'key_1',
-        name: 'Production API',
-        key: 'tk_**********************abcd',
-        createdAt: new Date('2024-01-01'),
-        expiresAt: null,
-        lastUsedAt: new Date('2024-10-10'),
-        status: 'active',
+    // Fetch API keys from database
+    const apiKeys = await prisma.apiKey.findMany({
+      where: {
+        orgId: membership.orgId,
       },
-      {
-        id: 'key_2',
-        name: 'Development API',
-        key: 'tk_**********************xyz9',
-        createdAt: new Date('2024-02-15'),
-        expiresAt: new Date('2025-02-15'),
-        lastUsedAt: null,
-        status: 'active',
+      orderBy: {
+        createdAt: 'desc',
       },
-    ];
+      select: {
+        id: true,
+        name: true,
+        tokenHash: true,
+        lastUsedAt: true,
+        createdAt: true,
+        User: {
+          select: {
+            name: true,
+            email: true,
+          },
+        },
+      },
+    });
 
-    return NextResponse.json({ apiKeys });
+    // Mask the token hash (show only first 4 chars for identification)
+    const maskedKeys = apiKeys.map((key) => ({
+      id: key.id,
+      name: key.name,
+      keyPreview: key.tokenHash.substring(0, 4) + '****',
+      lastUsedAt: key.lastUsedAt,
+      createdAt: key.createdAt,
+      createdBy: key.User.name || key.User.email,
+    }));
+
+    return NextResponse.json({ apiKeys: maskedKeys });
   } catch (error) {
     console.error('Error fetching API keys:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
@@ -89,7 +94,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { name, expiresInDays } = validation.data;
+    const { name } = validation.data;
 
     // Get user's organization (must be owner/admin)
     const membership = await prisma.membership.findFirst({
@@ -109,40 +114,57 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // TODO: Generate secure API key
-    // TODO: Hash the key before storing
-    // TODO: Create API key record in database
-    // TODO: Set expiration date if provided
-    // TODO: Track creation metadata
-    // TODO: Enforce rate limits on API key creation
+    // Check existing key count (rate limit: max 20 keys per org)
+    const existingKeysCount = await prisma.apiKey.count({
+      where: {
+        orgId: membership.orgId,
+      },
+    });
 
-    // Generate API key (placeholder)
-    const apiKey = `tk_${crypto.randomBytes(32).toString('hex')}`;
+    if (existingKeysCount >= 20) {
+      return NextResponse.json(
+        { error: 'Maximum number of API keys (20) reached. Delete unused keys first.' },
+        { status: 429 }
+      );
+    }
 
-    // Calculate expiration
-    const expiresAt = expiresInDays
-      ? new Date(Date.now() + expiresInDays * 24 * 60 * 60 * 1000)
-      : null;
+    // Generate secure API key with prefix
+    const keyId = `pk_${crypto.randomBytes(16).toString('hex')}`;
+    const apiKey = `${keyId}_${crypto.randomBytes(32).toString('hex')}`;
 
-    const newKey = {
-      id: `key_${Date.now()}`,
-      name,
-      key: apiKey,
-      orgId: membership.orgId,
-      createdBy: session.user.id,
-      createdAt: new Date(),
-      expiresAt,
-      lastUsedAt: null,
-      status: 'active',
-    };
+    // Hash the key using SHA-256 for storage
+    const tokenHash = crypto.createHash('sha256').update(apiKey).digest('hex');
 
-    console.log('TODO: Store API key in database (hashed)');
-    console.log('TODO: Return full key only once (cannot be retrieved again)');
+    // Create API key record in database
+    const newKey = await prisma.apiKey.create({
+      data: {
+        id: keyId,
+        name,
+        tokenHash,
+        orgId: membership.orgId,
+        userId: session.user.id,
+      },
+      include: {
+        User: {
+          select: {
+            name: true,
+            email: true,
+          },
+        },
+      },
+    });
 
+    // Return the full key ONLY once (cannot be retrieved again)
     return NextResponse.json({
       success: true,
       message: 'API key created successfully. Save this key securely - it cannot be retrieved again.',
-      apiKey: newKey,
+      apiKey: {
+        id: newKey.id,
+        name: newKey.name,
+        key: apiKey, // Full key shown only this once
+        createdAt: newKey.createdAt,
+        createdBy: newKey.User.name || newKey.User.email,
+      },
     });
   } catch (error) {
     console.error('Error creating API key:', error);

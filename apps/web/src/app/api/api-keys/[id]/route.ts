@@ -16,31 +16,44 @@ export async function DELETE(
 
     const { id } = await params;
 
-    // Verify user has access to this API key (owner/admin)
-    const membership = await prisma.membership.findFirst({
-      where: {
-        userId: session.user.id,
-        role: { in: ['OWNER', 'ADMIN'] },
+    // Find the API key and verify it belongs to user's organization
+    const apiKey = await prisma.apiKey.findUnique({
+      where: { id },
+      include: {
+        Org: {
+          include: {
+            Membership: {
+              where: {
+                userId: session.user.id,
+                role: { in: ['OWNER', 'ADMIN'] },
+              },
+            },
+          },
+        },
       },
     });
 
-    if (!membership) {
+    if (!apiKey) {
+      return NextResponse.json({ error: 'API key not found' }, { status: 404 });
+    }
+
+    // Verify user has permission (must be owner/admin of the org)
+    if (apiKey.Org.Membership.length === 0) {
       return NextResponse.json(
-        { error: 'Insufficient permissions' },
+        { error: 'Insufficient permissions to revoke this API key' },
         { status: 403 }
       );
     }
 
-    // TODO: Verify API key belongs to user's organization
-    // TODO: Mark key as revoked (soft delete)
-    // TODO: Log revocation event
-    // TODO: Invalidate any cached versions
-
-    console.log('TODO: Revoke API key:', id);
+    // Delete the API key (hard delete as we're using hashed tokens)
+    await prisma.apiKey.delete({
+      where: { id },
+    });
 
     return NextResponse.json({
       success: true,
       message: 'API key revoked successfully',
+      keyId: id,
     });
   } catch (error) {
     console.error('Error revoking API key:', error);

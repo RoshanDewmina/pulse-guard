@@ -21,18 +21,18 @@ export default function DocumentationSection() {
 
   const cards = [
     {
-      title: "Plan your schedules",
-      description: "Explore your data, build your dashboard,\nbring your team together.",
+      title: "Quick setup, zero code changes",
+      description: "Add monitors with a simple ping URL. Kubernetes Helm chart\nand WordPress plugin install in under 60 seconds.",
       image: "/modern-dashboard-interface-with-data-visualization.jpg",
     },
     {
-      title: "Data to insights in minutes",
-      description: "Transform raw data into actionable insights\nwith powerful analytics tools.",
+      title: "Anomalies detected automatically",
+      description: "Statistical analysis establishes baselines and alerts you\nwhen jobs deviate 3+ standard deviations from normal.",
       image: "/analytics-dashboard.png",
     },
     {
-      title: "Collaborate seamlessly",
-      description: "Work together in real-time with your team\nand share insights instantly.",
+      title: "Team collaboration built-in",
+      description: "Shared dashboards, incident acknowledgment, escalation rules,\nand multi-channel alerts for your entire DevOps team.",
       image: "/team-collaboration-interface-with-shared-workspace.jpg",
     },
   ]
@@ -63,12 +63,12 @@ export default function DocumentationSection() {
             text="Platform Features"
           />
           <div className="self-stretch text-center flex justify-center flex-col text-[#49423D] text-3xl md:text-5xl font-semibold leading-tight md:leading-[60px] font-sans tracking-tight">
-            Streamline your business operations
+            Start monitoring in 5 minutes
           </div>
           <div className="self-stretch text-center text-[#605A57] text-base font-normal leading-7 font-sans">
-            Manage schedules, analyze data, and collaborate with your team
+            From simple ping URLs to Kubernetes CronJobs,
             <br />
-            all in one powerful platform.
+            Saturn adapts to your infrastructure and workflow.
           </div>
         </div>
       </div>

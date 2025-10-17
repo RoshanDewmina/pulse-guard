@@ -1,0 +1,25 @@
+# Fly.io configuration for Saturn Worker
+app = "saturn-worker"
+primary_region = "iad"
+
+[build]
+  dockerfile = "apps/worker/Dockerfile"
+  build-target = "production"
+
+[env]
+  NODE_ENV = "production"
+
+[http_service]
+  internal_port = 8080
+  force_https = false
+  auto_stop_machines = false
+  auto_start_machines = false
+  min_machines_running = 1
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "256mb"
+
+
+
+

@@ -1,0 +1,164 @@
+# Saturn Monitor - Vercel DNS Zone Configuration
+# Domain: saturnmonitor.com
+# Provider: Vercel DNS
+# Date: 2025-10-17
+
+# ============================================
+# MAIN DOMAIN RECORDS (Vercel Auto-Configured)
+# ============================================
+# These are automatically set by Vercel:
+# @ A 76.76.21.21 (or Vercel's IP)
+# @ A 76.76.21.98 (or Vercel's IP)
+# www CNAME cname.vercel-dns.com.
+
+# ============================================
+# SUBDOMAIN RECORDS - WEB APPLICATION
+# ============================================
+
+# Main App (already configured)
+# saturnmonitor.com -> Main marketing/landing page
+# app.saturnmonitor.com -> Dashboard/Application
+app CNAME cname.vercel-dns.com.
+
+# Status Pages (public status pages)
+status CNAME cname.vercel-dns.com.
+
+# API Endpoints
+api CNAME cname.vercel-dns.com.
+
+# Documentation
+docs CNAME cname.vercel-dns.com.
+
+# Blog (if you add one)
+blog CNAME cname.vercel-dns.com.
+
+# ============================================
+# WORKER/BACKEND SUBDOMAINS
+# ============================================
+
+# Background Worker (Fly.io)
+# worker.saturnmonitor.com -> Fly.io worker app
+worker CNAME saturn-worker.fly.dev.
+
+# Webhooks endpoint (could point to worker or main app)
+hooks CNAME cname.vercel-dns.com.
+
+# ============================================
+# DEVELOPMENT/STAGING SUBDOMAINS
+# ============================================
+
+# Staging Environment (Vercel preview)
+staging CNAME cname.vercel-dns.com.
+
+# Development Environment
+dev CNAME cname.vercel-dns.com.
+
+# Demo/Sandbox Environment
+demo CNAME cname.vercel-dns.com.
+
+# ============================================
+# EMAIL RECORDS (if using custom domain email)
+# ============================================
+
+# Example for Google Workspace / Gmail
+# MX @ mx.google.com. (Priority: 1)
+# MX @ aspmx2.googlemail.com. (Priority: 5)
+# MX @ aspmx3.googlemail.com. (Priority: 5)
+
+# Example for SendGrid/Transactional Email
+# mail CNAME sendgrid.net.
+
+# SPF Record (Email Authentication)
+# @ TXT "v=spf1 include:_spf.google.com ~all"
+# Or for SendGrid:
+# @ TXT "v=spf1 include:sendgrid.net ~all"
+
+# DKIM Record (comes from your email provider)
+# google._domainkey TXT "v=DKIM1; k=rsa; p=YOUR_PUBLIC_KEY"
+
+# DMARC Policy
+# _dmarc TXT "v=DMARC1; p=none; rua=mailto:dmarc@saturnmonitor.com"
+
+# ============================================
+# SECURITY & VERIFICATION RECORDS
+# ============================================
+
+# Domain Verification (various services)
+# _vercel TXT (auto-added by Vercel)
+
+# Google Site Verification (if needed)
+# @ TXT "google-site-verification=YOUR_VERIFICATION_CODE"
+
+# Stripe Domain Verification (if using Stripe)
+# @ TXT "stripe-verification=YOUR_STRIPE_CODE"
+
+# ============================================
+# CDN & ASSETS (Optional)
+# ============================================
+
+# CDN subdomain for static assets
+cdn CNAME cname.vercel-dns.com.
+
+# User uploads/storage (if using S3/CloudFlare R2)
+# uploads CNAME your-bucket.s3.amazonaws.com.
+# Or for CloudFlare R2:
+# uploads CNAME pub-xxxxx.r2.dev.
+
+# ============================================
+# MONITORING & STATUS
+# ============================================
+
+# Health check endpoint
+health CNAME cname.vercel-dns.com.
+
+# Metrics/Analytics endpoint
+metrics CNAME cname.vercel-dns.com.
+
+# ============================================
+# WILDCARD (Optional - use with caution)
+# ============================================
+
+# Wildcard for dynamic subdomains (e.g., user workspaces)
+# * CNAME cname.vercel-dns.com.
+# Note: Only enable if needed for multi-tenant subdomains
+
+# ============================================
+# ADDITIONAL SERVICES
+# ============================================
+
+# Support/Help Center (could be Intercom, Help Scout, etc.)
+support CNAME cname.vercel-dns.com.
+
+# Marketing/Landing pages
+www CNAME cname.vercel-dns.com.
+
+# Customer portal
+portal CNAME cname.vercel-dns.com.
+
+# Admin panel (if separate)
+admin CNAME cname.vercel-dns.com.
+
+# ============================================
+# NOTES
+# ============================================
+# 1. Vercel automatically handles:
+#    - SSL certificates for all subdomains
+#    - Automatic HTTPS redirects
+#    - www to non-www redirects (configurable)
+#
+# 2. For Vercel DNS, add these via:
+#    https://vercel.com/roshandewminas-projects/pulse-guard/settings/domains
+#
+# 3. Each subdomain needs to be added individually in Vercel
+#
+# 4. Priority order:
+#    1. Add main domain (saturnmonitor.com) ✓ Done
+#    2. Add www subdomain ✓ Done
+#    3. Add app subdomain (for dashboard)
+#    4. Add other subdomains as needed
+#
+# 5. Worker subdomain points to Fly.io (different provider)
+
+
+
+

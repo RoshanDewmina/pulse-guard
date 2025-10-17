@@ -45,3 +45,11 @@ client_secret_*.json
 *.key
 env.txt
 .vercel
+
+# Environment files
+.env*
+!.env.example
+env.txt
+new*.txt
+vercel-production.env
+
