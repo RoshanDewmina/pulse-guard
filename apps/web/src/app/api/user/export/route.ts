@@ -59,7 +59,15 @@ export async function GET(request: NextRequest) {
         intervalSec: true,
         graceSec: true,
         timezone: true,
-        tags: true,
+        MonitorTag: {
+          select: {
+            Tag: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
         captureOutput: true,
         createdAt: true,
         updatedAt: true,
@@ -172,7 +180,11 @@ export async function GET(request: NextRequest) {
         role: m.role,
         joinedAt: m.createdAt,
       })),
-      monitors: monitors,
+      monitors: monitors.map((m) => ({
+        ...m,
+        tags: m.MonitorTag?.map((mt) => mt.Tag.name) || [],
+        MonitorTag: undefined, // Remove the nested structure
+      })),
       runs: runs,
       incidents: incidents,
       alertChannels: channels,
