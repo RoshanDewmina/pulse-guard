@@ -6,6 +6,8 @@ import { getOrganizationSchema } from '@/lib/seo/schema';
 import { JsonLd } from '@/components/seo/json-ld';
 import { AnalyticsProvider } from '@/providers/analytics-provider';
 import { CookieConsentBanner } from '@/components/cookie-consent-banner';
+import { Analytics } from '@vercel/analytics/next';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -133,6 +135,8 @@ export default function RootLayout({
           <Toaster />
           <CookieConsentBanner />
         </AnalyticsProvider>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );

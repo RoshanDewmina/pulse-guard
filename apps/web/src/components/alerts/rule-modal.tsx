@@ -239,3 +239,4 @@ export function RuleModal({ open, onClose, orgId, monitors, channels, rule }: Ru
   );
 }
 
+

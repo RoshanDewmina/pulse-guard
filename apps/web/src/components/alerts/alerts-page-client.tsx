@@ -224,3 +224,4 @@ export function AlertsPageClient({ orgId, channels, rules, monitors }: AlertsPag
   );
 }
 
+
