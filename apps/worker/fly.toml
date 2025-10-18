@@ -4,9 +4,7 @@ primary_region = "iad"
 
 [build]
   dockerfile = "apps/worker/Dockerfile"
-  build-target = "production"
-  [build.args]
-    BUILDCONTEXT = "."
+  ignorefile = ".dockerignore"
 
 [env]
   NODE_ENV = "production"
