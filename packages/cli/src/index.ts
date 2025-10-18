@@ -11,7 +11,7 @@ import { runCommand } from './commands/run';
 const program = new Command();
 
 program
-  .name('pulse')
+  .name('saturn')
   .description('Saturn CLI - Monitor your cron jobs and scheduled tasks')
   .version(version);
 

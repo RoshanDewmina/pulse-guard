@@ -47,7 +47,7 @@ jobs:
         env:
           SATURN_TOKEN: ${{ secrets.SATURN_TOKEN }}
         run: |
-          pulse run --monitor ${{ secrets.SATURN_MONITOR_ID }} -- make build
+          saturn run --monitor ${{ secrets.SATURN_MONITOR_ID }} -- make build
 ```
 
 ### With Explicit Start/Fail Pings
@@ -114,7 +114,7 @@ nightly-tests:
     - curl -fsSL https://get.saturn.example.com | sh
     - export PATH="$HOME/.saturn/bin:$PATH"
   script:
-    - pulse run --monitor $SATURN_MONITOR_ID -- make test
+    - saturn run --monitor $SATURN_MONITOR_ID -- make test
   variables:
     SATURN_TOKEN: $SATURN_TOKEN  # Set in CI/CD settings
 ```
@@ -239,7 +239,7 @@ jobs:
           name: Run Tests with Monitoring
           command: |
             export PATH="$HOME/.saturn/bin:$PATH"
-            pulse run --monitor $SATURN_MONITOR_ID -- npm test
+            saturn run --monitor $SATURN_MONITOR_ID -- npm test
 ```
 
 ## Azure Pipelines
@@ -261,7 +261,7 @@ steps:
   
   - script: |
       export PATH="$HOME/.saturn/bin:$PATH"
-      pulse run --monitor $(SATURN_MONITOR_ID) -- make build
+      saturn run --monitor $(SATURN_MONITOR_ID) -- make build
     displayName: 'Build with Monitoring'
     env:
       SATURN_TOKEN: $(SATURN_TOKEN)
@@ -274,7 +274,7 @@ steps:
 For CI/CD, use **org-wide tokens** instead of monitor-specific tokens:
 
 ```bash
-pulse run --monitor YOUR_MONITOR_ID --token YOUR_ORG_TOKEN -- command
+saturn run --monitor YOUR_MONITOR_ID --token YOUR_ORG_TOKEN -- command
 ```
 
 This allows rotation without updating every pipeline.

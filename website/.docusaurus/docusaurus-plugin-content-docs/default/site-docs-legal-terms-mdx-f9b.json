@@ -1,7 +1,7 @@
 {
   "id": "legal/terms",
   "title": "Terms of Service",
-  "description": "Saturn terms of service",
+  "description": "Terms and conditions for using Saturn's cron monitoring platform. Clear, developer-friendly legal terms for engineering teams.",
   "source": "@site/docs/legal/terms.mdx",
   "sourceDirName": "legal",
   "slug": "/legal/terms",
@@ -14,11 +14,14 @@
   "frontMatter": {
     "id": "terms",
     "title": "Terms of Service",
-    "description": "Saturn terms of service",
+    "description": "Terms and conditions for using Saturn's cron monitoring platform. Clear, developer-friendly legal terms for engineering teams.",
     "keywords": [
-      "terms",
-      "service",
-      "legal"
+      "terms of service",
+      "terms and conditions",
+      "user agreement",
+      "acceptable use",
+      "SLA",
+      "service level agreement"
     ]
   }
 }

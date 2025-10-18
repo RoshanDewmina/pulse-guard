@@ -12,7 +12,7 @@ export function Header() {
             </Link>
             <div className="hidden md:flex items-center space-x-6">
               <Link href="/#features" className="text-[#37322f] hover:text-[#37322f]/80 text-sm font-medium transition-colors">
-                Products
+                Features
               </Link>
               <Link href="/#pricing" className="text-[#37322f] hover:text-[#37322f]/80 text-sm font-medium transition-colors">
                 Pricing

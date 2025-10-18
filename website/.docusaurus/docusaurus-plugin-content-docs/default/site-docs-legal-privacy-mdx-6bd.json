@@ -1,7 +1,7 @@
 {
   "id": "legal/privacy",
   "title": "Privacy Policy",
-  "description": "Saturn privacy policy",
+  "description": "How Saturn collects, uses, and protects your data. Transparent notice of our data practices for DevOps and engineering teams.",
   "source": "@site/docs/legal/privacy.mdx",
   "sourceDirName": "legal",
   "slug": "/legal/privacy",
@@ -14,11 +14,15 @@
   "frontMatter": {
     "id": "privacy",
     "title": "Privacy Policy",
-    "description": "Saturn privacy policy",
+    "description": "How Saturn collects, uses, and protects your data. Transparent notice of our data practices for DevOps and engineering teams.",
     "keywords": [
-      "privacy",
-      "gdpr",
-      "data protection"
+      "privacy policy",
+      "data protection",
+      "GDPR",
+      "CCPA",
+      "data collection",
+      "security",
+      "encryption"
     ]
   }
 }

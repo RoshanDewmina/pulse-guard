@@ -35,7 +35,7 @@ Get tokens from **Settings → Tokens** in the Saturn dashboard.
 ## Base URL
 
 \`\`\`
-https://api.saturn.example.com
+https://api.saturnmonitor.com
 \`\`\`
 
 ## Rate Limits
@@ -48,25 +48,25 @@ https://api.saturn.example.com
 ### Send Success Ping
 
 \`\`\`bash
-curl -X POST https://api.saturn.example.com/api/ping/YOUR_MONITOR_ID/success \
+curl -X POST https://api.saturnmonitor.com/api/ping/YOUR_MONITOR_ID/success \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{"durationMs": 12456}'
+  -d '\{"durationMs": 12456\}'
 \`\`\`
 
 ### Send Fail Ping
 
 \`\`\`bash
-curl -X POST https://api.saturn.example.com/api/ping/YOUR_MONITOR_ID/fail \
+curl -X POST https://api.saturnmonitor.com/api/ping/YOUR_MONITOR_ID/fail \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{"exitCode": 1, "output": "Error message"}'
+  -d '\{"exitCode": 1, "output": "Error message"\}'
 \`\`\`
 
 ### List Incidents
 
 \`\`\`bash
-curl -X GET https://api.saturn.example.com/api/incidents?status=OPEN \
+curl -X GET https://api.saturnmonitor.com/api/incidents?status=OPEN \
   -H "Authorization: Bearer YOUR_TOKEN"
 \`\`\`
 

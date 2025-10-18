@@ -28,7 +28,7 @@
     "permalink": "/cli/install"
   },
   "next": {
-    "title": "pulse run Wrapper",
-    "permalink": "/cli/pulse-run"
+    "title": "saturn run Wrapper",
+    "permalink": "/cli/saturn-run"
   }
 }

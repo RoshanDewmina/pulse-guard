@@ -1,4 +1,11 @@
-import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
+import {
+  S3Client,
+  PutObjectCommand,
+  GetObjectCommand,
+  DeleteObjectCommand,
+  ListObjectsV2Command,
+  DeleteObjectsCommand,
+} from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 const s3Client = new S3Client({
@@ -80,5 +87,69 @@ export function truncateOutput(output: string, maxKb: number): string {
   const decoder = new TextDecoder();
   const truncated = decoder.decode(bytes.slice(0, maxBytes));
   return truncated + '\n\n[... output truncated ...]';
+}
+
+/**
+ * Delete a single object from S3
+ */
+export async function deleteObject(key: string): Promise<void> {
+  const command = new DeleteObjectCommand({
+    Bucket: BUCKET_NAME,
+    Key: key,
+  });
+
+  await s3Client.send(command);
+}
+
+/**
+ * Delete multiple objects from S3 by prefix
+ * Used for cleaning up all outputs for a monitor or user
+ */
+export async function deleteObjectsByPrefix(prefix: string): Promise<number> {
+  let deletedCount = 0;
+  let continuationToken: string | undefined;
+
+  do {
+    // List objects with the given prefix
+    const listCommand = new ListObjectsV2Command({
+      Bucket: BUCKET_NAME,
+      Prefix: prefix,
+      ContinuationToken: continuationToken,
+    });
+
+    const listResponse = await s3Client.send(listCommand);
+
+    if (listResponse.Contents && listResponse.Contents.length > 0) {
+      // Delete objects in batches of 1000 (S3 limit)
+      const objects = listResponse.Contents.map((obj) => ({ Key: obj.Key! }));
+
+      const deleteCommand = new DeleteObjectsCommand({
+        Bucket: BUCKET_NAME,
+        Delete: {
+          Objects: objects,
+          Quiet: true,
+        },
+      });
+
+      const deleteResponse = await s3Client.send(deleteCommand);
+      deletedCount += objects.length;
+
+      if (deleteResponse.Errors && deleteResponse.Errors.length > 0) {
+        console.error('S3 deletion errors:', deleteResponse.Errors);
+      }
+    }
+
+    continuationToken = listResponse.NextContinuationToken;
+  } while (continuationToken);
+
+  return deletedCount;
+}
+
+/**
+ * Delete data export file from S3
+ */
+export async function deleteDataExport(exportId: string): Promise<void> {
+  const key = `exports/${exportId}.json`;
+  await deleteObject(key);
 }
 

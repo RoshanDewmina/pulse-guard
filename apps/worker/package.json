@@ -4,21 +4,28 @@
     "private": true,
     "scripts": {
         "dev": "bun run src/index.ts",
-        "build": "bun build src/index.ts --outdir dist --target node --external pino-pretty",
+        "build": "bun build src/index.ts --outdir dist --target node --external pino-pretty --external playwright --external @aws-sdk/* --external ioredis --external bullmq",
         "start": "node dist/index.js",
         "lint": "echo 'Skipping lint for worker'"
     },
     "dependencies": {
+        "@aws-sdk/client-s3": "^3.554.0",
+        "@aws-sdk/s3-request-presigner": "^3.554.0",
         "@sentry/node": "^8.40.0",
         "@sentry/profiling-node": "^8.40.0",
         "@slack/web-api": "^7.11.0",
         "@tokiflow/db": "workspace:*",
+        "@tokiflow/shared": "workspace:*",
+        "axios": "^1.12.2",
         "bullmq": "^5.20.3",
         "cron-parser": "^4.9.0",
         "date-fns": "^4.1.0",
         "ioredis": "^5.4.1",
         "pino": "^9.4.0",
-        "resend": "^6.1.2"
+        "playwright": "^1.56.1",
+        "resend": "^6.1.2",
+        "twilio": "^5.10.3",
+        "whois-json": "^2.0.0"
     },
     "devDependencies": {
         "@types/node": "^22.7.5"

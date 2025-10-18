@@ -204,7 +204,7 @@ spec:
             - |
               kubectl get certificates -A -o json | \
                 jq '.items[] | select(.status.renewalTime) | 
-                    {name: .metadata.name, renewalTime: .status.renewalTime}'
+                    \{name: .metadata.name, renewalTime: .status.renewalTime\}'
           
           - name: saturn-sidecar
             image: saturn/k8s-sidecar:1.0.0

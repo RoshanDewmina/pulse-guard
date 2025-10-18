@@ -1,0 +1,51 @@
+---
+id: saturn-run
+title: saturn run Wrapper
+description: Wrap commands with automatic start/success/fail pings and output capture
+keywords: [cli, saturn run, wrapper, monitoring]
+---
+
+# saturn run Wrapper
+
+The `saturn run` command wraps your scripts and automatically handles pings.
+
+## How It Works
+
+\`\`\`bash
+saturn run --token YOUR_TOKEN -- ./backup.sh
+\`\`\`
+
+**Steps**:
+1. Send start ping
+2. Run command
+3. Capture exit code and duration
+4. Send success or fail ping
+5. Exit with same code as command
+
+## Options
+
+\`\`\`bash
+--token TOKEN          Monitor token (required)
+--monitor ID           Monitor ID or name
+\`\`\`
+
+## Examples
+
+\`\`\`bash
+# Basic
+saturn run --token pg_abc123 -- ./backup.sh
+
+# With custom command
+saturn run --token pg_abc123 -- npm run build
+
+# Complex command
+saturn run --token pg_abc123 -- bash -c "cd /app && ./build.sh && ./test.sh"
+
+# From crontab
+0 3 * * * saturn run --token pg_abc123 -- /path/to/backup.sh
+\`\`\`
+
+## Next Steps
+
+- [Installation](./install) — Install the CLI
+- [CLI Reference](./reference) — All commands

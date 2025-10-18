@@ -146,13 +146,14 @@ test.describe('Alert Delivery System', () => {
     expect([200, 201, 401]).toContain(response.status());
     
     if (response.ok()) {
-      const channel = await response.json();
-      expect(channel.type).toBe('EMAIL');
-      expect(channel.label).toBe('E2E Test Email');
+      const result = await response.json();
+      expect(result.channel).toBeDefined();
+      expect(result.channel.type).toBe('EMAIL');
+      expect(result.channel.label).toBe('E2E Test Email');
       
       // Cleanup
       await prisma.alertChannel.delete({
-        where: { id: channel.id },
+        where: { id: result.channel.id },
       });
     }
   });

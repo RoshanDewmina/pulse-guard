@@ -23,7 +23,7 @@ SITES=(
 
 ORG_TOKEN="pg_your_token_here"
 
-for site in "${SITES[@]}"; do
+for site in "$\{SITES[@]\}"; do
   echo "Deploying to $site..."
   
   # Install plugin

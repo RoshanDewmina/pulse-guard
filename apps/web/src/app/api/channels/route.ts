@@ -82,9 +82,9 @@ export async function POST(request: NextRequest) {
 
     const channel = await prisma.alertChannel.create({
       data: {
-        ...data,
         id: crypto.randomUUID(),
         updatedAt: new Date(),
+        ...data,
       },
     });
 

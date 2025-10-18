@@ -161,7 +161,7 @@ export async function GET(request: NextRequest) {
         id: user.id,
         email: user.email,
         name: user.name,
-        imageUrl: user.imageUrl,
+        image: user.image,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
       },
@@ -204,28 +204,86 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // TODO: Create export job
-    // TODO: Queue background job to generate export
-    // TODO: Send email when ready
-    // TODO: Store export temporarily in S3
-    // TODO: Auto-delete after 7 days
-    // TODO: Enforce rate limit (1 export per 24 hours)
+    // Rate limit: Check for recent exports (1 per 24 hours)
+    const recentExport = await prisma.dataExport.findFirst({
+      where: {
+        userId: session.user.id,
+        createdAt: {
+          gte: new Date(Date.now() - 24 * 60 * 60 * 1000),
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
 
-    const exportRequest = {
-      id: `export_${Date.now()}`,
-      userId: session.user.id,
-      status: 'pending',
-      createdAt: new Date(),
-      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-    };
+    if (recentExport) {
+      const hoursRemaining = Math.ceil(
+        (24 * 60 * 60 * 1000 - (Date.now() - recentExport.createdAt.getTime())) / (60 * 60 * 1000)
+      );
 
-    // Note: Background export job implementation pending
-    // Will queue job and send email notification when complete
+      return NextResponse.json(
+        {
+          error: 'Rate limit exceeded',
+          message: `You can only request one data export per 24 hours. Please try again in ${hoursRemaining} hour(s).`,
+          nextAvailable: new Date(recentExport.createdAt.getTime() + 24 * 60 * 60 * 1000),
+        },
+        { status: 429 }
+      );
+    }
+
+    // Create export record in database
+    const dataExport = await prisma.dataExport.create({
+      data: {
+        userId: session.user.id,
+        status: 'PENDING',
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // Expires in 7 days
+      },
+    });
+
+    // Queue background job to generate export
+    const { dataExportQueue } = await import('@/lib/queues');
+    await dataExportQueue.add(
+      'generate-export',
+      {
+        exportId: dataExport.id,
+        userId: session.user.id,
+      },
+      {
+        jobId: `export-${dataExport.id}`,
+        removeOnComplete: 10,
+        removeOnFail: 10,
+      }
+    );
+
+    // Create audit log
+    const { createAuditLog, AuditAction } = await import('@/lib/audit');
+    const membership = await prisma.membership.findFirst({
+      where: { userId: session.user.id },
+    });
+    
+    if (membership) {
+      await createAuditLog({
+        action: AuditAction.USER_DATA_EXPORTED,
+        orgId: membership.orgId,
+        userId: session.user.id,
+        targetId: dataExport.id,
+        meta: {
+          exportId: dataExport.id,
+          expiresAt: dataExport.expiresAt,
+        },
+      });
+    }
 
     return NextResponse.json({
       success: true,
-      message: 'Export request created. You will receive an email when your data is ready.',
-      export: exportRequest,
+      message: 'Export request created. You will receive an email when your data is ready (usually within 5-10 minutes).',
+      export: {
+        id: dataExport.id,
+        status: dataExport.status,
+        createdAt: dataExport.createdAt,
+        expiresAt: dataExport.expiresAt,
+      },
     });
   } catch (error) {
     console.error('Error creating export request:', error);
@@ -291,14 +349,82 @@ export async function DELETE(request: NextRequest) {
     // Note: Most relations cascade automatically via Prisma schema onDelete: Cascade
     // We handle special cases here
 
-    // 1. Remove user from all memberships
+    // 1. Cleanup S3 objects (outputs and data exports)
+    console.log('🗑️ Cleaning up S3 objects...');
+    
+    try {
+      const { deleteObjectsByPrefix, deleteDataExport } = await import('@/lib/s3');
+      
+      // Delete monitor outputs for all monitors in user's organizations
+      const monitors = await prisma.monitor.findMany({
+        where: {
+          Org: {
+            Membership: {
+              some: {
+                userId: session.user.id,
+              },
+            },
+          },
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      let s3DeletedCount = 0;
+      for (const monitor of monitors) {
+        const deleted = await deleteObjectsByPrefix(`outputs/${monitor.id}/`);
+        s3DeletedCount += deleted;
+      }
+
+      // Delete any data export files
+      const dataExports = await prisma.dataExport.findMany({
+        where: {
+          userId: session.user.id,
+          s3Key: { not: null },
+        },
+      });
+
+      for (const dataExport of dataExports) {
+        try {
+          await deleteDataExport(dataExport.id);
+        } catch (error) {
+          console.error(`Failed to delete export ${dataExport.id}:`, error);
+        }
+      }
+
+      console.log(`✅ Deleted ${s3DeletedCount} S3 objects`);
+    } catch (error) {
+      console.error('⚠️ Error cleaning up S3 objects:', error);
+      // Continue with deletion even if S3 cleanup fails
+    }
+
+    // 2. Create audit log before deletion
+    const membership = await prisma.membership.findFirst({
+      where: { userId: session.user.id },
+    });
+
+    if (membership) {
+      const { createAuditLog, AuditAction } = await import('@/lib/audit');
+      await createAuditLog({
+        action: AuditAction.USER_DELETED,
+        orgId: membership.orgId,
+        userId: session.user.id,
+        meta: {
+          deletedAt: new Date(),
+          email: session.user.email,
+        },
+      });
+    }
+
+    // 3. Remove user from all memberships
     await prisma.membership.deleteMany({
       where: {
         userId: session.user.id,
       },
     });
 
-    // 2. Delete accounts (OAuth connections)
+    // 4. Delete accounts (OAuth connections)
     await prisma.account.deleteMany({
       where: {
         userId: session.user.id,
@@ -312,9 +438,7 @@ export async function DELETE(request: NextRequest) {
       },
     });
 
-    // Note: S3 objects cleanup would happen here in production
-    // This requires iterating through monitors that belonged to user's orgs
-    // and deleting their output files from S3
+    console.log(`✅ Account deleted: ${session.user.email}`);
 
     return NextResponse.json({
       success: true,

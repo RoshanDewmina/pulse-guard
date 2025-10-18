@@ -16,7 +16,8 @@ import {
 } from '@/components/saturn';
 import { useToast } from '@/components/ui/use-toast';
 import { Loader2, User, Mail, CheckCircle2 } from 'lucide-react';
-import { PageHeaderWithBreadcrumbs } from '@/components/page-header-with-breadcrumbs';
+import { Breadcrumbs } from '@/components/breadcrumbs';
+import { PageHeader } from '@/components/page-header';
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -92,13 +93,14 @@ export default function ProfilePage() {
 
   return (
     <div className="space-y-6 max-w-3xl">
-      <PageHeaderWithBreadcrumbs
+      <Breadcrumbs items={[
+        { label: 'Dashboard', href: '/app' },
+        { label: 'Profile' },
+      ]} />
+      
+      <PageHeader
         title="Profile"
         description="Manage your personal information"
-        breadcrumbs={[
-          { label: 'Dashboard', href: '/app' },
-          { label: 'Profile' },
-        ]}
       />
 
       <form onSubmit={handleSubmit}>

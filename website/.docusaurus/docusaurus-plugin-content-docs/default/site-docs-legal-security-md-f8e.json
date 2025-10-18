@@ -1,0 +1,30 @@
+{
+  "id": "legal/security",
+  "title": "Security Overview",
+  "description": "Saturn's security architecture, data protection measures, and compliance roadmap for enterprise DevOps teams.",
+  "source": "@site/docs/legal/security.md",
+  "sourceDirName": "legal",
+  "slug": "/legal/security",
+  "permalink": "/legal/security",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/saturn/saturn/tree/main/website/docs/legal/security.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "title": "Security Overview",
+    "description": "Saturn's security architecture, data protection measures, and compliance roadmap for enterprise DevOps teams.",
+    "slug": "security",
+    "keywords": [
+      "security",
+      "data protection",
+      "encryption",
+      "compliance",
+      "SOC 2",
+      "penetration testing",
+      "vulnerability disclosure"
+    ],
+    "canonical": "https://saturn.io/legal/security",
+    "lastReviewed": "2025-10-16T00:00:00.000Z"
+  }
+}

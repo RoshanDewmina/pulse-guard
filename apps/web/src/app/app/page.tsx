@@ -2,9 +2,18 @@ import { getServerSession } from 'next-auth';
 import { authOptions, getUserPrimaryOrg } from '@/lib/auth';
 import { prisma } from '@tokiflow/db';
 import Link from 'next/link';
-import { Activity, AlertCircle, CheckCircle2, Clock, Plus, BarChart3, Bell, Settings } from 'lucide-react';
-import { PageHeaderWithBreadcrumbs } from '@/components/page-header-with-breadcrumbs';
+import { Activity, AlertCircle, CheckCircle2, Clock, Plus, BarChart3, Bell, Plug, BookOpen } from 'lucide-react';
+import { Breadcrumbs } from '@/components/breadcrumbs';
+import { PageHeader } from '@/components/page-header';
 import { SaturnCard, SaturnButton } from '@/components/saturn';
+import { generatePageMetadata } from '@/lib/seo/metadata'
+
+export const metadata = generatePageMetadata({
+  title: "Dashboard",
+  description: "Monitor your cron jobs and scheduled tasks with Saturn.",
+  path: '/app',
+  noIndex: true,
+})
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
@@ -65,80 +74,19 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-8 sm:space-y-10 md:space-y-12">
-      <PageHeaderWithBreadcrumbs
+      <Breadcrumbs items={[{ label: 'Dashboard' }]} />
+      
+      <PageHeader
         title={org.name}
         description="Monitor your jobs and get instant alerts"
-        breadcrumbs={[
-          { label: 'Dashboard' },
-        ]}
         action={
           <Link href="/app/monitors/new" className="w-full sm:w-auto">
-            <SaturnButton className="w-full sm:w-auto sm:min-w-[160px] whitespace-nowrap">
-            icon={<Plus className="w-4 h-4" />}
+            <SaturnButton className="w-full sm:w-auto sm:min-w-[160px] whitespace-nowrap" icon={<Plus className="w-4 h-4" />}>
               Create Monitor
             </SaturnButton>
           </Link>
         }
       />
-
-      {/* Quick Navigation */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Link href="/app/monitors" className="group">
-          <SaturnCard className="hover:shadow-md transition-all cursor-pointer">
-            <div className="p-6">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 bg-[#37322F] rounded-lg flex items-center justify-center">
-                  <Activity className="h-5 w-5 text-white" />
-                </div>
-                <div className="text-lg font-semibold text-[#37322F] font-sans">Monitors</div>
-              </div>
-              <div className="text-sm text-[rgba(55,50,47,0.70)] font-sans">View and manage all your monitors</div>
-            </div>
-          </SaturnCard>
-        </Link>
-
-        <Link href="/app/analytics" className="group">
-          <SaturnCard className="hover:shadow-md transition-all cursor-pointer">
-            <div className="p-6">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 bg-[#37322F] rounded-lg flex items-center justify-center">
-                  <BarChart3 className="h-5 w-5 text-white" />
-                </div>
-                <div className="text-lg font-semibold text-[#37322F] font-sans">Analytics</div>
-              </div>
-              <div className="text-sm text-[rgba(55,50,47,0.70)] font-sans">View performance insights and metrics</div>
-            </div>
-          </SaturnCard>
-        </Link>
-
-        <Link href="/app/incidents" className="group">
-          <SaturnCard className="hover:shadow-md transition-all cursor-pointer">
-            <div className="p-6">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 bg-[#37322F] rounded-lg flex items-center justify-center">
-                  <Bell className="h-5 w-5 text-white" />
-                </div>
-                <div className="text-lg font-semibold text-[#37322F] font-sans">Incidents</div>
-              </div>
-              <div className="text-sm text-[rgba(55,50,47,0.70)] font-sans">Track and resolve issues</div>
-            </div>
-          </SaturnCard>
-        </Link>
-
-        <Link href="/app/settings" className="group">
-          <SaturnCard className="hover:shadow-md transition-all cursor-pointer">
-            <div className="p-6">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 bg-[#37322F] rounded-lg flex items-center justify-center">
-                  <Settings className="h-5 w-5 text-white" />
-                </div>
-                <div className="text-lg font-semibold text-[#37322F] font-sans">Settings</div>
-              </div>
-              <div className="text-sm text-[rgba(55,50,47,0.70)] font-sans">Configure your account</div>
-            </div>
-          </SaturnCard>
-        </Link>
-      </div>
 
       {/* Status Overview */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

@@ -207,10 +207,10 @@ requests.get(f"{URL}?state={state}&exitCode={result.returncode}", timeout=5)`}
                         <SaturnLabel className="text-xs text-[rgba(55,50,47,0.60)]">Using Saturn CLI (recommended)</SaturnLabel>
                         <div className="relative mt-2">
                           <pre className="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm">
-{`npx tsx packages/cli/src/index.ts run --token ${createdMonitor.token} -- your-command`}
+{`npx saturn-monitor run --token ${createdMonitor.token} -- your-command`}
                           </pre>
                           <button
-                            onClick={() => copyToClipboard(`npx tsx packages/cli/src/index.ts run --token ${createdMonitor.token} -- your-command`)}
+                            onClick={() => copyToClipboard(`npx saturn-monitor run --token ${createdMonitor.token} -- your-command`)}
                             className="absolute top-2 right-2 p-1 hover:bg-gray-800 rounded transition-colors"
                           >
                             <Copy className="w-4 h-4 text-gray-400" />

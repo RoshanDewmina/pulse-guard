@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "buildCommand": "bun install && bun run build",
+  "outputDirectory": "build",
+  "installCommand": "bun install",
+  "framework": "docusaurus",
+  "regions": ["iad1"],
+  "env": {
+    "NODE_ENV": "production"
+  }
+}
+

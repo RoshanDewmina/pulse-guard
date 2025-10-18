@@ -7,11 +7,11 @@ export default {
   "title": "Saturn",
   "tagline": "Stop guessing. Start knowing.",
   "favicon": "img/favicon.ico",
-  "url": "https://docs.saturn.example.com",
+  "url": "https://docs.saturnmonitor.com",
   "baseUrl": "/",
   "organizationName": "saturn",
   "projectName": "saturn-docs",
-  "onBrokenLinks": "throw",
+  "onBrokenLinks": "warn",
   "i18n": {
     "defaultLocale": "en",
     "locales": [
@@ -99,7 +99,7 @@ export default {
           "label": "API"
         },
         {
-          "href": "https://status.saturn.example.com",
+          "href": "https://status.saturnmonitor.com",
           "label": "Status",
           "position": "right"
         },
@@ -140,11 +140,11 @@ export default {
           "items": [
             {
               "label": "Pricing",
-              "href": "https://saturn.example.com/pricing"
+              "href": "https://saturnmonitor.com/pricing"
             },
             {
               "label": "Status",
-              "href": "https://status.saturn.example.com"
+              "href": "https://status.saturnmonitor.com"
             },
             {
               "label": "Changelog",

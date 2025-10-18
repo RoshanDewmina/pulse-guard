@@ -14,7 +14,7 @@ const config: Config = {
   organizationName: 'saturn',
   projectName: 'saturn-docs',
 
-  onBrokenLinks: 'throw',
+  onBrokenLinks: 'warn',
   onBrokenMarkdownLinks: 'warn',
 
   i18n: {

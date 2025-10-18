@@ -1,0 +1,30 @@
+{
+  "id": "legal/cookie-policy",
+  "title": "Cookie Policy",
+  "description": "How Saturn uses cookies and similar technologies. Transparent disclosure of tracking technologies for compliance and user privacy.",
+  "source": "@site/docs/legal/cookie-policy.md",
+  "sourceDirName": "legal",
+  "slug": "/legal/cookies",
+  "permalink": "/legal/cookies",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/saturn/saturn/tree/main/website/docs/legal/cookie-policy.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "title": "Cookie Policy",
+    "description": "How Saturn uses cookies and similar technologies. Transparent disclosure of tracking technologies for compliance and user privacy.",
+    "slug": "cookies",
+    "keywords": [
+      "cookies",
+      "tracking",
+      "browser storage",
+      "privacy",
+      "GDPR",
+      "cookie consent",
+      "local storage"
+    ],
+    "canonical": "https://saturn.io/legal/cookies",
+    "lastReviewed": "2025-10-16T00:00:00.000Z"
+  }
+}

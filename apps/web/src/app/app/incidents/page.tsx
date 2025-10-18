@@ -16,9 +16,18 @@ import {
   SaturnTableCell,
   PageHeader,
 } from '@/components/saturn';
+import { generatePageMetadata } from '@/lib/seo/metadata'
+
+export const metadata = generatePageMetadata({
+  title: "Incidents",
+  description: "View and manage incidents for your monitors.",
+  path: '/app/incidents',
+  noIndex: true,
+})
 import { format } from 'date-fns';
 import Link from 'next/link';
-import { PageHeaderWithBreadcrumbs } from '@/components/page-header-with-breadcrumbs';
+import { Breadcrumbs } from '@/components/breadcrumbs';
+import { PageHeader as PageHeaderComponent } from '@/components/page-header';
 import { AcknowledgeButton } from '@/components/acknowledge-button';
 import { ResolveButton } from '@/components/resolve-button';
 
@@ -70,13 +79,14 @@ export default async function IncidentsPage() {
 
   return (
     <div className="space-y-8 sm:space-y-10 md:space-y-12">
-      <PageHeaderWithBreadcrumbs
+      <Breadcrumbs items={[
+        { label: 'Dashboard', href: '/app' },
+        { label: 'Incidents' },
+      ]} />
+      
+      <PageHeaderComponent
         title="Incidents"
         description="Track and manage issues with your monitors"
-        breadcrumbs={[
-          { label: 'Dashboard', href: '/app' },
-          { label: 'Incidents' },
-        ]}
       />
 
       {/* Status Overview */}

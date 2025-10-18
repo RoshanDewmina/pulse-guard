@@ -1,0 +1,20 @@
+{
+  "id": "home",
+  "title": "Saturn Documentation",
+  "description": "Comprehensive documentation for Saturn cron and job monitoring",
+  "source": "@site/docs/index.mdx",
+  "sourceDirName": ".",
+  "slug": "/",
+  "permalink": "/",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/saturn/saturn/tree/main/website/docs/index.mdx",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "slug": "/",
+    "id": "home",
+    "title": "Saturn Documentation",
+    "description": "Comprehensive documentation for Saturn cron and job monitoring"
+  }
+}

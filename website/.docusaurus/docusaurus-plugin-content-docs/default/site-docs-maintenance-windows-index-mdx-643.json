@@ -23,8 +23,8 @@
   },
   "sidebar": "docsSidebar",
   "previous": {
-    "title": "pulse run Wrapper",
-    "permalink": "/cli/pulse-run"
+    "title": "saturn run Wrapper",
+    "permalink": "/cli/saturn-run"
   },
   "next": {
     "title": "Output Capture",

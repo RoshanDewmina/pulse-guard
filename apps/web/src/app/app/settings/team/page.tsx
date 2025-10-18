@@ -1,6 +1,14 @@
 import { getServerSession } from 'next-auth';
 import { authOptions, getUserPrimaryOrg } from '@/lib/auth';
 import { prisma } from '@tokiflow/db';
+import { generatePageMetadata } from '@/lib/seo/metadata'
+
+export const metadata = generatePageMetadata({
+  title: "Settings - Team",
+  description: "Manage team members and permissions.",
+  path: '/app/settings/team',
+  noIndex: true,
+})
 import {
   SaturnCard,
   SaturnCardHeader,
@@ -19,7 +27,8 @@ import {
 import { format } from 'date-fns';
 import { Plus, Crown, Shield, User } from 'lucide-react';
 import { InviteMemberButton } from '@/components/invite-member-button';
-import { PageHeaderWithBreadcrumbs } from '@/components/page-header-with-breadcrumbs';
+import { Breadcrumbs } from '@/components/breadcrumbs';
+import { PageHeader } from '@/components/page-header';
 
 export default async function TeamPage() {
   const session = await getServerSession(authOptions);
@@ -54,14 +63,15 @@ export default async function TeamPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeaderWithBreadcrumbs
+      <Breadcrumbs items={[
+        { label: 'Dashboard', href: '/app' },
+        { label: 'Settings', href: '/app/settings' },
+        { label: 'Team' },
+      ]} />
+      
+      <PageHeader
         title="Team Management"
         description={`Manage team members for ${org.name}`}
-        breadcrumbs={[
-          { label: 'Dashboard', href: '/app' },
-          { label: 'Settings', href: '/app/settings' },
-          { label: 'Team' },
-        ]}
       />
       
       <SaturnCard>

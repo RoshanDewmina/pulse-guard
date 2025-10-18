@@ -6,6 +6,22 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import { prisma } from '@tokiflow/db';
 import bcrypt from 'bcryptjs';
 import { Resend } from 'resend';
+import type { Adapter } from 'next-auth/adapters';
+
+// Custom adapter that allows OAuth account linking to existing users by bypassing the built-in check
+function CustomPrismaAdapter(p: typeof prisma): Adapter {
+  const baseAdapter = PrismaAdapter(p);
+  
+  return {
+    ...baseAdapter,
+    // Override getUserByEmail to return null during OAuth flow
+    // This prevents NextAuth from detecting existing users and throwing OAuthAccountNotLinked
+    async getUserByEmail(email) {
+      // Return null to allow our signIn callback to handle account linking
+      return null;
+    },
+  };
+}
 
 // Build providers array conditionally
 const providers: any[] = [
@@ -49,7 +65,7 @@ const providers: any[] = [
         id: user.id,
         email: user.email,
         name: user.name,
-        image: user.imageUrl,
+        image: user.image,
       };
     },
   }),
@@ -155,14 +171,25 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      // Allow linking to existing accounts with same email
+      allowDangerousEmailAccountLinking: true,
     })
   );
 } else {
   console.warn('⚠️  Google OAuth not configured - Google sign-in will not be available');
 }
 
+// Also add it to email provider for consistency
+const emailProviderIndex = providers.findIndex(p => p.id === 'email');
+if (emailProviderIndex !== -1) {
+  providers[emailProviderIndex].options = {
+    ...providers[emailProviderIndex].options,
+    allowDangerousEmailAccountLinking: true,
+  };
+}
+
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma),
+  adapter: CustomPrismaAdapter(prisma),
   providers,
   pages: {
     signIn: '/auth/signin',
@@ -174,71 +201,149 @@ export const authOptions: NextAuthOptions = {
     strategy: 'jwt',
   },
   debug: true,
+  // Enable automatic account linking for OAuth providers
+  // This allows users to sign in with Google even if they already have an account with email/password
+  events: {
+    async linkAccount({ user, account, profile }) {
+      console.log(`🔗 Account linked: ${account.provider} for user ${user.email}`);
+    },
+  },
   callbacks: {
     async signIn({ user, account, profile }) {
-      try {
-        // When a user signs in with OAuth for the first time, create an organization
-        if (account && (account.provider === 'google' || account.provider === 'email')) {
-          const existingMembership = await prisma.membership.findFirst({
-            where: { userId: user.id },
+      // Handle OAuth account linking for existing users
+      if (account?.type === 'oauth') {
+        const userEmail = user.email || profile?.email;
+        
+        if (!userEmail) {
+          console.error('No email provided in OAuth profile');
+          return false;
+        }
+
+        try {
+          // Check if account already linked
+          const existingAccount = await prisma.account.findUnique({
+            where: {
+              provider_providerAccountId: {
+                provider: account.provider,
+                providerAccountId: account.providerAccountId,
+              },
+            },
+            include: { user: true },
           });
 
-          // Only create org if user doesn't have one
-          if (!existingMembership) {
-            const userName = user.name || user.email?.split('@')[0] || 'User';
-            const timestamp = Date.now();
-            
-            try {
-              await prisma.org.create({
-                data: {
-                  id: crypto.randomUUID(),
-                  name: `${userName}'s Organization`,
-                  slug: `${user.email?.split('@')[0]}-${timestamp}`,
-                  updatedAt: new Date(),
-                  Membership: {
-                    create: {
-                      id: crypto.randomUUID(),
-                      userId: user.id,
-                      role: 'OWNER',
-                      updatedAt: new Date(),
-                    },
-                  },
-                  SubscriptionPlan: {
-                    create: {
-                      id: crypto.randomUUID(),
-                      plan: 'FREE',
-                      monitorLimit: 5,
-                      userLimit: 1,
-                      updatedAt: new Date(),
-                    },
-                  },
-                },
-              });
-              console.log(`✅ Created organization for new user: ${user.email}`);
-            } catch (orgError) {
-              console.error('❌ Failed to create organization for user:', user.email, orgError);
-              // Continue with sign-in even if org creation fails
-              // User can create org manually later
-            }
+          if (existingAccount) {
+            // Account already linked, allow sign-in
+            return true;
           }
+
+          // Check if user exists with this email
+          const existingUser = await prisma.user.findUnique({
+            where: { email: userEmail },
+          });
+
+          if (existingUser) {
+            // Link the OAuth account to the existing user
+            console.log(`🔗 Linking ${account.provider} account to existing user: ${userEmail}`);
+            
+            await prisma.account.create({
+              data: {
+                userId: existingUser.id,
+                type: account.type,
+                provider: account.provider,
+                providerAccountId: account.providerAccountId,
+                access_token: account.access_token,
+                expires_at: account.expires_at,
+                token_type: account.token_type,
+                scope: account.scope,
+                id_token: account.id_token,
+                refresh_token: account.refresh_token,
+              },
+            });
+            
+            console.log(`✅ Successfully linked ${account.provider} account to user ${existingUser.id}`);
+            
+            // Update user object to use existing user ID
+            user.id = existingUser.id;
+            user.email = existingUser.email;
+            user.name = existingUser.name || user.name;
+            user.image = existingUser.image || user.image;
+            
+            return true;
+          }
+
+          // No existing user, allow adapter to create new user
+          return true;
+        } catch (error) {
+          console.error('Error in signIn callback:', error);
+          return false;
         }
-        return true;
-      } catch (error) {
-        console.error('❌ Error in signIn callback:', error);
-        // Allow sign-in to continue even if there's an error
-        return true;
       }
+      
+      // Allow all non-OAuth sign-ins
+      return true;
+    },
+    async redirect({ url, baseUrl }) {
+      // Allows relative callback URLs
+      if (url.startsWith('/')) return `${baseUrl}${url}`;
+      // Allows callback URLs on the same origin
+      else if (new URL(url).origin === baseUrl) return url;
+      return baseUrl;
     },
     async session({ session, token }) {
-      if (session.user) {
-        session.user.id = token.sub!;
+      if (session.user && token.sub) {
+        session.user.id = token.sub;
+        
+        // ALWAYS fetch fresh onboarding status from DB to avoid stale JWT cache
+        const dbUser = await prisma.user.findUnique({
+          where: { id: token.sub as string },
+          select: { 
+            onboardingCompleted: true,
+            // onboardingStep: true, // Field doesn't exist in schema
+            // mfaEnabled: true, // Field doesn't exist in schema
+          },
+        });
+        
+        session.user.onboardingCompleted = dbUser?.onboardingCompleted ?? false;
+        // session.user.onboardingStep = dbUser?.onboardingStep ?? 'NONE'; // Field doesn't exist in schema
+        // session.user.mfaEnabled = dbUser?.mfaEnabled ?? false; // Field doesn't exist in schema
       }
       return session;
     },
-    async jwt({ token, user, account }) {
+    async jwt({ token, user, account, trigger }) {
       if (user) {
         token.sub = user.id;
+        
+        // Add MFA and onboarding info to JWT token
+        const dbUser = await prisma.user.findUnique({
+          where: { id: user.id },
+          select: {
+            // mfaEnabled: true, // Field doesn't exist in schema
+            // onboardingStep: true, // Field doesn't exist in schema
+          },
+        });
+        
+        if (dbUser) {
+          // token.mfaEnabled = dbUser.mfaEnabled; // Field doesn't exist in schema
+          // token.onboardingStep = dbUser.onboardingStep; // Field doesn't exist in schema
+        }
       }
+      
+      // Refresh token data on update trigger
+      if (trigger === 'update' && token.sub) {
+        const dbUser = await prisma.user.findUnique({
+          where: { id: token.sub as string },
+          select: {
+            // mfaEnabled: true, // Field doesn't exist in schema
+            // onboardingStep: true, // Field doesn't exist in schema
+          },
+        });
+        
+        if (dbUser) {
+          // token.mfaEnabled = dbUser.mfaEnabled; // Field doesn't exist in schema
+          // token.onboardingStep = dbUser.onboardingStep; // Field doesn't exist in schema
+        }
+      }
+      
       return token;
     },
   },
@@ -263,8 +368,32 @@ export async function getCurrentUser(userId: string) {
   });
 }
 
-// Helper to get user's primary org
-export async function getUserPrimaryOrg(userId: string) {
+// Helper to get user's active org (checks cookie first, then defaults to first org)
+export async function getUserPrimaryOrg(userId: string, activeOrgId?: string | null) {
+  // If activeOrgId is provided (from cookie), try to use that first
+  if (activeOrgId) {
+    const activeMembership = await prisma.membership.findUnique({
+      where: {
+        userId_orgId: {
+          userId,
+          orgId: activeOrgId,
+        },
+      },
+      include: {
+        Org: {
+          include: {
+            SubscriptionPlan: true,
+          },
+        },
+      },
+    });
+
+    if (activeMembership) {
+      return activeMembership.Org;
+    }
+  }
+
+  // Fall back to first organization
   const membership = await prisma.membership.findFirst({
     where: { userId },
     include: {

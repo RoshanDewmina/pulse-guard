@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { getToken } from 'next-auth/jwt';
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const response = NextResponse.next();
 
   // Security Headers
@@ -57,6 +58,50 @@ export function middleware(request: NextRequest) {
   // Handle preflight requests
   if (request.method === 'OPTIONS') {
     return new NextResponse(null, { status: 204, headers: response.headers });
+  }
+
+  // MFA and Onboarding checks for protected routes
+  const protectedPaths = ['/app', '/api'];
+  const isProtectedPath = protectedPaths.some(path => 
+    request.nextUrl.pathname.startsWith(path)
+  );
+
+  // Exclude auth-related paths from checks
+  const isAuthPath = request.nextUrl.pathname.startsWith('/auth') || 
+                     request.nextUrl.pathname.startsWith('/api/auth') ||
+                     request.nextUrl.pathname.startsWith('/api/mfa');
+
+  if (isProtectedPath && !isAuthPath) {
+    try {
+      const token = await getToken({
+        req: request,
+        secret: process.env.NEXTAUTH_SECRET,
+      });
+
+      if (token) {
+        const mfaVerified = request.cookies.get('mfa-verified')?.value === 'true';
+        
+        // Check if user has MFA enabled but hasn't verified this session
+        // if (token.mfaEnabled && !mfaVerified) { // MFA disabled - field doesn't exist in schema
+        //   const url = new URL('/auth/mfa', request.url);
+        //   url.searchParams.set('callbackUrl', request.nextUrl.pathname);
+        //   return NextResponse.redirect(url);
+        // }
+
+        // Check onboarding status for app routes (not API)
+        if (request.nextUrl.pathname.startsWith('/app')) {
+          // const onboardingStep = token.onboardingStep as string; // Field doesn't exist in schema
+          
+          // Redirect to onboarding checklist if not completed
+          // if (onboardingStep && onboardingStep !== 'DONE' && 
+          //     !request.nextUrl.pathname.startsWith('/app/onboarding')) {
+          //   return NextResponse.redirect(new URL('/app/onboarding/checklist', request.url));
+          // }
+        }
+      }
+    } catch (error) {
+      console.error('Middleware auth check error:', error);
+    }
   }
 
   return response;

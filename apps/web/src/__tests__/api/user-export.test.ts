@@ -60,7 +60,7 @@ describe('/api/user/export - GET (Data Export)', () => {
       id: 'user-1',
       email: 'test@example.com',
       name: 'Test User',
-      imageUrl: 'https://example.com/avatar.png',
+      image: 'https://example.com/avatar.png',
       createdAt: new Date('2024-01-01'),
       updatedAt: new Date('2024-01-02'),
       Account: [

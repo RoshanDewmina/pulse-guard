@@ -2,6 +2,42 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@tokiflow/db';
 import { redirect } from 'next/navigation';
+import { generatePageMetadata } from '@/lib/seo/metadata';
+import type { Metadata } from 'next';
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params;
+  
+  try {
+    const monitor = await prisma.monitor.findUnique({
+      where: { id },
+      select: { name: true },
+    });
+
+    if (!monitor) {
+      return generatePageMetadata({
+        title: "Monitor Not Found",
+        description: "The requested monitor could not be found.",
+        path: `/app/monitors/${id}`,
+        noIndex: true,
+      });
+    }
+
+    return generatePageMetadata({
+      title: `${monitor.name} - Monitor Details`,
+      description: `View details and metrics for ${monitor.name}`,
+      path: `/app/monitors/${id}`,
+      noIndex: true,
+    });
+  } catch {
+    return generatePageMetadata({
+      title: "Monitor",
+      description: "View monitor details.",
+      path: `/app/monitors/${id}`,
+      noIndex: true,
+    });
+  }
+}
 import {
   SaturnCard,
   SaturnCardHeader,
@@ -21,7 +57,7 @@ import {
 } from '@/components/saturn';
 import { formatSchedule } from '@/lib/schedule';
 import { format } from 'date-fns';
-import { Clock, CheckCircle2, AlertCircle, XCircle, Eye, FileText } from 'lucide-react';
+import { Clock, CheckCircle2, AlertCircle, XCircle, Eye, FileText, Shield, Globe as GlobeIcon, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import { DurationChart } from '@/components/duration-chart';
 import { RunSparkline } from '@/components/run-sparkline';
@@ -192,6 +228,53 @@ export default async function MonitorDetailPage({
         </SaturnCard>
       </div>
 
+      {/* Advanced Monitoring Features */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Link href={`/app/monitors/${monitor.id}/ssl`} className="group">
+          <SaturnCard className="h-full transition-all hover:shadow-lg hover:border-[rgba(55,50,47,0.24)]">
+            <div className="p-6">
+              <div className="flex items-start justify-between mb-3">
+                <div className="p-2 bg-blue-50 rounded-lg">
+                  <Shield className="h-6 w-6 text-blue-600" />
+                </div>
+                <ChevronRight className="h-5 w-5 text-[rgba(55,50,47,0.40)] group-hover:text-[#37322F] transition-colors" />
+              </div>
+              <h3 className="text-lg font-semibold text-[#37322F] font-sans mb-2">SSL Certificate Monitoring</h3>
+              <p className="text-sm text-[rgba(55,50,47,0.60)] font-sans">
+                Track SSL certificate expiration and validity. Get alerts before certificates expire.
+              </p>
+              {monitor.checkSsl && (
+                <div className="mt-3">
+                  <SaturnBadge variant="success" className="text-xs">Enabled</SaturnBadge>
+                </div>
+              )}
+            </div>
+          </SaturnCard>
+        </Link>
+
+        <Link href={`/app/monitors/${monitor.id}/domain`} className="group">
+          <SaturnCard className="h-full transition-all hover:shadow-lg hover:border-[rgba(55,50,47,0.24)]">
+            <div className="p-6">
+              <div className="flex items-start justify-between mb-3">
+                <div className="p-2 bg-purple-50 rounded-lg">
+                  <GlobeIcon className="h-6 w-6 text-purple-600" />
+                </div>
+                <ChevronRight className="h-5 w-5 text-[rgba(55,50,47,0.40)] group-hover:text-[#37322F] transition-colors" />
+              </div>
+              <h3 className="text-lg font-semibold text-[#37322F] font-sans mb-2">Domain Expiration Monitoring</h3>
+              <p className="text-sm text-[rgba(55,50,47,0.60)] font-sans">
+                Monitor domain registration expiration. Never lose a domain due to missed renewal.
+              </p>
+              {monitor.checkDomain && (
+                <div className="mt-3">
+                  <SaturnBadge variant="success" className="text-xs">Enabled</SaturnBadge>
+                </div>
+              )}
+            </div>
+          </SaturnCard>
+        </Link>
+      </div>
+
       {/* Monitor Token */}
       <SaturnCard>
         <SaturnCardHeader>
@@ -213,21 +296,21 @@ export default async function MonitorDetailPage({
                 <div>
                   <p className="text-xs text-[rgba(55,50,47,0.60)] mb-1 font-sans">Bash (simple)</p>
                   <code className="block bg-gray-900 text-green-400 px-3 py-2 rounded-lg text-xs font-mono overflow-x-auto">
-                    curl http://localhost:3000/api/ping/{monitor.token}
+                    curl https://saturnmonitor.com/api/ping/{monitor.token}
                   </code>
                 </div>
                 <div>
                   <p className="text-xs text-[rgba(55,50,47,0.60)] mb-1 font-sans">Bash (with start/finish)</p>
                   <code className="block bg-gray-900 text-green-400 px-3 py-2 rounded-lg text-xs font-mono overflow-x-auto whitespace-pre">
-{`curl http://localhost:3000/api/ping/${monitor.token}?state=start
+{`curl https://saturnmonitor.com/api/ping/${monitor.token}?state=start
 # Your job here
-curl http://localhost:3000/api/ping/${monitor.token}?state=success&exitCode=0`}
+curl https://saturnmonitor.com/api/ping/${monitor.token}?state=success&exitCode=0`}
                   </code>
                 </div>
                 <div>
                   <p className="text-xs text-[rgba(55,50,47,0.60)] mb-1 font-sans">CLI Wrapper</p>
                   <code className="block bg-gray-900 text-green-400 px-3 py-2 rounded-lg text-xs font-mono overflow-x-auto">
-                    pulse run --token {monitor.token} -- your-command
+                    saturn run --token {monitor.token} -- your-command
                   </code>
                 </div>
               </div>
@@ -326,17 +409,15 @@ curl http://localhost:3000/api/ping/${monitor.token}?state=success&exitCode=0`}
                               </SaturnTableCell>
                               <SaturnTableCell className="text-right">
                                 {run.outputKey ? (
-                                  <Link href={`/app/monitors/${monitor.id}/runs/${run.id}`}>
-                                    <SaturnButton variant="ghost" size="sm">
-                                      <Eye className="h-4 w-4 mr-2" />
-                                      View
-                                    </SaturnButton>
-                                  </Link>
-                                ) : (
-                                  <SaturnButton variant="ghost" size="sm" disabled>
-                                    <Eye className="h-4 w-4 mr-2" />
+                                <Link href={`/app/monitors/${monitor.id}/runs/${run.id}`}>
+                                  <SaturnButton variant="ghost" size="sm" icon={<Eye className="w-4 h-4" />}>
                                     View
                                   </SaturnButton>
+                                </Link>
+                              ) : (
+                                <SaturnButton variant="ghost" size="sm" disabled icon={<Eye className="w-4 h-4" />}>
+                                  View
+                                </SaturnButton>
                                 )}
                               </SaturnTableCell>
                             </SaturnTableRow>

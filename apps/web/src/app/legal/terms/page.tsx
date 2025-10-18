@@ -1,14 +1,37 @@
 import LegalPageLayout from "@/components/legal-page-layout"
+import { generatePageMetadata } from "@/lib/seo/metadata"
+import { getWebPageSchema, getBreadcrumbSchema } from "@/lib/seo/schema"
+import { JsonLd } from "@/components/seo/json-ld"
 
-export const metadata = {
+export const metadata = generatePageMetadata({
   title: "Terms of Service | Saturn",
   description: "Terms and conditions for using Saturn's cron monitoring platform. Clear, developer-friendly legal terms for engineering teams.",
-}
+  keywords: ['terms of service', 'terms and conditions', 'legal terms', 'service agreement'],
+  path: '/legal/terms',
+})
 
 export default function TermsOfServicePage() {
+  const webPageSchema = getWebPageSchema({
+    name: 'Terms of Service',
+    description: 'Terms and conditions for using Saturn\'s cron monitoring platform.',
+    url: 'https://saturnmonitor.com/legal/terms',
+    datePublished: '2025-10-16',
+    dateModified: '2025-10-16',
+  });
+
+  const breadcrumbSchema = getBreadcrumbSchema([
+    { name: 'Home', url: 'https://saturnmonitor.com' },
+    { name: 'Legal', url: 'https://saturnmonitor.com/legal' },
+    { name: 'Terms of Service', url: 'https://saturnmonitor.com/legal/terms' },
+  ]);
+
   return (
-    <LegalPageLayout title="Terms of Service" lastUpdated="October 16, 2025">
-      <div className="space-y-6">
+    <>
+      <JsonLd data={webPageSchema} />
+      <JsonLd data={breadcrumbSchema} />
+      
+      <LegalPageLayout title="Terms of Service" lastUpdated="October 16, 2025">
+        <div className="space-y-6">
         <p className="text-lg font-medium text-[#37322F]">
           These Terms of Service govern your access to and use of Saturn's cron and scheduled job monitoring platform.
         </p>
@@ -165,7 +188,9 @@ export default function TermsOfServicePage() {
         </div>
       </div>
     </LegalPageLayout>
+    </>
   )
 }
+
 
 

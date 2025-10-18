@@ -8,6 +8,14 @@ import {
 } from '@/components/saturn';
 import { AlertCircle } from 'lucide-react';
 import Link from 'next/link';
+import { generatePageMetadata } from "@/lib/seo/metadata"
+
+export const metadata = generatePageMetadata({
+  title: "Authentication Error | Saturn",
+  description: "There was an error signing in to Saturn.",
+  path: '/auth/error',
+  noIndex: true,
+})
 
 export default async function AuthErrorPage({
   searchParams,

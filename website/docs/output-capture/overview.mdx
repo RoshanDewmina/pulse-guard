@@ -18,13 +18,9 @@ Saturn captures job output (stdout/stderr) for debugging failed runs.
 
 ## Configuration
 
-\`\`\`json
-{
-  "name": "My Monitor",
-  "maxOutputSizeKb": 10,  // 10 KB limit
-  "captureOutput": true
-}
-\`\`\`
+Configure output capture in your monitor settings:
+- **maxOutputSizeKb**: Maximum output size (default: 10 KB)
+- **captureOutput**: Enable/disable output capture (default: false)
 
 ## Sending Output
 
@@ -34,10 +30,10 @@ EXIT_CODE=$?
 
 if [ $EXIT_CODE -eq 0 ]; then
   curl -X POST .../success \
-    -d "{\"output\": $(echo "$OUTPUT" | jq -Rs .)}"
+    -d "\{\"output\": $(echo "$OUTPUT" | jq -Rs .)\}"
 else
   curl -X POST .../fail \
-    -d "{\"exitCode\": $EXIT_CODE, \"output\": $(echo "$OUTPUT" | jq -Rs .)}"
+    -d "\{\"exitCode\": $EXIT_CODE, \"output\": $(echo "$OUTPUT" | jq -Rs .)\}"
 fi
 \`\`\`
 
@@ -47,7 +43,7 @@ fi
 
 **API**:
 \`\`\`bash
-GET /api/runs/<RUN_ID>/output
+GET /api/runs/RUN_ID/output
 \`\`\`
 
 ## Redaction

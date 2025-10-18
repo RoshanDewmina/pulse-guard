@@ -88,7 +88,7 @@ const sidebars: SidebarsConfig = {
       items: [
         'cli/install',
         'cli/reference',
-        'cli/pulse-run',
+        'cli/saturn-run',
       ],
     },
     {

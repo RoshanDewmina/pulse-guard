@@ -7,10 +7,10 @@ export interface Config {
   apiUrl?: string;
 }
 
-// Use ~/.pulse/config.json for config storage
+// Use ~/.saturn/config.json for config storage
 export const config = new Conf<Config>({
-  projectName: 'pulse',
-  cwd: join(homedir(), '.pulse'),
+  projectName: 'saturn',
+  cwd: join(homedir(), '.saturn'),
   configName: 'config',
 });
 
@@ -27,7 +27,7 @@ export function clearApiKey(): void {
 }
 
 export function getApiUrl(): string {
-  return config.get('apiUrl') || 'https://api.saturnmonitor.com';
+  return config.get('apiUrl') || 'https://saturnmonitor.com';
 }
 
 export function setApiUrl(url: string): void {

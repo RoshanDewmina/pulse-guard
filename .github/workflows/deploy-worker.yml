@@ -1,0 +1,78 @@
+name: Deploy Worker
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/worker/**'
+      - 'packages/db/**'
+      - '.github/workflows/deploy-worker.yml'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy to Fly.io
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Flyctl
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Deploy to Fly.io
+        run: flyctl deploy --remote-only --config apps/worker/fly.toml
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: Wait for deployment
+        run: sleep 15
+
+      - name: Verify deployment health
+        run: |
+          APP_NAME=$(flyctl status --config apps/worker/fly.toml --json | jq -r '.Name')
+          STATUS=$(flyctl status --config apps/worker/fly.toml --json | jq -r '.Status')
+          
+          if [ "$STATUS" != "running" ]; then
+            echo "❌ Deployment failed - status: $STATUS"
+            exit 1
+          fi
+          
+          echo "✅ Worker deployment successful"
+          echo "App: $APP_NAME"
+          echo "Status: $STATUS"
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: Tag deployment
+        if: github.ref == 'refs/heads/main'
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          TAG="deploy-worker-$(date +%Y%m%d-%H%M%S)"
+          git tag -a $TAG -m "Worker deployment"
+          git push origin $TAG
+
+      - name: Create deployment summary
+        run: |
+          echo "## 🚀 Worker Deployment Successful" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Timestamp**: $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Health check passed" >> $GITHUB_STEP_SUMMARY
+
+  notify:
+    name: Notify Deployment
+    runs-on: ubuntu-latest
+    needs: deploy
+    if: always()
+    
+    steps:
+      - name: Send deployment notification
+        run: |
+          echo "Worker deployment ${{ needs.deploy.result }}"
+          # Add Slack/Discord notification here if needed
+

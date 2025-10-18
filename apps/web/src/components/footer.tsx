@@ -93,9 +93,9 @@ export default function Footer() {
                 </a>
               </li>
               <li>
-                <a href="mailto:support@saturnmonitor.com" className="text-gray-300 hover:text-white transition-colors">
+                <Link href="/support" className="text-gray-300 hover:text-white transition-colors">
                   Contact
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -153,5 +153,6 @@ export default function Footer() {
     </footer>
   )
 }
+
 
 

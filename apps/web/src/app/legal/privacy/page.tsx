@@ -1,15 +1,38 @@
 import LegalPageLayout from "@/components/legal-page-layout"
 import Link from "next/link"
+import { generatePageMetadata } from "@/lib/seo/metadata"
+import { getWebPageSchema, getBreadcrumbSchema } from "@/lib/seo/schema"
+import { JsonLd } from "@/components/seo/json-ld"
 
-export const metadata = {
+export const metadata = generatePageMetadata({
   title: "Privacy Policy | Saturn",
   description: "How Saturn collects, uses, and protects your data. Transparent notice of our data practices for DevOps and engineering teams.",
-}
+  keywords: ['privacy policy', 'data protection', 'gdpr', 'data security', 'privacy compliance'],
+  path: '/legal/privacy',
+})
 
 export default function PrivacyPolicyPage() {
+  const webPageSchema = getWebPageSchema({
+    name: 'Privacy Policy',
+    description: 'How Saturn collects, uses, and protects your data.',
+    url: 'https://saturnmonitor.com/legal/privacy',
+    datePublished: '2025-10-16',
+    dateModified: '2025-10-16',
+  });
+
+  const breadcrumbSchema = getBreadcrumbSchema([
+    { name: 'Home', url: 'https://saturnmonitor.com' },
+    { name: 'Legal', url: 'https://saturnmonitor.com/legal' },
+    { name: 'Privacy Policy', url: 'https://saturnmonitor.com/legal/privacy' },
+  ]);
+
   return (
-    <LegalPageLayout title="Privacy Policy" lastUpdated="October 16, 2025">
-      <div className="space-y-6">
+    <>
+      <JsonLd data={webPageSchema} />
+      <JsonLd data={breadcrumbSchema} />
+      
+      <LegalPageLayout title="Privacy Policy" lastUpdated="October 16, 2025">
+        <div className="space-y-6">
         <p className="text-lg font-medium text-[#37322F]">
           Saturn, Inc. ("Saturn", "we", "us", or "our") provides cron and scheduled job monitoring services with statistical anomaly detection. This Privacy Policy explains how we collect, use, disclose, and protect information when you use our Services.
         </p>
@@ -155,7 +178,9 @@ export default function PrivacyPolicyPage() {
         </div>
       </div>
     </LegalPageLayout>
+    </>
   )
 }
+
 
 

@@ -1,7 +1,7 @@
 {
   "id": "legal/dpa",
-  "title": "Data Processing Agreement",
-  "description": "Saturn DPA for GDPR compliance",
+  "title": "Data Processing Addendum (DPA)",
+  "description": "GDPR-compliant Data Processing Addendum for Enterprise customers. Defines data processing terms per Article 28.",
   "source": "@site/docs/legal/dpa.mdx",
   "sourceDirName": "legal",
   "slug": "/legal/dpa",
@@ -13,13 +13,17 @@
   "version": "current",
   "frontMatter": {
     "id": "dpa",
-    "title": "Data Processing Agreement",
-    "description": "Saturn DPA for GDPR compliance",
+    "title": "Data Processing Addendum (DPA)",
+    "description": "GDPR-compliant Data Processing Addendum for Enterprise customers. Defines data processing terms per Article 28.",
     "keywords": [
-      "dpa",
-      "gdpr",
-      "data processing",
-      "compliance"
+      "DPA",
+      "data processing addendum",
+      "GDPR",
+      "Article 28",
+      "controller",
+      "processor",
+      "sub-processors",
+      "SCC"
     ]
   }
 }

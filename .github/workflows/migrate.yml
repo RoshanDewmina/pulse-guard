@@ -1,0 +1,128 @@
+name: Database Migration
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        type: choice
+        options:
+          - development
+          - staging
+          - production
+      migration_action:
+        description: 'Migration action'
+        required: true
+        type: choice
+        default: 'deploy'
+        options:
+          - deploy
+          - status
+          - reset (dangerous)
+
+jobs:
+  migrate:
+    name: Run Migration
+    runs-on: ubuntu-latest
+    environment: 
+      name: ${{ github.event.inputs.environment }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: cd packages/db && bun install
+
+      - name: Get DATABASE_URL
+        id: db-url
+        run: |
+          if [ "${{ github.event.inputs.environment }}" == "production" ]; then
+            echo "db_url=${{ secrets.DATABASE_URL_PRODUCTION }}" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event.inputs.environment }}" == "staging" ]; then
+            echo "db_url=${{ secrets.DATABASE_URL_STAGING }}" >> $GITHUB_OUTPUT
+          else
+            echo "db_url=${{ secrets.DATABASE_URL_DEV }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check migration status (before)
+        run: cd packages/db && npx prisma migrate status
+        env:
+          DATABASE_URL: ${{ steps.db-url.outputs.db_url }}
+
+      - name: Run migrations
+        if: github.event.inputs.migration_action == 'deploy'
+        id: migrate
+        run: |
+          cd packages/db
+          npx prisma migrate deploy
+          echo "✅ Migrations applied successfully"
+        env:
+          DATABASE_URL: ${{ steps.db-url.outputs.db_url }}
+
+      - name: Show migration status
+        if: github.event.inputs.migration_action == 'status'
+        run: cd packages/db && npx prisma migrate status
+        env:
+          DATABASE_URL: ${{ steps.db-url.outputs.db_url }}
+
+      - name: Reset database (DANGEROUS)
+        if: github.event.inputs.migration_action == 'reset (dangerous)' && github.event.inputs.environment != 'production'
+        run: |
+          cd packages/db
+          npx prisma migrate reset --force
+          echo "⚠️ Database has been reset"
+        env:
+          DATABASE_URL: ${{ steps.db-url.outputs.db_url }}
+
+      - name: Block production reset
+        if: github.event.inputs.migration_action == 'reset (dangerous)' && github.event.inputs.environment == 'production'
+        run: |
+          echo "❌ Cannot reset production database"
+          exit 1
+
+      - name: Verify database connection
+        run: |
+          cd packages/db
+          npx prisma db execute --stdin <<< "SELECT 1;"
+          echo "✅ Database connection verified"
+        env:
+          DATABASE_URL: ${{ steps.db-url.outputs.db_url }}
+
+      - name: Check migration status (after)
+        if: github.event.inputs.migration_action == 'deploy'
+        run: cd packages/db && npx prisma migrate status
+        env:
+          DATABASE_URL: ${{ steps.db-url.outputs.db_url }}
+
+      - name: Create migration summary
+        run: |
+          echo "## 🗄️ Database Migration" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Environment**: ${{ github.event.inputs.environment }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Action**: ${{ github.event.inputs.migration_action }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Triggered by**: ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Timestamp**: $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ github.event.inputs.migration_action }}" == "deploy" ]; then
+            echo "✅ Migrations applied successfully" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ github.event.inputs.migration_action }}" == "status" ]; then
+            echo "ℹ️ Migration status checked" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ github.event.inputs.migration_action }}" == "reset (dangerous)" ]; then
+            echo "⚠️ Database reset completed" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Rollback on failure
+        if: failure() && github.event.inputs.migration_action == 'deploy'
+        run: |
+          echo "❌ Migration failed! Manual intervention required."
+          echo "Check migration status and database state before proceeding."
+          exit 1
+

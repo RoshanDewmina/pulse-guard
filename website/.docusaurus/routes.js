@@ -14,15 +14,15 @@ export default [
   },
   {
     path: '/',
-    component: ComponentCreator('/', '27b'),
+    component: ComponentCreator('/', '98c'),
     routes: [
       {
         path: '/',
-        component: ComponentCreator('/', '34c'),
+        component: ComponentCreator('/', 'c92'),
         routes: [
           {
             path: '/',
-            component: ComponentCreator('/', '79d'),
+            component: ComponentCreator('/', '030'),
             routes: [
               {
                 path: '/alerts/discord',
@@ -126,16 +126,21 @@ export default [
                 sidebar: "docsSidebar"
               },
               {
-                path: '/cli/pulse-run',
-                component: ComponentCreator('/cli/pulse-run', 'fb5'),
-                exact: true,
-                sidebar: "docsSidebar"
-              },
-              {
                 path: '/cli/reference',
                 component: ComponentCreator('/cli/reference', '2d1'),
                 exact: true,
                 sidebar: "docsSidebar"
+              },
+              {
+                path: '/cli/saturn-run',
+                component: ComponentCreator('/cli/saturn-run', '644'),
+                exact: true,
+                sidebar: "docsSidebar"
+              },
+              {
+                path: '/company/about',
+                component: ComponentCreator('/company/about', '5e3'),
+                exact: true
               },
               {
                 path: '/contact/',
@@ -221,6 +226,11 @@ export default [
                 sidebar: "docsSidebar"
               },
               {
+                path: '/legal/cookies',
+                component: ComponentCreator('/legal/cookies', '272'),
+                exact: true
+              },
+              {
                 path: '/legal/dpa',
                 component: ComponentCreator('/legal/dpa', '131'),
                 exact: true
@@ -228,6 +238,11 @@ export default [
               {
                 path: '/legal/privacy',
                 component: ComponentCreator('/legal/privacy', 'a48'),
+                exact: true
+              },
+              {
+                path: '/legal/security',
+                component: ComponentCreator('/legal/security', 'f67'),
                 exact: true
               },
               {
@@ -306,6 +321,11 @@ export default [
                 component: ComponentCreator('/wordpress/troubleshooting', 'bf7'),
                 exact: true,
                 sidebar: "docsSidebar"
+              },
+              {
+                path: '/',
+                component: ComponentCreator('/', '697'),
+                exact: true
               }
             ]
           }

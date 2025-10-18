@@ -3,6 +3,47 @@ import { authOptions } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { prisma } from '@tokiflow/db';
 import Link from 'next/link';
+import { generatePageMetadata } from '@/lib/seo/metadata';
+import type { Metadata } from 'next';
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params;
+  
+  try {
+    const incident = await prisma.incident.findUnique({
+      where: { id },
+      select: { 
+        kind: true,
+        Monitor: {
+          select: { name: true }
+        }
+      },
+    });
+
+    if (!incident) {
+      return generatePageMetadata({
+        title: "Incident Not Found",
+        description: "The requested incident could not be found.",
+        path: `/app/incidents/${id}`,
+        noIndex: true,
+      });
+    }
+
+    return generatePageMetadata({
+      title: `${incident.kind} - ${incident.Monitor.name}`,
+      description: `View details for ${incident.kind} incident on ${incident.Monitor.name}`,
+      path: `/app/incidents/${id}`,
+      noIndex: true,
+    });
+  } catch {
+    return generatePageMetadata({
+      title: "Incident Details",
+      description: "View incident details.",
+      path: `/app/incidents/${id}`,
+      noIndex: true,
+    });
+  }
+}
 import { 
   SaturnCard, 
   SaturnCardHeader, 
@@ -121,8 +162,7 @@ export default async function IncidentDetailPage({
         ]}
         action={
           <Link href="/app/incidents">
-            <SaturnButton variant="secondary">
-              <ArrowLeft className="w-4 h-4 mr-2" />
+            <SaturnButton variant="secondary" icon={<ArrowLeft className="w-4 h-4" />}>
               Back to List
             </SaturnButton>
           </Link>

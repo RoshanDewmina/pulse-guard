@@ -1,4 +1,5 @@
 import 'next-auth';
+import type { OnboardingStep } from '@prisma/client';
 
 declare module 'next-auth' {
   interface Session {
@@ -7,6 +8,9 @@ declare module 'next-auth' {
       email: string;
       name?: string | null;
       image?: string | null;
+      onboardingCompleted?: boolean;
+      onboardingStep?: OnboardingStep;
+      mfaEnabled?: boolean;
     };
   }
 
@@ -15,12 +19,18 @@ declare module 'next-auth' {
     email: string;
     name?: string | null;
     image?: string | null;
+    onboardingCompleted?: boolean;
+    onboardingStep?: OnboardingStep;
+    mfaEnabled?: boolean;
   }
 }
 
 declare module 'next-auth/jwt' {
   interface JWT {
     sub: string;
+    onboardingCompleted?: boolean;
+    onboardingStep?: OnboardingStep;
+    mfaEnabled?: boolean;
   }
 }
 

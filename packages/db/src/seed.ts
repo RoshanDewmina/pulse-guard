@@ -24,8 +24,10 @@ async function main() {
     where: { slug: 'dev-org' },
     update: {},
     create: {
+      id: crypto.randomUUID(),
       name: 'Dev Organization',
       slug: 'dev-org',
+      updatedAt: new Date(),
     },
   });
 
@@ -41,23 +43,33 @@ async function main() {
     },
     update: {},
     create: {
+      id: crypto.randomUUID(),
       userId: user.id,
       orgId: org.id,
       role: 'OWNER',
+      updatedAt: new Date(),
     },
   });
 
   console.log('✅ Created membership for', user.email, 'in', org.name);
+
+  // Mark user as having completed onboarding since they have an org
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { onboardingCompleted: true },
+  });
 
   // Create subscription plan (free tier)
   const plan = await prisma.subscriptionPlan.upsert({
     where: { orgId: org.id },
     update: {},
     create: {
+      id: crypto.randomUUID(),
       orgId: org.id,
       plan: 'FREE',
       monitorLimit: 5,
       userLimit: 3,
+      updatedAt: new Date(),
     },
   });
 
@@ -66,6 +78,7 @@ async function main() {
   // Create a default email alert channel
   const emailChannel = await prisma.alertChannel.create({
     data: {
+      id: crypto.randomUUID(),
       orgId: org.id,
       type: 'EMAIL',
       label: 'Default Email',
@@ -73,6 +86,7 @@ async function main() {
         email: 'dewminaimalsha2003@gmail.com',
       },
       isDefault: true,
+      updatedAt: new Date(),
     },
   });
 
@@ -89,8 +103,10 @@ async function main() {
       graceSec: 300,
       status: 'OK',
       nextDueAt: new Date(Date.now() + 3600000),
+      updatedAt: new Date(),
     },
     create: {
+      id: crypto.randomUUID(),
       orgId: org.id,
       name: 'Sample Backup Job',
       token: 'pg_automation_test',
@@ -100,6 +116,7 @@ async function main() {
       graceSec: 300, // 5 minutes
       status: 'OK',
       nextDueAt: new Date(Date.now() + 3600000), // 1 hour from now
+      updatedAt: new Date(),
     },
   });
 
@@ -110,10 +127,12 @@ async function main() {
   // Create a default rule (route all monitors to email)
   const rule = await prisma.rule.create({
     data: {
+      id: crypto.randomUUID(),
       orgId: org.id,
       name: 'Alert all monitors to email',
       monitorIds: [], // empty means all monitors
       channelIds: [emailChannel.id],
+      updatedAt: new Date(),
     },
   });
 

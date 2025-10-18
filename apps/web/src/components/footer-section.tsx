@@ -68,13 +68,13 @@ export default function FooterSection() {
               <Link href="/#pricing" className="text-[#49423D] text-sm font-normal leading-5 font-sans cursor-pointer hover:text-[#37322F] transition-colors">
                 Pricing
               </Link>
-              <a href="https://docs.saturn.io" target="_blank" rel="noopener noreferrer" className="text-[#49423D] text-sm font-normal leading-5 font-sans cursor-pointer hover:text-[#37322F] transition-colors">
+              <a href="https://docs.saturnmonitor.com" target="_blank" rel="noopener noreferrer" className="text-[#49423D] text-sm font-normal leading-5 font-sans cursor-pointer hover:text-[#37322F] transition-colors">
                 Documentation
               </a>
-              <a href="https://status.saturn.io" target="_blank" rel="noopener noreferrer" className="text-[#49423D] text-sm font-normal leading-5 font-sans cursor-pointer hover:text-[#37322F] transition-colors">
+              <a href="https://status.saturnmonitor.com" target="_blank" rel="noopener noreferrer" className="text-[#49423D] text-sm font-normal leading-5 font-sans cursor-pointer hover:text-[#37322F] transition-colors">
                 Status
               </a>
-              <a href="https://saturn.io/changelog" target="_blank" rel="noopener noreferrer" className="text-[#49423D] text-sm font-normal leading-5 font-sans cursor-pointer hover:text-[#37322F] transition-colors">
+              <a href="https://docs.saturnmonitor.com/changelog" target="_blank" rel="noopener noreferrer" className="text-[#49423D] text-sm font-normal leading-5 font-sans cursor-pointer hover:text-[#37322F] transition-colors">
                 Changelog
               </a>
             </div>
@@ -87,15 +87,15 @@ export default function FooterSection() {
               <Link href="/company/about" className="text-[#49423D] text-sm font-normal leading-5 font-sans cursor-pointer hover:text-[#37322F] transition-colors">
                 About Us
               </Link>
-              <a href="https://saturn.io/blog" target="_blank" rel="noopener noreferrer" className="text-[#49423D] text-sm font-normal leading-5 font-sans cursor-pointer hover:text-[#37322F] transition-colors">
+              <a href="https://saturnmonitor.com/blog" target="_blank" rel="noopener noreferrer" className="text-[#49423D] text-sm font-normal leading-5 font-sans cursor-pointer hover:text-[#37322F] transition-colors">
                 Blog
               </a>
-              <a href="https://saturn.io/careers" target="_blank" rel="noopener noreferrer" className="text-[#49423D] text-sm font-normal leading-5 font-sans cursor-pointer hover:text-[#37322F] transition-colors">
+              <a href="https://saturnmonitor.com/careers" target="_blank" rel="noopener noreferrer" className="text-[#49423D] text-sm font-normal leading-5 font-sans cursor-pointer hover:text-[#37322F] transition-colors">
                 Careers
               </a>
-              <a href="mailto:support@saturn.io" className="text-[#49423D] text-sm font-normal leading-5 font-sans cursor-pointer hover:text-[#37322F] transition-colors">
+              <Link href="/support" className="text-[#49423D] text-sm font-normal leading-5 font-sans cursor-pointer hover:text-[#37322F] transition-colors">
                 Contact
-              </a>
+              </Link>
             </div>
           </div>
 

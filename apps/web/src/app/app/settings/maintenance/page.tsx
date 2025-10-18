@@ -2,6 +2,14 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { prisma } from '@tokiflow/db';
+import { generatePageMetadata } from '@/lib/seo/metadata'
+
+export const metadata = generatePageMetadata({
+  title: "Settings - Maintenance",
+  description: "Manage maintenance windows and scheduled maintenance.",
+  path: '/app/settings/maintenance',
+  noIndex: true,
+})
 import {
   SaturnCard,
   SaturnCardHeader,
@@ -111,8 +119,7 @@ export default async function MaintenancePage() {
               <p className="text-sm mt-2 font-sans">
                 Create a maintenance window to suppress alerts during planned downtime
               </p>
-              <SaturnButton className="mt-4">
-                <Plus className="h-4 w-4 mr-2" />
+              <SaturnButton className="mt-4" icon={<Plus className="w-4 h-4" />}>
                 Create Maintenance Window
               </SaturnButton>
             </div>

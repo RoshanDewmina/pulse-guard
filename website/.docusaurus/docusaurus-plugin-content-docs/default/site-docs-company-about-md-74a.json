@@ -1,0 +1,31 @@
+{
+  "id": "company/about",
+  "title": "About Saturn",
+  "description": "Our mission to make scheduled job reliability observable and proactive. Built for DevOps teams who refuse to let cron jobs fail silently.",
+  "source": "@site/docs/company/about.md",
+  "sourceDirName": "company",
+  "slug": "/company/about",
+  "permalink": "/company/about",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/saturn/saturn/tree/main/website/docs/company/about.md",
+  "tags": [],
+  "version": "current",
+  "frontMatter": {
+    "title": "About Saturn",
+    "description": "Our mission to make scheduled job reliability observable and proactive. Built for DevOps teams who refuse to let cron jobs fail silently.",
+    "slug": "about",
+    "keywords": [
+      "about",
+      "mission",
+      "values",
+      "team",
+      "company",
+      "story",
+      "careers",
+      "contact"
+    ],
+    "canonical": "https://saturn.io/company/about",
+    "lastReviewed": "2025-10-16T00:00:00.000Z"
+  }
+}

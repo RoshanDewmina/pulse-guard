@@ -18,11 +18,20 @@ import {
   PageHeader,
   StatusIcon,
 } from '@/components/saturn';
+import { generatePageMetadata } from '@/lib/seo/metadata'
+
+export const metadata = generatePageMetadata({
+  title: "Monitors",
+  description: "View and manage your cron job monitors.",
+  path: '/app/monitors',
+  noIndex: true,
+})
 import Link from 'next/link';
 import { Plus } from 'lucide-react';
 import { formatSchedule } from '@/lib/schedule';
 import { format } from 'date-fns';
-import { PageHeaderWithBreadcrumbs } from '@/components/page-header-with-breadcrumbs';
+import { Breadcrumbs } from '@/components/breadcrumbs';
+import { PageHeader as PageHeaderComponent } from '@/components/page-header';
 
 type MonitorStatus = 'OK' | 'LATE' | 'MISSED' | 'FAILING' | 'DISABLED';
 
@@ -68,13 +77,14 @@ export default async function MonitorsPage() {
 
   return (
     <div className="space-y-8 sm:space-y-10 md:space-y-12">
-      <PageHeaderWithBreadcrumbs
+      <Breadcrumbs items={[
+        { label: 'Dashboard', href: '/app' },
+        { label: 'Monitors' },
+      ]} />
+      
+      <PageHeaderComponent
         title="Monitors"
         description="Manage your cron job monitors"
-        breadcrumbs={[
-          { label: 'Dashboard', href: '/app' },
-          { label: 'Monitors' },
-        ]}
         action={
           <Link href="/app/monitors/new">
             <SaturnButton icon={<Plus className="w-4 h-4" />}>

@@ -316,7 +316,7 @@ redis-cli -u "YOUR_REDIS_URL" ping
    - See `docs/STRIPE.md`
 
 3. **Configure Slack Integration**
-   - See `docs/integrations/slack.md`
+   - See `SLACK_SETUP_GUIDE.md`
 
 4. **Enable Error Tracking**
    - See `docs/SENTRY_SETUP.md`
@@ -332,7 +332,7 @@ redis-cli -u "YOUR_REDIS_URL" ping
 
 ## 🆘 Need Help?
 
-- 📖 Full guide: `DEPLOY_CLI.md`
+- 📖 Full guide: `DEPLOYMENT_GUIDE.md`
 - 🐛 Issues: Check logs first
 - 💬 Community: [Your Discord/Slack]
 

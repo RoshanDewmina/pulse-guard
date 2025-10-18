@@ -26,9 +26,9 @@ export function loginCommand(program: Command) {
   program
     .command('login')
     .description('Authenticate CLI with Saturn')
-    .option('--api <url>', 'API URL', 'https://api.saturnmonitor.com')
+    .option('--api <url>', 'API URL', 'https://saturnmonitor.com')
     .action(async (options) => {
-      const apiUrl = options.api || 'https://api.saturnmonitor.com';
+      const apiUrl = options.api || 'https://saturnmonitor.com';
 
       try {
         console.log('🔐 Starting device authorization...\n');
@@ -85,11 +85,11 @@ export function loginCommand(program: Command) {
 
             console.log('');
             console.log('✅ Successfully authenticated!');
-            console.log(`   API Key stored in ${process.env.HOME}/.pulse/config.json`);
+            console.log(`   API Key stored in ${process.env.HOME}/.saturn/config.json`);
             console.log('');
-            console.log('You can now use pulse commands:');
-            console.log('   pulse monitors list');
-            console.log('   pulse monitors create --name my-job --interval 3600');
+            console.log('You can now use saturn commands:');
+            console.log('   saturn monitors list');
+            console.log('   saturn monitors create --name my-job --interval 3600');
             console.log('');
             return;
           }
@@ -104,7 +104,7 @@ export function loginCommand(program: Command) {
 
           if (errorData.error === 'expired_token') {
             console.log('');
-            console.log('❌ Code expired. Please run `pulse login` again.');
+            console.log('❌ Code expired. Please run `saturn login` again.');
             process.exit(1);
           }
 
@@ -122,7 +122,7 @@ export function loginCommand(program: Command) {
 
         // Timeout
         console.log('');
-        console.log('❌ Authorization timed out. Please run `pulse login` again.');
+        console.log('❌ Authorization timed out. Please run `saturn login` again.');
         process.exit(1);
       } catch (error) {
         console.error('❌ Login failed:', error);

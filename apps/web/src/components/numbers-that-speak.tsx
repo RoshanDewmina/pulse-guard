@@ -360,7 +360,7 @@ const NumbersThatSpeak: React.FC<NumbersThatSpeakProps> = ({
                                     >
                                       <div
                                         style={{
-                                          fontFamily: "'Inter', sans-serif",
+                                          fontFamily: "Inter, sans-serif",
                                           fontWeight: 500,
                                           fontSize: "7.826px",
                                           lineHeight: "14.087px",
@@ -446,7 +446,7 @@ const NumbersThatSpeak: React.FC<NumbersThatSpeakProps> = ({
                                 <div
                                   style={{
                                     display: "flex",
-                                    fontFamily: "'Inter', sans-serif",
+                                    fontFamily: "Inter, sans-serif",
                                     fontWeight: 500,
                                     alignItems: "center",
                                     justifyContent: "space-between",

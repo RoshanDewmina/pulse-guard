@@ -16,6 +16,8 @@ import { SaturnButton } from '@/components/saturn/SaturnButton';
 import { KubernetesSetupModal } from './kubernetes-setup-modal';
 import { WordPressSetupModal } from './wordpress-setup-modal';
 import { TerraformSetupModal } from './terraform-setup-modal';
+import { DiscordSetupModal } from './discord-setup-modal';
+import { SlackSetupModal } from './slack-setup-modal';
 
 interface IntegrationCardProps {
   integration: {
@@ -33,12 +35,14 @@ interface IntegrationCardProps {
   isConnected?: boolean;
   monitorCount?: number;
   apiKey?: string;
+  orgId?: string;
+  onIntegrationChange?: () => void;
 }
 
-export function IntegrationCard({ integration, isConnected, monitorCount, apiKey }: IntegrationCardProps) {
+export function IntegrationCard({ integration, isConnected, monitorCount, apiKey, orgId, onIntegrationChange }: IntegrationCardProps) {
   const [showSetupModal, setShowSetupModal] = useState(false);
 
-  const hasSetupModal = ['kubernetes', 'wordpress', 'terraform'].includes(integration.id);
+  const hasSetupModal = ['kubernetes', 'wordpress', 'terraform', 'discord', 'slack'].includes(integration.id);
 
   return (
     <>
@@ -109,23 +113,21 @@ export function IntegrationCard({ integration, isConnected, monitorCount, apiKey
                     size="sm" 
                     fullWidth
                     onClick={() => setShowSetupModal(true)}
+                    icon={<Settings className="w-4 h-4" />}
                   >
-                    <Settings className="w-4 h-4 mr-2" />
                     Quick Setup
                   </SaturnButton>
                 )}
                 {integration.setupUrl && !hasSetupModal && (
                   <Link href={integration.setupUrl} className="flex-1">
-                    <SaturnButton size="sm" fullWidth>
-                      <ArrowRight className="w-4 h-4 mr-2" />
+                    <SaturnButton size="sm" fullWidth icon={<ArrowRight className="w-4 h-4" />}>
                       Setup
                     </SaturnButton>
                   </Link>
                 )}
                 {integration.docsUrl && (
                   <Link href={integration.docsUrl} target="_blank" rel="noopener noreferrer" className={hasSetupModal || integration.setupUrl ? 'flex-1' : 'w-full'}>
-                    <SaturnButton variant="secondary" size="sm" fullWidth>
-                      <ExternalLink className="w-4 h-4 mr-2" />
+                    <SaturnButton variant="secondary" size="sm" fullWidth icon={<ExternalLink className="w-4 h-4" />}>
                       Docs
                     </SaturnButton>
                   </Link>
@@ -156,6 +158,24 @@ export function IntegrationCard({ integration, isConnected, monitorCount, apiKey
           open={showSetupModal} 
           onOpenChange={setShowSetupModal}
           apiKey={apiKey}
+        />
+      )}
+      {integration.id === 'discord' && orgId && (
+        <DiscordSetupModal 
+          isOpen={showSetupModal} 
+          onClose={() => setShowSetupModal(false)}
+          orgId={orgId}
+          onSuccess={() => {
+            onIntegrationChange?.();
+          }}
+        />
+      )}
+      {integration.id === 'slack' && orgId && (
+        <SlackSetupModal 
+          isOpen={showSetupModal} 
+          onClose={() => setShowSetupModal(false)}
+          orgId={orgId}
+          isConnected={isConnected}
         />
       )}
     </>

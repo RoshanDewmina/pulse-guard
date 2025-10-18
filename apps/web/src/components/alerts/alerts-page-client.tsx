@@ -85,13 +85,12 @@ export function AlertsPageClient({ orgId, channels, rules, monitors }: AlertsPag
                   size="sm"
                   className="flex-1 sm:flex-none"
                   onClick={() => setChannelModalOpen(true)}
+                  icon={<Plus className="w-4 h-4" />}
                 >
-                  <Plus className="w-4 h-4 mr-2" />
                   Add Channel
                 </SaturnButton>
                 <Link href={`/api/slack/install?orgId=${orgId}`} className="flex-1 sm:flex-none">
-                  <SaturnButton variant="secondary" size="sm" fullWidth>
-                    <MessageSquare className="w-4 h-4 mr-2" />
+                  <SaturnButton variant="secondary" size="sm" fullWidth icon={<MessageSquare className="w-4 h-4" />}>
                     Connect Slack
                   </SaturnButton>
                 </Link>
@@ -157,8 +156,7 @@ export function AlertsPageClient({ orgId, channels, rules, monitors }: AlertsPag
                 <SaturnCardTitle as="h2">Alert Rules</SaturnCardTitle>
                 <SaturnCardDescription>Route incidents from monitors to channels</SaturnCardDescription>
               </div>
-              <SaturnButton onClick={() => setRuleModalOpen(true)}>
-                <Plus className="w-4 h-4 mr-2" />
+              <SaturnButton onClick={() => setRuleModalOpen(true)} icon={<Plus className="w-4 h-4" />}>
                 Create Rule
               </SaturnButton>
             </div>

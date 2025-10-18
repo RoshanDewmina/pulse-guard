@@ -30,7 +30,7 @@ describe('CLI Login Command (Production Critical)', () => {
 
     mockGetConfig.mockResolvedValue({
       apiKey: '',
-      apiUrl: 'https://api.saturnmonitor.com',
+      apiUrl: 'https://saturnmonitor.com',
     });
 
     mockSaveConfig.mockResolvedValue();
@@ -293,7 +293,7 @@ describe('CLI Login Command (Production Critical)', () => {
 
       // Should use default API URL
       expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining('https://api.saturnmonitor.com'),
+        expect.stringContaining('https://saturnmonitor.com'),
         expect.any(Object)
       );
     });

@@ -1,14 +1,37 @@
 import LegalPageLayout from "@/components/legal-page-layout"
+import { generatePageMetadata } from "@/lib/seo/metadata"
+import { getWebPageSchema, getBreadcrumbSchema } from "@/lib/seo/schema"
+import { JsonLd } from "@/components/seo/json-ld"
 
-export const metadata = {
+export const metadata = generatePageMetadata({
   title: "Security Overview | Saturn",
   description: "Saturn's security architecture, data protection measures, and compliance roadmap for enterprise DevOps teams.",
-}
+  keywords: ['security', 'data protection', 'encryption', 'compliance', 'infosec'],
+  path: '/legal/security',
+})
 
 export default function SecurityPage() {
+  const webPageSchema = getWebPageSchema({
+    name: 'Security Overview',
+    description: 'Saturn\'s security architecture, data protection measures, and compliance roadmap.',
+    url: 'https://saturnmonitor.com/legal/security',
+    datePublished: '2025-10-16',
+    dateModified: '2025-10-16',
+  });
+
+  const breadcrumbSchema = getBreadcrumbSchema([
+    { name: 'Home', url: 'https://saturnmonitor.com' },
+    { name: 'Legal', url: 'https://saturnmonitor.com/legal' },
+    { name: 'Security', url: 'https://saturnmonitor.com/legal/security' },
+  ]);
+
   return (
-    <LegalPageLayout title="Security Overview" lastUpdated="October 16, 2025">
-      <div className="space-y-6">
+    <>
+      <JsonLd data={webPageSchema} />
+      <JsonLd data={breadcrumbSchema} />
+      
+      <LegalPageLayout title="Security Overview" lastUpdated="October 16, 2025">
+        <div className="space-y-6">
         <p className="text-lg font-medium text-[#37322F]">
           Saturn is built with security-first architecture for DevOps and engineering teams monitoring business-critical scheduled jobs.
         </p>
@@ -119,7 +142,9 @@ export default function SecurityPage() {
         </div>
       </div>
     </LegalPageLayout>
+    </>
   )
 }
+
 
 

@@ -1,12 +1,12 @@
 #!/bin/bash
 #
-# Comprehensive Test Runner for Saturn
+# Comprehensive Test Runner for PulseGuard
 # Runs all available tests and generates a summary report
 #
 
 set -e
 
-echo "🧪 Saturn - Comprehensive Test Suite"
+echo "🧪 PulseGuard - Comprehensive Test Suite"
 echo "========================================"
 echo ""
 

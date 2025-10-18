@@ -2,6 +2,8 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import { getProductSchema } from "@/lib/seo/schema"
+import { JsonLd } from "@/components/seo/json-ld"
 
 export default function PricingSection() {
   const [billingPeriod, setBillingPeriod] = useState<"monthly" | "annually">("annually")
@@ -21,8 +23,64 @@ export default function PricingSection() {
     },
   }
 
+  // Generate Product schemas for each pricing plan
+  const starterSchema = getProductSchema({
+    name: "Saturn Free Plan",
+    description: "Perfect for side projects and small teams getting started with cron monitoring. Up to 5 monitors, 3 team members, email + Slack alerts, 7-day run history, and community support.",
+    price: "0",
+    priceCurrency: "USD",
+    features: [
+      "Up to 5 monitors",
+      "Up to 3 team members", 
+      "Email + Slack alerts",
+      "7-day run history",
+      "Community support"
+    ],
+    url: "https://saturnmonitor.com#pricing"
+  });
+
+  const professionalSchema = getProductSchema({
+    name: "Saturn Professional Plan",
+    description: "For growing teams that need advanced monitoring and analytics. Up to 50 monitors, unlimited team members, advanced alerts, 90-day run history, and priority support.",
+    price: billingPeriod === "annually" ? "15" : "19",
+    priceCurrency: "USD",
+    features: [
+      "Up to 50 monitors",
+      "Unlimited team members",
+      "Advanced alerts (Discord, webhooks)",
+      "90-day run history",
+      "Priority support",
+      "Custom integrations",
+      "Advanced analytics"
+    ],
+    url: "https://saturnmonitor.com#pricing"
+  });
+
+  const enterpriseSchema = getProductSchema({
+    name: "Saturn Enterprise Plan", 
+    description: "For large organizations with complex monitoring needs. Unlimited monitors, advanced security, custom retention, dedicated support, and enterprise integrations.",
+    price: billingPeriod === "annually" ? "39" : "49",
+    priceCurrency: "USD",
+    features: [
+      "Unlimited monitors",
+      "Advanced security features",
+      "Custom data retention",
+      "Dedicated support",
+      "Enterprise integrations",
+      "SLA guarantees",
+      "Custom reporting"
+    ],
+    url: "https://saturnmonitor.com#pricing"
+  });
+
   return (
-    <div className="w-full flex flex-col justify-center items-center gap-2">
+    <>
+      {/* Product Schema for SEO */}
+      <JsonLd data={starterSchema} />
+      <JsonLd data={professionalSchema} />
+      <JsonLd data={enterpriseSchema} />
+      
+      <div id="pricing" className="w-full flex flex-col justify-center items-center gap-2 scroll-mt-20">
       {/* Header Section */}
       <div className="self-stretch px-6 md:px-24 py-12 md:py-16 border-b border-[rgba(55,50,47,0.12)] flex justify-center items-center gap-6">
         <div className="w-full max-w-[586px] px-6 py-5 shadow-[0px_2px_4px_rgba(50,45,43,0.06)] overflow-hidden rounded-lg flex flex-col justify-start items-center gap-4 shadow-none">
@@ -386,5 +444,6 @@ export default function PricingSection() {
         </div>
       </div>
     </div>
+    </>
   )
 }

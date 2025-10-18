@@ -176,14 +176,14 @@ export default function LegalPageLayout({ title, lastUpdated, children }: LegalP
             For questions about this document or Saturn's practices, please contact us:
           </p>
           <div className="flex flex-wrap gap-4 text-sm font-sans">
-            <a href="mailto:support@saturn.io" className="text-[#37322F] hover:text-[#49423D] underline underline-offset-2">
-              support@saturn.io
+            <a href="mailto:support@saturnmonitor.com" className="text-[#37322F] hover:text-[#49423D] underline underline-offset-2">
+              support@saturnmonitor.com
             </a>
-            <a href="mailto:legal@saturn.io" className="text-[#37322F] hover:text-[#49423D] underline underline-offset-2">
-              legal@saturn.io
+            <a href="mailto:legal@saturnmonitor.com" className="text-[#37322F] hover:text-[#49423D] underline underline-offset-2">
+              legal@saturnmonitor.com
             </a>
-            <a href="mailto:security@saturn.io" className="text-[#37322F] hover:text-[#49423D] underline underline-offset-2">
-              security@saturn.io
+            <a href="mailto:security@saturnmonitor.com" className="text-[#37322F] hover:text-[#49423D] underline underline-offset-2">
+              security@saturnmonitor.com
             </a>
           </div>
         </div>

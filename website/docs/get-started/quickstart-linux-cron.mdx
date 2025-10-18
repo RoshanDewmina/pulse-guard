@@ -68,20 +68,20 @@ pulse --version
 
 ```bash
 # Device flow (browser-based)
-pulse login
+saturn login
 
 # Or with token directly
-pulse login --token YOUR_TOKEN
+saturn login --token YOUR_TOKEN
 ```
 
 Configuration is stored in `~/.pulse/config.json`.
 
 ### Wrap Your Command
 
-Instead of running the job directly, wrap it with `pulse run`:
+Instead of running the job directly, wrap it with `saturn run`:
 
 ```bash title="crontab"
-0 3 * * * pulse run --monitor YOUR_MONITOR_ID -- /path/to/backup.sh
+0 3 * * * saturn run --monitor YOUR_MONITOR_ID -- /path/to/backup.sh
 ```
 
 The CLI will:
@@ -93,7 +93,7 @@ The CLI will:
 ### With Output Capture
 
 ```bash
-0 3 * * * pulse run --monitor YOUR_MONITOR_ID --capture-output -- /path/to/backup.sh
+0 3 * * * saturn run --monitor YOUR_MONITOR_ID --capture-output -- /path/to/backup.sh
 ```
 
 Output is sent with the ping and visible in the Saturn dashboard.
@@ -101,7 +101,7 @@ Output is sent with the ping and visible in the Saturn dashboard.
 ### Multiple Commands
 
 ```bash
-0 3 * * * pulse run --monitor YOUR_MONITOR_ID -- bash -c "cd /app && ./backup.sh && ./verify.sh"
+0 3 * * * saturn run --monitor YOUR_MONITOR_ID -- bash -c "cd /app && ./backup.sh && ./verify.sh"
 ```
 
 ## Method 3: Bash Wrapper Script
@@ -160,21 +160,21 @@ Use in cron:
 
 ```bash title="crontab"
 # Daily at 3 AM
-0 3 * * * pulse run --monitor mon_abc123 -- pg_dump mydb > /backups/$(date +\%Y\%m\%d).sql
+0 3 * * * saturn run --monitor mon_abc123 -- pg_dump mydb > /backups/$(date +\%Y\%m\%d).sql
 ```
 
 ### Cleanup Script
 
 ```bash title="crontab"
 # Hourly cleanup
-0 * * * * pulse run --monitor mon_xyz789 -- find /tmp -type f -mtime +7 -delete
+0 * * * * saturn run --monitor mon_xyz789 -- find /tmp -type f -mtime +7 -delete
 ```
 
 ### Log Rotation
 
 ```bash title="crontab"
 # Daily at midnight
-0 0 * * * pulse run --monitor mon_log001 -- logrotate /etc/logrotate.conf
+0 0 * * * saturn run --monitor mon_log001 -- logrotate /etc/logrotate.conf
 ```
 
 ## Authentication with Tokens
@@ -208,7 +208,7 @@ Don't wait for the schedule! Run manually first:
 /path/to/backup.sh
 
 # Or test with CLI
-pulse run --monitor YOUR_MONITOR_ID -- /path/to/backup.sh
+saturn run --monitor YOUR_MONITOR_ID -- /path/to/backup.sh
 ```
 :::
 

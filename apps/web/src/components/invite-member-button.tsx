@@ -21,8 +21,7 @@ export function InviteMemberButton() {
   };
 
   return (
-    <SaturnButton onClick={handleInvite} loading={loading}>
-      <Plus className="w-4 h-4 mr-2" />
+    <SaturnButton onClick={handleInvite} loading={loading} icon={<Plus className="w-4 h-4" />}>
       Invite Member
     </SaturnButton>
   );

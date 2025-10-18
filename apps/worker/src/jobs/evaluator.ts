@@ -141,6 +141,13 @@ export function startEvaluator() {
       }
 
       logger.info('Monitor evaluation complete');
+
+      // Record last evaluation run for health checks
+      try {
+        await connection.set('evaluator:last_run', Date.now().toString());
+      } catch (error) {
+        logger.error({ err: error }, 'Failed to record evaluator run time');
+      }
     },
     { connection }
   );

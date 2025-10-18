@@ -1,14 +1,37 @@
 import LegalPageLayout from "@/components/legal-page-layout"
+import { generatePageMetadata } from "@/lib/seo/metadata"
+import { getWebPageSchema, getBreadcrumbSchema } from "@/lib/seo/schema"
+import { JsonLd } from "@/components/seo/json-ld"
 
-export const metadata = {
+export const metadata = generatePageMetadata({
   title: "Data Processing Addendum (DPA) | Saturn",
   description: "GDPR-compliant Data Processing Addendum for Enterprise customers. Article 28 compliance.",
-}
+  keywords: ['DPA', 'data processing addendum', 'GDPR', 'data processing agreement', 'article 28'],
+  path: '/legal/dpa',
+})
 
 export default function DPAPage() {
+  const webPageSchema = getWebPageSchema({
+    name: 'Data Processing Addendum (DPA)',
+    description: 'GDPR-compliant Data Processing Addendum for Enterprise customers.',
+    url: 'https://saturnmonitor.com/legal/dpa',
+    datePublished: '2025-10-16',
+    dateModified: '2025-10-16',
+  });
+
+  const breadcrumbSchema = getBreadcrumbSchema([
+    { name: 'Home', url: 'https://saturnmonitor.com' },
+    { name: 'Legal', url: 'https://saturnmonitor.com/legal' },
+    { name: 'DPA', url: 'https://saturnmonitor.com/legal/dpa' },
+  ]);
+
   return (
-    <LegalPageLayout title="Data Processing Addendum (DPA)" lastUpdated="October 16, 2025">
-      <div className="space-y-6">
+    <>
+      <JsonLd data={webPageSchema} />
+      <JsonLd data={breadcrumbSchema} />
+      
+      <LegalPageLayout title="Data Processing Addendum (DPA)" lastUpdated="October 16, 2025">
+        <div className="space-y-6">
         <p className="text-lg font-medium text-[#37322F]">
           This Data Processing Addendum (DPA) supplements the Saturn Terms of Service and applies to Enterprise customers
           subject to data protection laws, including the EU GDPR.
@@ -174,7 +197,9 @@ export default function DPAPage() {
         </div>
       </div>
     </LegalPageLayout>
+    </>
   )
 }
+
 
 

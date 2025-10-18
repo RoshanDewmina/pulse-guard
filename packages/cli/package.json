@@ -1,19 +1,30 @@
 {
-    "name": "@tokiflow/cli",
+    "name": "saturn-monitor",
     "version": "0.1.0",
-    "description": "Saturn CLI for job monitoring",
+    "description": "Saturn - CLI for cron job and scheduled task monitoring",
     "bin": {
         "saturn": "./dist/index.js"
     },
+    "main": "./dist/index.js",
+    "files": [
+        "dist"
+    ],
     "scripts": {
         "dev": "bun run src/index.ts",
-        "build": "bun build src/index.ts --outdir dist --target node",
+        "build": "bun build src/index.ts --outdir dist --target node --minify",
+        "prepublishOnly": "bun run build",
         "start": "node dist/index.js",
         "test": "jest --passWithNoTests",
         "test:watch": "jest --watch",
         "test:coverage": "jest --coverage",
         "lint": "echo 'Skipping lint for CLI'"
     },
+    "keywords": ["saturn", "monitoring", "cron", "uptime", "alerts", "cli"],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/saturnmonitor/saturn"
+    },
+    "homepage": "https://saturnmonitor.com",
     "dependencies": {
         "commander": "^12.1.0",
         "chalk": "^5.3.0",

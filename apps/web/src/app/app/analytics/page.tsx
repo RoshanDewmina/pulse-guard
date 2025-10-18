@@ -17,10 +17,19 @@ import {
   SaturnTableCell,
   PageHeader,
 } from '@/components/saturn';
+import { generatePageMetadata } from '@/lib/seo/metadata'
+
+export const metadata = generatePageMetadata({
+  title: "Analytics",
+  description: "View analytics and health scores for your monitors.",
+  path: '/app/analytics',
+  noIndex: true,
+})
 import { calculateHealthScore, calculateUptime, calculateMTBF, calculateMTTR, getHealthScoreColor, getHealthScoreBgColor } from '@/lib/analytics/health-score';
 import { Activity, TrendingUp, Clock, AlertCircle, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
-import { PageHeaderWithBreadcrumbs } from '@/components/page-header-with-breadcrumbs';
+import { Breadcrumbs } from '@/components/breadcrumbs';
+import { PageHeader as PageHeaderComponent } from '@/components/page-header';
 
 export default async function AnalyticsPage() {
   const session = await getServerSession(authOptions);
@@ -89,10 +98,10 @@ export default async function AnalyticsPage() {
   const totalMonitors = org.Monitor.length;
   const avgHealthScore = monitorAnalytics.length > 0
     ? monitorAnalytics.reduce((sum, m) => sum + m.healthScore.score, 0) / monitorAnalytics.length
-    : 100;
+    : 0;
   const avgUptime = monitorAnalytics.length > 0
     ? monitorAnalytics.reduce((sum, m) => sum + m.uptime7d, 0) / monitorAnalytics.length
-    : 100;
+    : 0;
 
   const activeIncidents = await prisma.incident.count({
     where: {
@@ -124,13 +133,14 @@ export default async function AnalyticsPage() {
 
   return (
     <div className="space-y-8 sm:space-y-10 md:space-y-12">
-      <PageHeaderWithBreadcrumbs
+      <Breadcrumbs items={[
+        { label: 'Dashboard', href: '/app' },
+        { label: 'Analytics' },
+      ]} />
+      
+      <PageHeaderComponent
         title="Analytics"
         description="Monitor health, performance, and reliability insights"
-        breadcrumbs={[
-          { label: 'Dashboard', href: '/app' },
-          { label: 'Analytics' },
-        ]}
       />
 
       {/* Overview Cards */}

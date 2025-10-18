@@ -1,5 +1,10 @@
 # 🛡️ PulseGuard
 
+[![CI](https://github.com/YOUR_USERNAME/pulse-guard/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_USERNAME/pulse-guard/actions/workflows/ci.yml)
+[![Deploy Web](https://github.com/YOUR_USERNAME/pulse-guard/actions/workflows/deploy-web.yml/badge.svg)](https://github.com/YOUR_USERNAME/pulse-guard/actions/workflows/deploy-web.yml)
+[![Deploy Worker](https://github.com/YOUR_USERNAME/pulse-guard/actions/workflows/deploy-worker.yml/badge.svg)](https://github.com/YOUR_USERNAME/pulse-guard/actions/workflows/deploy-worker.yml)
+[![codecov](https://codecov.io/gh/YOUR_USERNAME/pulse-guard/branch/main/graph/badge.svg)](https://codecov.io/gh/YOUR_USERNAME/pulse-guard)
+
 **Production-ready uptime monitoring and alerting platform**
 
 Monitor your servers, APIs, cron jobs, and services with real-time alerts via email, Slack, Discord, and webhooks.
@@ -39,8 +44,8 @@ See: QUICK_START.md
 
 **For Manual Control:**
 ```bash
-# Step-by-step CLI deployment
-See: DEPLOY_CLI.md
+# Step-by-step deployment
+See: DEPLOYMENT_GUIDE.md
 ```
 
 ### 2. Development Setup
@@ -70,9 +75,7 @@ bun run dev
 | Guide | Best For | Time |
 |-------|----------|------|
 | [📄 QUICK_START.md](./QUICK_START.md) | First deployment | 10 min |
-| [📄 DEPLOY_CLI.md](./DEPLOY_CLI.md) | Production setup | 20 min |
-| [📄 VERCEL_DEPLOY.md](./VERCEL_DEPLOY.md) | Web dashboard deployment | 15 min |
-| [📄 DEPLOYMENT_README.md](./DEPLOYMENT_README.md) | Complete reference | - |
+| [📄 DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md) | Complete deployment reference | 20 min |
 
 ### Development Guides
 
@@ -234,7 +237,7 @@ Runs:
 - S3 for output capture
 - Sentry for error tracking
 
-**See**: [Environment Variables Guide](./DEPLOY_CLI.md#environment-variables)
+**See**: [Environment Variables Guide](./DEPLOYMENT_GUIDE.md#environment-variables)
 
 ---
 
@@ -274,24 +277,6 @@ Runs:
 
 ---
 
-## 🧪 Testing
-
-```bash
-# Unit tests
-bun test
-
-# E2E tests
-cd apps/web
-bun run test:e2e
-
-# Run all tests
-./apps/web/scripts/run-all-tests.sh
-```
-
-**See**: [Testing Guide](./docs/TESTING.md)
-
----
-
 ## 🤝 Contributing
 
 Contributions are welcome! Please read our contributing guidelines.
@@ -301,6 +286,25 @@ Contributions are welcome! Please read our contributing guidelines.
 3. Make your changes
 4. Add tests
 5. Submit a pull request
+
+---
+
+## 📊 Testing
+
+Current testing status: See [TESTING-STATUS.md](./TESTING-STATUS.md)
+
+Run tests:
+```bash
+# Unit tests
+bun test
+
+# E2E tests  
+cd apps/web
+bun run test:e2e
+
+# Integration tests
+./apps/web/scripts/run-all-tests.sh
+```
 
 ---
 

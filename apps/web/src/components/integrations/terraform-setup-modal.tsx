@@ -79,18 +79,9 @@ provider "saturn" {
                 size="sm"
                 variant="secondary"
                 onClick={() => copyToClipboard(providerConfig, 'Provider config')}
+                icon={copied === 'Provider config' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
               >
-                {copied === 'Provider config' ? (
-                  <>
-                    <Check className="w-4 h-4 mr-2" />
-                    Copied
-                  </>
-                ) : (
-                  <>
-                    <Copy className="w-4 h-4 mr-2" />
-                    Copy
-                  </>
-                )}
+                {copied === 'Provider config' ? 'Copied' : 'Copy'}
               </SaturnButton>
             </div>
             <div className="bg-gray-900 text-green-400 p-4 rounded-lg text-sm font-mono overflow-x-auto">
@@ -119,18 +110,9 @@ provider "saturn" {
                 size="sm"
                 variant="secondary"
                 onClick={() => copyToClipboard(monitorExample, 'Monitor example')}
+                icon={copied === 'Monitor example' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
               >
-                {copied === 'Monitor example' ? (
-                  <>
-                    <Check className="w-4 h-4 mr-2" />
-                    Copied
-                  </>
-                ) : (
-                  <>
-                    <Copy className="w-4 h-4 mr-2" />
-                    Copy
-                  </>
-                )}
+                {copied === 'Monitor example' ? 'Copied' : 'Copy'}
               </SaturnButton>
             </div>
             <div className="bg-gray-900 text-green-400 p-4 rounded-lg text-sm font-mono overflow-x-auto">

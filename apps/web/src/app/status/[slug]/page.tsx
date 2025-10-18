@@ -2,6 +2,10 @@ import { prisma } from '@tokiflow/db';
 import { notFound } from 'next/navigation';
 import { format, subDays } from 'date-fns';
 import { CheckCircle2, XCircle, AlertCircle, Clock } from 'lucide-react';
+import { generatePageMetadata, SITE_URL } from '@/lib/seo/metadata';
+import { getWebPageSchema } from '@/lib/seo/schema';
+import { JsonLd } from '@/components/seo/json-ld';
+import type { Metadata } from 'next';
 
 interface StatusPageProps {
   params: Promise<{
@@ -11,6 +15,45 @@ interface StatusPageProps {
 
 // Enable ISR with revalidation every 60 seconds
 export const revalidate = 60;
+
+export async function generateMetadata({ params }: StatusPageProps): Promise<Metadata> {
+  const { slug } = await params;
+  
+  try {
+    const statusPage = await prisma.statusPage.findUnique({
+      where: { slug },
+      select: { 
+        title: true,
+        Org: {
+          select: { name: true }
+        }
+      },
+    });
+
+    if (!statusPage) {
+      return generatePageMetadata({
+        title: "Status Page Not Found",
+        description: "The requested status page could not be found.",
+        path: `/status/${slug}`,
+        noIndex: true,
+      });
+    }
+
+    return generatePageMetadata({
+      title: `${statusPage.title || statusPage.Org.name} Status`,
+      description: `Real-time system status and uptime for ${statusPage.title || statusPage.Org.name}`,
+      path: `/status/${slug}`,
+      noIndex: false, // Public status pages should be indexed
+    });
+  } catch {
+    return generatePageMetadata({
+      title: "Status Page",
+      description: "System status and uptime information.",
+      path: `/status/${slug}`,
+      noIndex: false,
+    });
+  }
+}
 
 export async function generateStaticParams() {
   const statusPages = await prisma.statusPage.findMany({
@@ -142,14 +185,25 @@ export default async function PublicStatusPage({ params }: StatusPageProps) {
   const backgroundColor = theme.backgroundColor || '#FFFFFF';
   const textColor = theme.textColor || '#1F2937';
 
+  // JSON-LD structured data
+  const webPageSchema = getWebPageSchema({
+    name: `${statusPage.title || statusPage.Org.name} Status`,
+    description: `Real-time system status and uptime for ${statusPage.title || statusPage.Org.name}`,
+    url: `${SITE_URL}/status/${slug}`,
+    datePublished: statusPage.createdAt.toISOString(),
+    dateModified: statusPage.updatedAt.toISOString(),
+  });
+
   return (
-    <div
-      className="min-h-screen"
-      style={{
-        backgroundColor,
-        color: textColor,
-      }}
-    >
+    <>
+      <JsonLd data={webPageSchema} />
+      <div
+        className="min-h-screen"
+        style={{
+          backgroundColor,
+          color: textColor,
+        }}
+      >
       {/* Header */}
       <header className="border-b border-gray-200">
         <div className="max-w-5xl mx-auto px-4 py-8">
@@ -317,6 +371,7 @@ export default async function PublicStatusPage({ params }: StatusPageProps) {
         </div>
       </main>
     </div>
+    </>
   );
 }
 

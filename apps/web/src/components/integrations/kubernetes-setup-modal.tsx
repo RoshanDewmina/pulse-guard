@@ -79,18 +79,9 @@ helm install saturn-agent saturn/saturn-agent \\
                 size="sm"
                 variant="secondary"
                 onClick={() => copyToClipboard(helmCommand, 'Helm command')}
+                icon={copied === 'Helm command' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
               >
-                {copied === 'Helm command' ? (
-                  <>
-                    <Check className="w-4 h-4 mr-2" />
-                    Copied
-                  </>
-                ) : (
-                  <>
-                    <Copy className="w-4 h-4 mr-2" />
-                    Copy
-                  </>
-                )}
+                {copied === 'Helm command' ? 'Copied' : 'Copy'}
               </SaturnButton>
             </div>
             <div className="bg-gray-900 text-green-400 p-4 rounded-lg text-sm font-mono overflow-x-auto">
@@ -111,18 +102,9 @@ helm install saturn-agent saturn/saturn-agent \\
                 size="sm"
                 variant="secondary"
                 onClick={() => copyToClipboard('saturn.co/enabled: "true"', 'Annotation')}
+                icon={copied === 'Annotation' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
               >
-                {copied === 'Annotation' ? (
-                  <>
-                    <Check className="w-4 h-4 mr-2" />
-                    Copied
-                  </>
-                ) : (
-                  <>
-                    <Copy className="w-4 h-4 mr-2" />
-                    Copy
-                  </>
-                )}
+                {copied === 'Annotation' ? 'Copied' : 'Copy'}
               </SaturnButton>
             </div>
             <div className="bg-gray-900 text-green-400 p-4 rounded-lg text-sm font-mono overflow-x-auto">

@@ -21,7 +21,7 @@ const faqData: FAQItem[] = [
   {
     question: "How do I set up monitoring for Kubernetes CronJobs?",
     answer:
-      "Use our Helm chart: helm repo add saturn https://charts.saturn.example.com && helm install your-monitor saturn/saturn-monitor --set saturn.token=YOUR_TOKEN. The Go sidecar automatically reports job status with zero code changes. Deployment takes under 60 seconds.",
+      "Use our Helm chart: helm repo add saturn https://charts.saturnmonitor.com && helm install your-monitor saturn/saturn-monitor --set saturn.token=YOUR_TOKEN. The Go sidecar automatically reports job status with zero code changes. Deployment takes under 60 seconds.",
   },
   {
     question: "Does Saturn support WordPress wp-cron monitoring?",

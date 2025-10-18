@@ -22,8 +22,8 @@ model Account {
   session_state     String?
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
-  
-  User User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
   @@index([userId])
@@ -91,6 +91,7 @@ model Incident {
   slackChannelId String?
   Monitor        Monitor         @relation(fields: [monitorId], references: [id], onDelete: Cascade)
   IncidentEvent  IncidentEvent[]
+  PostMortem     PostMortem[]
 
   @@index([dedupeHash])
   @@index([monitorId])
@@ -125,35 +126,46 @@ model Membership {
 }
 
 model Monitor {
-  id              String        @id
-  orgId           String
-  name            String
-  token           String        @unique
-  scheduleType    ScheduleType
-  intervalSec     Int?
-  cronExpr        String?
-  timezone        String        @default("UTC")
-  graceSec        Int           @default(300)
-  status          MonitorStatus @default(OK)
-  lastRunAt       DateTime?
-  lastDurationMs  Int?
-  lastExitCode    Int?
-  lastOutputKey   String?
-  nextDueAt       DateTime?
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime
-  tags            String[]      @default([])
-  captureOutput   Boolean       @default(false)
-  captureLimitKb  Int           @default(32)
-  durationCount   Int           @default(0)
-  durationMean    Float?
-  durationM2      Float?
-  durationMin     Int?
-  durationMax     Int?
-  durationMedian  Float?
-  Incident        Incident[]
-  Org             Org           @relation(fields: [orgId], references: [id], onDelete: Cascade)
-  Run             Run[]
+  id                        String             @id
+  orgId                     String
+  name                      String
+  token                     String             @unique
+  scheduleType              ScheduleType
+  intervalSec               Int?
+  cronExpr                  String?
+  timezone                  String             @default("UTC")
+  graceSec                  Int                @default(300)
+  status                    MonitorStatus      @default(OK)
+  lastRunAt                 DateTime?
+  lastDurationMs            Int?
+  lastExitCode              Int?
+  lastOutputKey             String?
+  nextDueAt                 DateTime?
+  createdAt                 DateTime           @default(now())
+  updatedAt                 DateTime
+  captureOutput             Boolean            @default(false)
+  captureLimitKb            Int                @default(32)
+  durationCount             Int                @default(0)
+  durationMean              Float?
+  durationM2                Float?
+  durationMin               Int?
+  durationMax               Int?
+  durationMedian            Float?
+  checkSsl                  Boolean            @default(false)
+  sslAlertThresholds        Int[]              @default([30, 14, 7])
+  checkDomain               Boolean            @default(false)
+  domainAlertThresholds     Int[]              @default([60, 30, 14])
+  // Anomaly detection tuning
+  anomalyZScoreThreshold    Float?             @default(3.0)
+  anomalyMedianMultiplier   Float?             @default(5.0)
+  anomalyOutputDropFraction Float?             @default(0.5)
+  Incident                  Incident[]
+  Org                       Org                @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  Run                       Run[]
+  SslCertificate            SslCertificate[]
+  DomainExpiration          DomainExpiration[]
+  SlaReport                 SlaReport[]
+  MonitorTag                MonitorTag[]
 
   @@index([nextDueAt])
   @@index([orgId])
@@ -162,10 +174,10 @@ model Monitor {
 }
 
 model Org {
-  id               String            @id
+  id               String             @id
   name             String
-  slug             String            @unique
-  createdAt        DateTime          @default(now())
+  slug             String             @unique
+  createdAt        DateTime           @default(now())
   updatedAt        DateTime
   AlertChannel     AlertChannel[]
   ApiKey           ApiKey[]
@@ -175,6 +187,10 @@ model Org {
   Rule             Rule[]
   StatusPage       StatusPage[]
   SubscriptionPlan SubscriptionPlan?
+  SyntheticMonitor SyntheticMonitor[]
+  SlaReport        SlaReport[]
+  PostMortem       PostMortem[]
+  Tag              Tag[]
 }
 
 model Rule {
@@ -242,16 +258,278 @@ model SubscriptionPlan {
 }
 
 model User {
-  id         String       @id
-  email      String       @unique
-  name       String?
-  imageUrl   String?
+  id                  String         @id @default(cuid())
+  email               String         @unique
+  name                String?
+  emailVerified       DateTime?
+  image               String?
+  onboardingCompleted Boolean        @default(false)
+  onboardingStep      OnboardingStep @default(NONE)
+  // MFA/2FA fields
+  mfaEnabled          Boolean        @default(false)
+  mfaTotpSecretEnc    String? // Encrypted TOTP secret
+  mfaBackupCodesEnc   String? // Encrypted JSON array of hashed backup codes
+  mfaLastVerifiedAt   DateTime?
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+  Account             Account[]
+  ApiKey              ApiKey[]
+  AuditLog            AuditLog[]
+  DataExport          DataExport[]
+  Membership          Membership[]
+  Session             Session[]
+}
+
+model DataExport {
+  id          String           @id @default(cuid())
+  userId      String
+  status      DataExportStatus @default(PENDING)
+  s3Key       String?
+  downloadUrl String?
+  fileSize    Int?
+  expiresAt   DateTime
+  completedAt DateTime?
+  failedAt    DateTime?
+  errorMsg    String?
+  createdAt   DateTime         @default(now())
+  User        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+  @@index([expiresAt])
+}
+
+model SslCertificate {
+  id              String    @id @default(cuid())
+  monitorId       String
+  domain          String
+  issuer          String?
+  subject         String?
+  issuedAt        DateTime?
+  expiresAt       DateTime
+  daysUntilExpiry Int
+  isValid         Boolean   @default(true)
+  isSelfSigned    Boolean   @default(false)
+  chainValid      Boolean   @default(true)
+  validationError String?
+  serialNumber    String?
+  fingerprint     String?
+  lastCheckedAt   DateTime  @default(now())
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  Monitor         Monitor   @relation(fields: [monitorId], references: [id], onDelete: Cascade)
+
+  @@index([monitorId])
+  @@index([expiresAt])
+  @@index([daysUntilExpiry])
+  @@index([lastCheckedAt])
+}
+
+model DomainExpiration {
+  id              String    @id @default(cuid())
+  monitorId       String
+  domain          String
+  registrar       String?
+  registeredAt    DateTime?
+  expiresAt       DateTime
+  daysUntilExpiry Int
+  autoRenew       Boolean?
+  nameservers     String[]  @default([])
+  status          String[]  @default([])
+  whoisServer     String?
+  lastCheckedAt   DateTime  @default(now())
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  Monitor         Monitor   @relation(fields: [monitorId], references: [id], onDelete: Cascade)
+
+  @@index([monitorId])
+  @@index([expiresAt])
+  @@index([daysUntilExpiry])
+  @@index([lastCheckedAt])
+}
+
+model SyntheticMonitor {
+  id              String              @id @default(cuid())
+  orgId           String
+  name            String
+  url             String
+  description     String?
+  isEnabled       Boolean             @default(true)
+  intervalMinutes Int                 @default(5)
+  timeout         Int                 @default(30000)
+  viewport        Json?
+  userAgent       String?
+  headers         Json?
+  cookies         Json?
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  lastRunAt       DateTime?
+  lastStatus      SyntheticRunStatus?
+  Org             Org                 @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  SyntheticStep   SyntheticStep[]
+  SyntheticRun    SyntheticRun[]
+
+  @@index([orgId])
+  @@index([isEnabled])
+  @@index([lastRunAt])
+}
+
+model SyntheticStep {
+  id                  String                @id @default(cuid())
+  syntheticMonitorId  String
+  order               Int
+  type                SyntheticStepType
+  label               String
+  selector            String?
+  value               String?
+  url                 String?
+  timeout             Int                   @default(5000)
+  screenshot          Boolean               @default(false)
+  optional            Boolean               @default(false)
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  SyntheticMonitor    SyntheticMonitor      @relation(fields: [syntheticMonitorId], references: [id], onDelete: Cascade)
+  SyntheticStepResult SyntheticStepResult[]
+
+  @@index([syntheticMonitorId])
+  @@index([order])
+}
+
+model SyntheticRun {
+  id                  String                @id @default(cuid())
+  syntheticMonitorId  String
+  status              SyntheticRunStatus    @default(RUNNING)
+  startedAt           DateTime              @default(now())
+  completedAt         DateTime?
+  durationMs          Int?
+  errorMessage        String?
+  screenshots         Json?
+  createdAt           DateTime              @default(now())
+  SyntheticMonitor    SyntheticMonitor      @relation(fields: [syntheticMonitorId], references: [id], onDelete: Cascade)
+  SyntheticStepResult SyntheticStepResult[]
+
+  @@index([syntheticMonitorId])
+  @@index([startedAt])
+  @@index([status])
+}
+
+model SyntheticStepResult {
+  id              String              @id @default(cuid())
+  syntheticRunId  String
+  syntheticStepId String
+  status          SyntheticStepStatus @default(PENDING)
+  startedAt       DateTime            @default(now())
+  completedAt     DateTime?
+  durationMs      Int?
+  errorMessage    String?
+  screenshot      String?
+  createdAt       DateTime            @default(now())
+  SyntheticRun    SyntheticRun        @relation(fields: [syntheticRunId], references: [id], onDelete: Cascade)
+  SyntheticStep   SyntheticStep       @relation(fields: [syntheticStepId], references: [id], onDelete: Cascade)
+
+  @@index([syntheticRunId])
+  @@index([syntheticStepId])
+}
+
+model SlaReport {
+  id                  String       @id @default(cuid())
+  orgId               String
+  monitorId           String?
+  name                String
+  period              ReportPeriod
+  startDate           DateTime
+  endDate             DateTime
+  generatedAt         DateTime     @default(now())
+  generatedBy         String?
+  uptimePercentage    Float
+  totalChecks         Int
+  successfulChecks    Int
+  failedChecks        Int
+  totalDowntimeMs     Int
+  mttr                Int?
+  mtbf                Int?
+  incidentCount       Int
+  averageResponseTime Float?
+  p95ResponseTime     Float?
+  p99ResponseTime     Float?
+  data                Json
+  pdfUrl              String?
+  createdAt           DateTime     @default(now())
+  Org                 Org          @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  Monitor             Monitor?     @relation(fields: [monitorId], references: [id], onDelete: Cascade)
+
+  @@index([orgId])
+  @@index([monitorId])
+  @@index([startDate])
+  @@index([endDate])
+  @@index([generatedAt])
+}
+
+model PostMortem {
+  id           String           @id @default(cuid())
+  orgId        String
+  incidentId   String
+  title        String
+  summary      String
+  impact       String?
+  rootCause    String?
+  timeline     Json
+  actionItems  Json
+  contributors String[]         @default([])
+  status       PostMortemStatus @default(DRAFT)
+  publishedAt  DateTime?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  createdBy    String
+  Org          Org              @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  Incident     Incident         @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+
+  @@index([orgId])
+  @@index([incidentId])
+  @@index([status])
+  @@index([publishedAt])
+  @@index([createdAt])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Tag {
+  id         String       @id @default(cuid())
+  orgId      String
+  name       String
   createdAt  DateTime     @default(now())
-  updatedAt  DateTime
-  Account    Account[]
-  ApiKey     ApiKey[]
-  AuditLog   AuditLog[]
-  Membership Membership[]
+  Org        Org          @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  MonitorTag MonitorTag[]
+
+  @@unique([orgId, name])
+  @@index([orgId])
+}
+
+model MonitorTag {
+  monitorId String
+  tagId     String
+  Monitor   Monitor @relation(fields: [monitorId], references: [id], onDelete: Cascade)
+  Tag       Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([monitorId, tagId])
+  @@index([monitorId])
+  @@index([tagId])
 }
 
 enum ChannelType {
@@ -259,6 +537,9 @@ enum ChannelType {
   SLACK
   DISCORD
   WEBHOOK
+  PAGERDUTY
+  TEAMS
+  SMS
 }
 
 enum IncidentKind {
@@ -300,4 +581,64 @@ enum RunOutcome {
 enum ScheduleType {
   INTERVAL
   CRON
+}
+
+enum DataExportStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  EXPIRED
+}
+
+enum SyntheticStepType {
+  NAVIGATE
+  CLICK
+  FILL
+  SELECT
+  WAIT
+  SCREENSHOT
+  ASSERTION
+  CUSTOM_SCRIPT
+}
+
+enum SyntheticRunStatus {
+  RUNNING
+  SUCCESS
+  FAILED
+  TIMEOUT
+  CANCELLED
+}
+
+enum SyntheticStepStatus {
+  PENDING
+  RUNNING
+  SUCCESS
+  FAILED
+  SKIPPED
+}
+
+enum ReportPeriod {
+  DAILY
+  WEEKLY
+  MONTHLY
+  QUARTERLY
+  YEARLY
+  CUSTOM
+}
+
+enum PostMortemStatus {
+  DRAFT
+  IN_REVIEW
+  PUBLISHED
+  ARCHIVED
+}
+
+enum OnboardingStep {
+  NONE
+  STARTED
+  MONITOR_CREATED
+  ALERT_CONNECTED
+  TEST_ALERT
+  DONE
 }

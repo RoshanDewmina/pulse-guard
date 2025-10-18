@@ -2,6 +2,14 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { prisma } from '@tokiflow/db';
+import { generatePageMetadata } from '@/lib/seo/metadata'
+
+export const metadata = generatePageMetadata({
+  title: "Settings - API Keys",
+  description: "Manage API keys for your organization.",
+  path: '/app/settings/api-keys',
+  noIndex: true,
+})
 import {
   SaturnCard,
   SaturnCardHeader,
@@ -19,7 +27,9 @@ import {
 } from '@/components/saturn';
 import { Key, Plus, Trash2, Copy, AlertCircle } from 'lucide-react';
 import { format } from 'date-fns';
-import { PageHeaderWithBreadcrumbs } from '@/components/page-header-with-breadcrumbs';
+import { Breadcrumbs } from '@/components/breadcrumbs';
+import { PageHeader } from '@/components/page-header';
+import { ApiKeyManager } from '@/components/api-key-manager';
 
 export default async function APIKeysPage() {
   const session = await getServerSession(authOptions);
@@ -46,14 +56,15 @@ export default async function APIKeysPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeaderWithBreadcrumbs
+      <Breadcrumbs items={[
+        { label: 'Dashboard', href: '/app' },
+        { label: 'Settings', href: '/app/settings' },
+        { label: 'API Keys' },
+      ]} />
+      
+      <PageHeader
         title="API Keys"
         description="Manage API keys for programmatic access"
-        breadcrumbs={[
-          { label: 'Dashboard', href: '/app' },
-          { label: 'Settings', href: '/app/settings' },
-          { label: 'API Keys' },
-        ]}
       />
       
       {/* Warning Banner */}
@@ -80,61 +91,7 @@ export default async function APIKeysPage() {
           </SaturnCardDescription>
         </SaturnCardHeader>
         <SaturnCardContent>
-          {maskedKeys.length === 0 ? (
-            <div className="text-center py-12">
-              <Key className="h-12 w-12 text-[rgba(55,50,47,0.40)] mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-[#37322F] font-sans mb-2">No API keys yet</h3>
-              <p className="text-[rgba(55,50,47,0.80)] font-sans mb-4">
-                Create your first API key to start using the Saturn API
-              </p>
-              <SaturnButton>
-                <Plus className="h-4 w-4 mr-2" />
-                Create API Key
-              </SaturnButton>
-            </div>
-          ) : (
-            <SaturnTable>
-              <SaturnTableHeader>
-                <SaturnTableRow>
-                  <SaturnTableHead>Name</SaturnTableHead>
-                  <SaturnTableHead>Key</SaturnTableHead>
-                  <SaturnTableHead>Created</SaturnTableHead>
-                  <SaturnTableHead>Last Used</SaturnTableHead>
-                  <SaturnTableHead>Expires</SaturnTableHead>
-                  <SaturnTableHead className="text-right">Actions</SaturnTableHead>
-                </SaturnTableRow>
-              </SaturnTableHeader>
-              <SaturnTableBody>
-                {maskedKeys.map((key) => (
-                  <SaturnTableRow key={key.id}>
-                    <SaturnTableCell className="font-medium text-[#37322F]">{key.name}</SaturnTableCell>
-                    <SaturnTableCell>
-                      <div className="flex items-center gap-2">
-                        <code className="text-sm font-mono text-[#37322F]">{key.key}</code>
-                        <button className="p-1 hover:bg-[rgba(55,50,47,0.04)] rounded">
-                          <Copy className="h-4 w-4 text-[rgba(55,50,47,0.80)]" />
-                        </button>
-                      </div>
-                    </SaturnTableCell>
-                    <SaturnTableCell className="text-[rgba(55,50,47,0.80)]">
-                      {format(key.createdAt, 'MMM d, yyyy')}
-                    </SaturnTableCell>
-                    <SaturnTableCell className="text-[rgba(55,50,47,0.80)]">
-                      {key.lastUsedAt ? format(key.lastUsedAt, 'MMM d, yyyy') : 'Never'}
-                    </SaturnTableCell>
-                    <SaturnTableCell>
-                      <SaturnBadge variant="default" size="sm">Never</SaturnBadge>
-                    </SaturnTableCell>
-                    <SaturnTableCell className="text-right">
-                      <SaturnButton variant="ghost" size="sm" className="text-red-600 hover:text-red-700">
-                        <Trash2 className="h-4 w-4" />
-                      </SaturnButton>
-                    </SaturnTableCell>
-                  </SaturnTableRow>
-                ))}
-              </SaturnTableBody>
-            </SaturnTable>
-          )}
+          <ApiKeyManager initialKeys={maskedKeys} />
         </SaturnCardContent>
       </SaturnCard>
 

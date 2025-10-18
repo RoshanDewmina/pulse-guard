@@ -65,33 +65,6 @@ export async function POST(req: Request) {
       },
     });
 
-    // Create a default organization for the user
-    const org = await prisma.org.create({
-      data: {
-          id: crypto.randomUUID(),
-        name: `${name || email.split('@')[0]}'s Organization`,
-        slug: `${email.split('@')[0]}-${Date.now()}`,
-        updatedAt: new Date(),
-        Membership: {
-          create: {
-            id: crypto.randomUUID(),
-            userId: user.id,
-            role: 'OWNER',
-            updatedAt: new Date(),
-          },
-        },
-        SubscriptionPlan: {
-          create: {
-            id: crypto.randomUUID(),
-            plan: 'FREE',
-            monitorLimit: 5,
-            userLimit: 1,
-            updatedAt: new Date(),
-          },
-        },
-      },
-    });
-
     return NextResponse.json(
       { 
         message: 'User created successfully',

@@ -8,6 +8,14 @@ import {
 } from '@/components/saturn';
 import { Mail } from 'lucide-react';
 import Link from 'next/link';
+import { generatePageMetadata } from "@/lib/seo/metadata"
+
+export const metadata = generatePageMetadata({
+  title: "Check Your Email | Saturn",
+  description: "We've sent you a magic link to sign in to Saturn.",
+  path: '/auth/verify-request',
+  noIndex: true,
+})
 
 export default function VerifyRequestPage() {
   return (

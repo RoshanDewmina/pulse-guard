@@ -1,0 +1,12 @@
+src/
+*.test.ts
+*.test.js
+__tests__/
+jest.config.js
+jest.setup.ts
+tsconfig.json
+bun.lockb
+node_modules/
+.DS_Store
+
+

@@ -2,6 +2,14 @@ import { getServerSession } from 'next-auth';
 import { authOptions, getUserPrimaryOrg } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { prisma } from '@tokiflow/db';
+import { generatePageMetadata } from '@/lib/seo/metadata'
+
+export const metadata = generatePageMetadata({
+  title: "Settings - Audit Logs",
+  description: "View audit logs and activity history.",
+  path: '/app/settings/audit-logs',
+  noIndex: true,
+})
 import { 
   SaturnCard, 
   SaturnCardHeader, 
@@ -31,10 +39,6 @@ import {
   AlertCircle
 } from 'lucide-react';
 
-export const metadata = {
-  title: 'Audit Logs',
-  description: 'View activity and security logs for your organization',
-};
 
 // Map action types to icons and descriptions
 const actionConfig: Record<string, { icon: React.ReactNode; label: string; variant: 'default' | 'success' | 'warning' | 'error' }> = {
@@ -93,7 +97,7 @@ export default async function AuditLogsPage() {
           id: true,
           name: true,
           email: true,
-          imageUrl: true,
+          image: true,
         },
       },
     },

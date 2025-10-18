@@ -8,7 +8,7 @@
           "label": "Next",
           "isLast": true,
           "path": "/",
-          "mainDocId": "get-started/overview",
+          "mainDocId": "home",
           "docs": [
             {
               "id": "alerts/discord",
@@ -95,14 +95,18 @@
               "sidebar": "docsSidebar"
             },
             {
-              "id": "cli/pulse-run",
-              "path": "/cli/pulse-run",
-              "sidebar": "docsSidebar"
-            },
-            {
               "id": "cli/reference",
               "path": "/cli/reference",
               "sidebar": "docsSidebar"
+            },
+            {
+              "id": "cli/saturn-run",
+              "path": "/cli/saturn-run",
+              "sidebar": "docsSidebar"
+            },
+            {
+              "id": "company/about",
+              "path": "/company/about"
             },
             {
               "id": "contact/index",
@@ -144,6 +148,10 @@
               "sidebar": "docsSidebar"
             },
             {
+              "id": "home",
+              "path": "/"
+            },
+            {
               "id": "incidents/lifecycle",
               "path": "/incidents/lifecycle",
               "sidebar": "docsSidebar"
@@ -174,12 +182,20 @@
               "sidebar": "docsSidebar"
             },
             {
+              "id": "legal/cookie-policy",
+              "path": "/legal/cookies"
+            },
+            {
               "id": "legal/dpa",
               "path": "/legal/dpa"
             },
             {
               "id": "legal/privacy",
               "path": "/legal/privacy"
+            },
+            {
+              "id": "legal/security",
+              "path": "/legal/security"
             },
             {
               "id": "legal/terms",

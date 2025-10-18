@@ -120,6 +120,24 @@ export function startAlertWorker() {
             channelId: channel.id,
             event: 'incident.opened',
           });
+        } else if (channel.type === 'PAGERDUTY') {
+          await alertsQueue.add('send-pagerduty-alert', {
+            incidentId,
+            channelId: channel.id,
+            action: 'trigger',
+          });
+        } else if (channel.type === 'TEAMS') {
+          await alertsQueue.add('send-teams-alert', {
+            incidentId,
+            channelId: channel.id,
+            action: 'opened',
+          });
+        } else if (channel.type === 'SMS') {
+          await alertsQueue.add('send-sms-alert', {
+            incidentId,
+            channelId: channel.id,
+            action: 'opened',
+          });
         }
       }
 

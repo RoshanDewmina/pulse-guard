@@ -11,23 +11,23 @@ Complete reference for the `pulse` CLI.
 
 ## Commands
 
-### pulse login
+### saturn login
 
 Authenticate with Saturn.
 
 \`\`\`bash
-pulse login                  # Device flow
-pulse login --token YOUR_TOKEN  # Direct token
+saturn login                  # Device flow
+saturn login --token YOUR_TOKEN  # Direct token
 \`\`\`
 
-### pulse run
+### saturn run
 
 Wrap and monitor a command.
 
 \`\`\`bash
-pulse run --monitor <ID> -- <command>
-pulse run --monitor <ID> --capture-output -- <command>
-pulse run --monitor <ID> --timeout 3600 -- <command>
+saturn run --monitor ID -- COMMAND
+saturn run --monitor ID --capture-output -- COMMAND
+saturn run --monitor ID --timeout 3600 -- COMMAND
 \`\`\`
 
 ### pulse monitors
@@ -55,4 +55,4 @@ pulse incidents resolve YOUR_INCIDENT_ID
 ## Next Steps
 
 - [Installation](./install) — Install the CLI
-- [pulse run](./pulse-run) — Detailed wrapper guide
+- [saturn run](./saturn-run) — Detailed wrapper guide

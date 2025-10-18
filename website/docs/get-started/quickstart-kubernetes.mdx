@@ -14,7 +14,7 @@ Monitor Kubernetes CronJobs with zero code changes using our Helm chart and side
 - `kubectl` configured with cluster access
 - Helm 3.x installed
 - Permissions to create CronJobs and RBAC resources
-- A Saturn organization token (get one from [dashboard](https://saturn.example.com))
+- A Saturn organization token (get one from [dashboard](https://saturnmonitor.com/app))
 
 :::tip Organization Tokens
 Create an org-wide token in **Settings → Tokens** to avoid per-monitor setup. The sidecar will auto-register new monitors.
@@ -25,7 +25,7 @@ Create an org-wide token in **Settings → Tokens** to avoid per-monitor setup. 
 ### 1. Add Helm Repository
 
 ```bash
-helm repo add saturn https://charts.saturn.example.com
+helm repo add saturn https://charts.saturnmonitor.com
 helm repo update
 ```
 
@@ -82,7 +82,7 @@ The **Saturn sidecar**:
 ```yaml title="values.yaml"
 saturn:
   token: "YOUR_ORG_TOKEN"
-  apiUrl: "https://api.saturn.example.com"  # Optional: use self-hosted
+  apiUrl: "https://api.saturnmonitor.com"  # Optional: use self-hosted
   captureOutput: true
   maxOutputBytes: 10240  # 10KB limit
 

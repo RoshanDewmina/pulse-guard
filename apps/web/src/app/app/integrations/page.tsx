@@ -2,6 +2,14 @@ import { getServerSession } from 'next-auth';
 import { authOptions, getUserPrimaryOrg } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { prisma } from '@tokiflow/db';
+import { generatePageMetadata } from '@/lib/seo/metadata'
+
+export const metadata = generatePageMetadata({
+  title: "Integrations",
+  description: "Connect Saturn with your favorite tools and services.",
+  path: '/app/integrations',
+  noIndex: true,
+})
 import { 
   Box, 
   Code, 
@@ -15,13 +23,11 @@ import {
   MessageSquare
 } from 'lucide-react';
 import { SaturnCard, SaturnCardContent } from '@/components/saturn/SaturnCard';
-import { PageHeaderWithBreadcrumbs } from '@/components/page-header-with-breadcrumbs';
+import { Breadcrumbs } from '@/components/breadcrumbs';
+import { PageHeader } from '@/components/page-header';
 import { IntegrationCard } from '@/components/integrations/integration-card';
+import { IntegrationsClientWrapper } from '@/components/integrations/integrations-client-wrapper';
 
-export const metadata = {
-  title: 'Integrations',
-  description: 'Connect Saturn with your favorite tools and platforms',
-};
 
 interface Integration {
   id: string;
@@ -98,7 +104,6 @@ const integrations: Integration[] = [
     icon: <Slack className="w-6 h-6" />,
     status: 'available',
     category: 'notification',
-    setupUrl: '/app/settings/alerts',
     features: [
       'Real-time alerts',
       'Channel routing',
@@ -134,7 +139,6 @@ const integrations: Integration[] = [
     icon: <MessageSquare className="w-6 h-6" />,
     status: 'available',
     category: 'notification',
-    setupUrl: '/app/settings/alerts',
     features: [
       'Webhook integration',
       'Rich embeds',
@@ -209,7 +213,6 @@ export default async function IntegrationsPage() {
   if (!org) {
     redirect('/onboarding');
   }
-
   // Fetch integration data from database
   const [channels, apiKeys, monitors] = await Promise.all([
     // Get all alert channels for this org
@@ -272,27 +275,23 @@ export default async function IntegrationsPage() {
   const availableIntegrations = integrations.filter(i => i.status === 'available');
   const comingSoonIntegrations = integrations.filter(i => i.status === 'coming-soon');
 
-  // Calculate category counts
-  const platformCount = integrations.filter(i => i.category === 'platform' && i.status === 'available').length;
-  const notificationCount = integrations.filter(i => i.category === 'notification' && i.status === 'available').length;
-  const deploymentCount = integrations.filter(i => i.category === 'deployment' && i.status === 'available').length;
-
   // Calculate total connected
   const connectedCount = Object.values(integrationStatus).filter(s => s.isConnected).length;
 
   return (
     <div className="space-y-8">
-      <PageHeaderWithBreadcrumbs
+      <Breadcrumbs items={[
+        { label: 'Dashboard', href: '/app' },
+        { label: 'Integrations' },
+      ]} />
+      
+      <PageHeader
         title="Integrations"
         description="Connect Saturn with your favorite tools and platforms"
-        breadcrumbs={[
-          { label: 'Dashboard', href: '/app' },
-          { label: 'Integrations' },
-        ]}
       />
 
       {/* Summary Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="max-w-sm">
         <SaturnCard>
           <SaturnCardContent className="p-6">
             <div className="flex items-center gap-3">
@@ -303,55 +302,7 @@ export default async function IntegrationsPage() {
                 <div className="text-2xl font-semibold text-[#37322F] font-sans">
                   {connectedCount}
                 </div>
-                <div className="text-sm text-[rgba(55,50,47,0.70)] font-sans">Connected</div>
-              </div>
-            </div>
-          </SaturnCardContent>
-        </SaturnCard>
-
-        <SaturnCard>
-          <SaturnCardContent className="p-6">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-[#37322F] rounded-lg flex items-center justify-center">
-                <Box className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <div className="text-2xl font-semibold text-[#37322F] font-sans">
-                  {platformCount}
-                </div>
-                <div className="text-sm text-[rgba(55,50,47,0.70)] font-sans">Platforms</div>
-              </div>
-            </div>
-          </SaturnCardContent>
-        </SaturnCard>
-
-        <SaturnCard>
-          <SaturnCardContent className="p-6">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-[#37322F] rounded-lg flex items-center justify-center">
-                <Mail className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <div className="text-2xl font-semibold text-[#37322F] font-sans">
-                  {notificationCount}
-                </div>
-                <div className="text-sm text-[rgba(55,50,47,0.70)] font-sans">Notifications</div>
-              </div>
-            </div>
-          </SaturnCardContent>
-        </SaturnCard>
-
-        <SaturnCard>
-          <SaturnCardContent className="p-6">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-[#37322F] rounded-lg flex items-center justify-center">
-                <Terminal className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <div className="text-2xl font-semibold text-[#37322F] font-sans">
-                  {deploymentCount}
-                </div>
-                <div className="text-sm text-[rgba(55,50,47,0.70)] font-sans">Deployment</div>
+                <div className="text-sm text-[rgba(55,50,47,0.70)] font-sans">Connected Integrations</div>
               </div>
             </div>
           </SaturnCardContent>
@@ -362,15 +313,12 @@ export default async function IntegrationsPage() {
       <div>
         <h2 className="text-xl font-semibold text-[#37322F] font-sans mb-4">Available Now</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {availableIntegrations.map((integration) => (
-            <IntegrationCard
-              key={integration.id}
-              integration={integration}
-              isConnected={integrationStatus[integration.id]?.isConnected}
-              monitorCount={integrationStatus[integration.id]?.monitorCount}
-              apiKey={firstApiKey}
-            />
-          ))}
+          <IntegrationsClientWrapper
+            integrations={availableIntegrations}
+            integrationStatus={integrationStatus}
+            firstApiKey={firstApiKey}
+            orgId={org.id}
+          />
         </div>
       </div>
 

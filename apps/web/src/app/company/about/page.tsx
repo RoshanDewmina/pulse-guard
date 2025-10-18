@@ -1,16 +1,48 @@
 import Link from "next/link"
 import SiteHeader from "@/components/site-header"
+import { generatePageMetadata } from "@/lib/seo/metadata"
+import { getAboutPageSchema, getBreadcrumbSchema } from "@/lib/seo/schema"
+import { JsonLd } from "@/components/seo/json-ld"
 
-export const metadata = {
+export const metadata = generatePageMetadata({
   title: "About Saturn | Cron Monitoring with Anomaly Detection",
-  description: "Our mission to make scheduled job reliability observable and proactive. Built for DevOps teams who refuse to let cron jobs fail silently.",
-}
+  description: "Our mission to make scheduled job reliability observable and proactive. Built for DevOps teams who refuse to let cron jobs fail silently. Learn about our technology, values, and vision.",
+  keywords: [
+    'about saturn',
+    'cron monitoring company',
+    'anomaly detection technology',
+    'devops monitoring solution',
+    'welford algorithm',
+    'z-score analysis',
+    'kubernetes monitoring',
+    'wordpress monitoring',
+    'reliability engineering',
+  ],
+  path: '/company/about',
+  ogType: 'website',
+})
 
 export default function AboutPage() {
+  const aboutSchema = getAboutPageSchema({
+    name: 'About Saturn',
+    description: 'Learn about Saturn\'s mission to make scheduled job reliability observable and proactive through statistical anomaly detection.',
+    url: 'https://saturnmonitor.com/company/about',
+  });
+
+  const breadcrumbSchema = getBreadcrumbSchema([
+    { name: 'Home', url: 'https://saturnmonitor.com' },
+    { name: 'Company', url: 'https://saturnmonitor.com/company' },
+    { name: 'About', url: 'https://saturnmonitor.com/company/about' },
+  ]);
+
   return (
-    <div className="min-h-screen bg-[#F7F5F3]">
-      {/* Header */}
-      <SiteHeader />
+    <>
+      <JsonLd data={aboutSchema} />
+      <JsonLd data={breadcrumbSchema} />
+      
+      <div className="min-h-screen bg-[#F7F5F3]">
+        {/* Header */}
+        <SiteHeader />
 
       {/* Content */}
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -231,17 +263,17 @@ export default function AboutPage() {
               <div>
                 <h4 className="text-lg font-semibold text-[#37322F] font-sans mb-2">Support</h4>
                 <ul className="space-y-2 text-sm text-[rgba(55,50,47,0.80)] font-sans">
-                  <li><a href="mailto:support@saturn.io" className="text-blue-600 underline">support@saturn.io</a></li>
+                  <li><a href="mailto:support@saturnmonitor.com" className="text-blue-600 underline">support@saturnmonitor.com</a></li>
                   <li>Response: 24h (FREE/PRO), 4h (BUSINESS), 1h (ENTERPRISE)</li>
-                  <li><a href="https://docs.saturn.io" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">Documentation</a></li>
+                  <li><a href="https://docs.saturnmonitor.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">Documentation</a></li>
                 </ul>
               </div>
               <div>
                 <h4 className="text-lg font-semibold text-[#37322F] font-sans mb-2">Security & Legal</h4>
                 <ul className="space-y-2 text-sm text-[rgba(55,50,47,0.80)] font-sans">
-                  <li><a href="mailto:security@saturn.io" className="text-blue-600 underline">security@saturn.io</a> (monitored 24/7)</li>
-                  <li><a href="mailto:legal@saturn.io" className="text-blue-600 underline">legal@saturn.io</a> (compliance & DPA)</li>
-                  <li><a href="mailto:sales@saturn.io" className="text-blue-600 underline">sales@saturn.io</a> (Enterprise)</li>
+                  <li><a href="mailto:security@saturnmonitor.com" className="text-blue-600 underline">security@saturnmonitor.com</a> (monitored 24/7)</li>
+                  <li><a href="mailto:legal@saturnmonitor.com" className="text-blue-600 underline">legal@saturnmonitor.com</a> (compliance & DPA)</li>
+                  <li><a href="mailto:sales@saturnmonitor.com" className="text-blue-600 underline">sales@saturnmonitor.com</a> (Enterprise)</li>
                 </ul>
               </div>
             </div>
@@ -257,6 +289,7 @@ export default function AboutPage() {
         </article>
       </main>
     </div>
+    </>
   )
 }
 

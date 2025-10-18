@@ -2,6 +2,14 @@ import { getServerSession } from 'next-auth';
 import { authOptions, getUserPrimaryOrg } from '@/lib/auth';
 import { prisma } from '@tokiflow/db';
 import { AlertsPageClient } from '@/components/alerts/alerts-page-client';
+import { generatePageMetadata } from '@/lib/seo/metadata'
+
+export const metadata = generatePageMetadata({
+  title: "Settings - Alerts",
+  description: "Manage alert settings for your monitors.",
+  path: '/app/settings/alerts',
+  noIndex: true,
+})
 
 export default async function AlertsPage() {
   const session = await getServerSession(authOptions);

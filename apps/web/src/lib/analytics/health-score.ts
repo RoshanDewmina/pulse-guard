@@ -140,7 +140,7 @@ export async function calculateUptime(
     },
   });
 
-  if (runs.length === 0) return 100;
+  if (runs.length === 0) return 0;
 
   const successfulRuns = runs.filter(r => 
     r.outcome === 'SUCCESS' || r.outcome === 'LATE'

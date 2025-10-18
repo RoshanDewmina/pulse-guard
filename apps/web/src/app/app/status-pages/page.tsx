@@ -1,6 +1,14 @@
 import { getServerSession } from 'next-auth';
 import { authOptions, getUserPrimaryOrg } from '@/lib/auth';
 import { prisma } from '@tokiflow/db';
+import { generatePageMetadata } from '@/lib/seo/metadata'
+
+export const metadata = generatePageMetadata({
+  title: "Status Pages",
+  description: "Manage your public status pages.",
+  path: '/app/status-pages',
+  noIndex: true,
+})
 import {
   SaturnCard,
   SaturnCardHeader,

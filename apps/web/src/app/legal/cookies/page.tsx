@@ -1,14 +1,37 @@
 import LegalPageLayout from "@/components/legal-page-layout"
+import { generatePageMetadata } from "@/lib/seo/metadata"
+import { getWebPageSchema, getBreadcrumbSchema } from "@/lib/seo/schema"
+import { JsonLd } from "@/components/seo/json-ld"
 
-export const metadata = {
+export const metadata = generatePageMetadata({
   title: "Cookie Policy | Saturn",
   description: "How Saturn uses cookies and similar technologies. Transparent disclosure of tracking technologies.",
-}
+  keywords: ['cookie policy', 'cookies', 'tracking technologies', 'web analytics'],
+  path: '/legal/cookies',
+})
 
 export default function CookiePolicyPage() {
+  const webPageSchema = getWebPageSchema({
+    name: 'Cookie Policy',
+    description: 'How Saturn uses cookies and similar technologies.',
+    url: 'https://saturnmonitor.com/legal/cookies',
+    datePublished: '2025-10-16',
+    dateModified: '2025-10-16',
+  });
+
+  const breadcrumbSchema = getBreadcrumbSchema([
+    { name: 'Home', url: 'https://saturnmonitor.com' },
+    { name: 'Legal', url: 'https://saturnmonitor.com/legal' },
+    { name: 'Cookie Policy', url: 'https://saturnmonitor.com/legal/cookies' },
+  ]);
+
   return (
-    <LegalPageLayout title="Cookie Policy" lastUpdated="October 16, 2025">
-      <div className="space-y-6">
+    <>
+      <JsonLd data={webPageSchema} />
+      <JsonLd data={breadcrumbSchema} />
+      
+      <LegalPageLayout title="Cookie Policy" lastUpdated="October 16, 2025">
+        <div className="space-y-6">
         <p className="text-lg font-medium text-[#37322F]">
           This Cookie Policy explains how Saturn uses cookies and similar technologies on our website and web application.
         </p>
@@ -138,7 +161,9 @@ export default function CookiePolicyPage() {
         </div>
       </div>
     </LegalPageLayout>
+    </>
   )
 }
+
 
 

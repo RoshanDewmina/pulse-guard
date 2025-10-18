@@ -1,6 +1,14 @@
 import { getServerSession } from 'next-auth';
 import { authOptions, getUserPrimaryOrg } from '@/lib/auth';
 import { prisma } from '@tokiflow/db';
+import { generatePageMetadata } from '@/lib/seo/metadata'
+
+export const metadata = generatePageMetadata({
+  title: "Settings - Billing",
+  description: "Manage billing and subscription settings.",
+  path: '/app/settings/billing',
+  noIndex: true,
+})
 import {
   SaturnCard,
   SaturnCardHeader,

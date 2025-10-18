@@ -1,6 +1,14 @@
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { redirect } from 'next/navigation';
+import { generatePageMetadata } from '@/lib/seo/metadata'
+
+export const metadata = generatePageMetadata({
+  title: "Settings - Data",
+  description: "Manage data retention and export settings.",
+  path: '/app/settings/data',
+  noIndex: true,
+})
 import {
   SaturnCard,
   SaturnCardHeader,
@@ -12,7 +20,8 @@ import {
 import { Download, Trash2, FileJson, AlertTriangle, Shield } from 'lucide-react';
 import { ExportDataButton } from '@/components/export-data-button';
 import { DeleteAccountButton } from '@/components/delete-account-button';
-import { PageHeaderWithBreadcrumbs } from '@/components/page-header-with-breadcrumbs';
+import { Breadcrumbs } from '@/components/breadcrumbs';
+import { PageHeader } from '@/components/page-header';
 
 export default async function DataManagementPage() {
   const session = await getServerSession(authOptions);
@@ -23,14 +32,15 @@ export default async function DataManagementPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeaderWithBreadcrumbs
+      <Breadcrumbs items={[
+        { label: 'Dashboard', href: '/app' },
+        { label: 'Settings', href: '/app/settings' },
+        { label: 'Data' },
+      ]} />
+      
+      <PageHeader
         title="Data Management"
         description="Export your data and manage your account"
-        breadcrumbs={[
-          { label: 'Dashboard', href: '/app' },
-          { label: 'Settings', href: '/app/settings' },
-          { label: 'Data' },
-        ]}
       />
       
       {/* Export Data */}

@@ -70,8 +70,8 @@ export function WordPressSetupModal({ open, onOpenChange, apiKey }: WordPressSet
                 variant="secondary"
                 fullWidth
                 onClick={handleDownload}
+                icon={<Download className="w-4 h-4" />}
               >
-                <Download className="w-4 h-4 mr-2" />
                 Download Saturn Watchdog Plugin
               </SaturnButton>
               <p className="text-xs text-[rgba(55,50,47,0.60)] font-sans">
@@ -109,18 +109,9 @@ export function WordPressSetupModal({ open, onOpenChange, apiKey }: WordPressSet
                   size="sm"
                   variant="secondary"
                   onClick={copyApiKey}
+                  icon={copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                 >
-                  {copied ? (
-                    <>
-                      <Check className="w-4 h-4 mr-2" />
-                      Copied
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="w-4 h-4 mr-2" />
-                      Copy Key
-                    </>
-                  )}
+                  {copied ? 'Copied' : 'Copy Key'}
                 </SaturnButton>
               )}
             </div>

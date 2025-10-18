@@ -24,30 +24,14 @@ Saturn automatically redacts sensitive patterns from captured output.
 
 ## Custom Patterns
 
-Add custom redaction patterns (Enterprise):
-
-\`\`\`json
-{
-  "redactionPatterns": [
-    {
-      "name": "Internal IDs",
-      "pattern": "ID:\\s*\\d{8}",
-      "replacement": "ID: ***REDACTED***"
-    }
-  ]
-}
-\`\`\`
+Add custom redaction patterns (Enterprise). Configure via API or dashboard to add patterns like:
+- Internal ID patterns
+- Custom API key formats
+- Organization-specific sensitive data
 
 ## Disabling Redaction
 
-Not recommended, but possible:
-
-\`\`\`json
-{
-  "captureOutput": true,
-  "redactOutput": false  // ⚠️ Use with caution
-}
-\`\`\`
+⚠️ **Warning:** Not recommended, but you can disable output redaction in monitor settings if absolutely necessary. Use with extreme caution.
 
 ## Next Steps
 
