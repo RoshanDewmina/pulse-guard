@@ -8,6 +8,7 @@ export const metadata = generatePageMetadata({
   title: "Settings - API Keys",
   description: "Manage API keys for your organization.",
   path: '/app/settings/api-keys',
+keywords: ['api keys', 'api access', 'authentication tokens', 'developer keys'],
   noIndex: true,
 })
 import {

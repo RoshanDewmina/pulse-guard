@@ -7,6 +7,7 @@ export const metadata = generatePageMetadata({
   title: "Status Pages",
   description: "Manage your public status pages.",
   path: '/app/status-pages',
+keywords: ['status pages', 'public status', 'uptime pages', 'status dashboard'],
   noIndex: true,
 })
 import {

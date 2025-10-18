@@ -7,6 +7,7 @@ export const metadata = generatePageMetadata({
   title: "Settings - Team",
   description: "Manage team members and permissions.",
   path: '/app/settings/team',
+keywords: ['team management', 'user management', 'team members', 'collaboration'],
   noIndex: true,
 })
 import {

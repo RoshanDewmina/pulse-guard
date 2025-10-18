@@ -8,6 +8,7 @@ export const metadata = generatePageMetadata({
   title: "Settings - Audit Logs",
   description: "View audit logs and activity history.",
   path: '/app/settings/audit-logs',
+keywords: ['audit logs', 'activity logs', 'security logs', 'user activity'],
   noIndex: true,
 })
 import { 

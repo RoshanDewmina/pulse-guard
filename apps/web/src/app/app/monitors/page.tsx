@@ -24,6 +24,7 @@ export const metadata = generatePageMetadata({
   title: "Monitors",
   description: "View and manage your cron job monitors.",
   path: '/app/monitors',
+keywords: ['monitors', 'cron monitors', 'job monitoring', 'monitor list'],
   noIndex: true,
 })
 import Link from 'next/link';

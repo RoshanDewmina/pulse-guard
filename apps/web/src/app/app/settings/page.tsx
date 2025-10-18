@@ -5,6 +5,7 @@ export const metadata = generatePageMetadata({
   title: "Settings",
   description: "Manage your organization settings.",
   path: '/app/settings',
+keywords: ['settings', 'configuration', 'account settings', 'preferences'],
   noIndex: true,
 })
 

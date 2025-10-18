@@ -14,6 +14,7 @@ export const metadata = generatePageMetadata({
   title: "Authentication Error | Saturn",
   description: "There was an error signing in to Saturn.",
   path: '/auth/error',
+keywords: ['error', 'authentication error', 'login error', 'access denied'],
   noIndex: true,
 })
 

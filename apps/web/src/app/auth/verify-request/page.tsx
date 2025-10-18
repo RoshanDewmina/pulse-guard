@@ -14,6 +14,7 @@ export const metadata = generatePageMetadata({
   title: "Check Your Email | Saturn",
   description: "We've sent you a magic link to sign in to Saturn.",
   path: '/auth/verify-request',
+keywords: ['email verification', 'verify account', 'magic link', 'check email'],
   noIndex: true,
 })
 

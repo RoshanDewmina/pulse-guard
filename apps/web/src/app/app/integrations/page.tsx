@@ -8,6 +8,7 @@ export const metadata = generatePageMetadata({
   title: "Integrations",
   description: "Connect Saturn with your favorite tools and services.",
   path: '/app/integrations',
+keywords: ['integrations', 'third party', 'api integrations', 'connected services'],
   noIndex: true,
 })
 import { 

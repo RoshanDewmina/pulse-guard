@@ -12,6 +12,7 @@ export const metadata = generatePageMetadata({
   title: "Dashboard",
   description: "Monitor your cron jobs and scheduled tasks with Saturn.",
   path: '/app',
+keywords: ['dashboard', 'monitoring dashboard', 'cron jobs', 'status overview'],
   noIndex: true,
 })
 

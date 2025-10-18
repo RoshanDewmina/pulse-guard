@@ -22,6 +22,7 @@ export const metadata = generatePageMetadata({
   title: "Incidents",
   description: "View and manage incidents for your monitors.",
   path: '/app/incidents',
+keywords: ['incidents', 'alerts', 'failures', 'incident management'],
   noIndex: true,
 })
 import { format } from 'date-fns';

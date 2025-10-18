@@ -7,6 +7,7 @@ export const metadata = generatePageMetadata({
   title: "Settings - Billing",
   description: "Manage billing and subscription settings.",
   path: '/app/settings/billing',
+keywords: ['billing', 'subscription', 'payment', 'account billing'],
   noIndex: true,
 })
 import {

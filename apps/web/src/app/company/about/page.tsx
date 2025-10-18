@@ -6,7 +6,7 @@ import { JsonLd } from "@/components/seo/json-ld"
 
 export const metadata = generatePageMetadata({
   title: "About Saturn | Cron Monitoring with Anomaly Detection",
-  description: "Our mission to make scheduled job reliability observable and proactive. Built for DevOps teams who refuse to let cron jobs fail silently. Learn about our technology, values, and vision.",
+  description: "Our mission to make scheduled job reliability observable and proactive. Built for DevOps teams who refuse to let cron jobs fail silently.",
   keywords: [
     'about saturn',
     'cron monitoring company',

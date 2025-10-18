@@ -72,9 +72,9 @@ If you received this alert, everything is set up properly! This test incident wi
     });
 
     // Queue alert to all channels
-    const { alertsQueue } = await import('@/lib/queues');
+    const { notificationQueue } = await import('@/lib/queues');
     
-    await alertsQueue.add('alert-dispatch', {
+    await notificationQueue.add('alert-dispatch', {
       incidentId: testIncident.id,
     });
 
@@ -90,7 +90,7 @@ If you received this alert, everything is set up properly! This test incident wi
         });
         
         // Optionally send resolve notification
-        await alertsQueue.add('alert-dispatch', {
+        await notificationQueue.add('alert-dispatch', {
           incidentId: testIncident.id,
         });
       } catch (error) {

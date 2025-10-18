@@ -7,6 +7,7 @@ export const metadata = generatePageMetadata({
   title: "Settings - Data",
   description: "Manage data retention and export settings.",
   path: '/app/settings/data',
+keywords: ['data settings', 'data retention', 'privacy', 'data management'],
   noIndex: true,
 })
 import {

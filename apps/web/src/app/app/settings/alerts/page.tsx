@@ -8,6 +8,7 @@ export const metadata = generatePageMetadata({
   title: "Settings - Alerts",
   description: "Manage alert settings for your monitors.",
   path: '/app/settings/alerts',
+keywords: ['alert settings', 'notifications', 'alert channels', 'notification config'],
   noIndex: true,
 })
 

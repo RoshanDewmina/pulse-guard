@@ -3,6 +3,7 @@ import { generatePageMetadata } from "@/lib/seo/metadata"
 export const metadata = generatePageMetadata({
   title: "Sign In | Saturn",
   description: "Sign in to your Saturn account to monitor your cron jobs and scheduled tasks.",
+  keywords: ['sign in', 'login', 'account access', 'authentication'],
   path: '/auth/signin',
   noIndex: true,
 })

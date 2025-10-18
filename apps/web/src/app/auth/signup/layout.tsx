@@ -5,7 +5,7 @@ export const metadata = generatePageMetadata({
   description: "Create your free Saturn account and start monitoring cron jobs with anomaly detection. Get 5 monitors free, no credit card required.",
   keywords: ['sign up', 'create account', 'free trial', 'register'],
   path: '/auth/signup',
-  noIndex: false,
+  noIndex: true,
 })
 
 export default function SignUpLayout({

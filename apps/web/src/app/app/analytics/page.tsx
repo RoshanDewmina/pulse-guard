@@ -23,6 +23,7 @@ export const metadata = generatePageMetadata({
   title: "Analytics",
   description: "View analytics and health scores for your monitors.",
   path: '/app/analytics',
+keywords: ['analytics', 'metrics', 'performance data', 'monitoring stats'],
   noIndex: true,
 })
 import { calculateHealthScore, calculateUptime, calculateMTBF, calculateMTTR, getHealthScoreColor, getHealthScoreBgColor } from '@/lib/analytics/health-score';

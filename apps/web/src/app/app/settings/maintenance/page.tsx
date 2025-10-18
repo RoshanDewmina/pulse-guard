@@ -8,6 +8,7 @@ export const metadata = generatePageMetadata({
   title: "Settings - Maintenance",
   description: "Manage maintenance windows and scheduled maintenance.",
   path: '/app/settings/maintenance',
+keywords: ['maintenance', 'scheduled maintenance', 'downtime', 'maintenance windows'],
   noIndex: true,
 })
 import {
