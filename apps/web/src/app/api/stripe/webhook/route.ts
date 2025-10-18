@@ -60,15 +60,23 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   const customerId = session.customer as string;
   const subscriptionId = session.subscription as string;
 
-  // Determine plan based on price
-  let plan = 'PRO';
-  let monitorLimit = PLANS.PRO.monitorLimit;
-  let userLimit = PLANS.PRO.userLimit;
+  // Determine plan based on price ID
+  let plan = 'FREE';
+  let planConfig = PLANS.FREE;
 
-  if (session.amount_total === PLANS.BUSINESS.price * 100) {
-    plan = 'BUSINESS';
-    monitorLimit = PLANS.BUSINESS.monitorLimit;
-    userLimit = PLANS.BUSINESS.userLimit;
+  if (session.line_items?.data?.[0]?.price?.id) {
+    const priceId = session.line_items.data[0].price.id;
+    
+    if (priceId === PLANS.DEVELOPER.priceId) {
+      plan = 'DEVELOPER';
+      planConfig = PLANS.DEVELOPER;
+    } else if (priceId === PLANS.TEAM.priceId) {
+      plan = 'TEAM';
+      planConfig = PLANS.TEAM;
+    } else if (priceId === PLANS.BUSINESS.priceId) {
+      plan = 'BUSINESS';
+      planConfig = PLANS.BUSINESS;
+    }
   }
 
   await prisma.subscriptionPlan.upsert({
@@ -79,16 +87,34 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
       stripeCustomerId: customerId,
       stripeSubId: subscriptionId,
       plan,
-      monitorLimit,
-      userLimit,
+      monitorLimit: planConfig.monitorLimit,
+      userLimit: planConfig.userLimit,
+      statusPageLimit: planConfig.statusPageLimit,
+      syntheticRunsLimit: planConfig.syntheticRunsLimit,
+      syntheticRunsUsed: 0,
+      retentionDays: planConfig.retentionDays,
+      minIntervalSec: planConfig.minIntervalSec,
+      allowsWebhooks: planConfig.allowsWebhooks,
+      allowsCustomDomains: planConfig.allowsCustomDomains,
+      allowsSso: planConfig.allowsSso,
+      allowsAuditLogs: planConfig.allowsAuditLogs,
       updatedAt: new Date(),
     },
     update: {
       stripeCustomerId: customerId,
       stripeSubId: subscriptionId,
       plan,
-      monitorLimit,
-      userLimit,
+      monitorLimit: planConfig.monitorLimit,
+      userLimit: planConfig.userLimit,
+      statusPageLimit: planConfig.statusPageLimit,
+      syntheticRunsLimit: planConfig.syntheticRunsLimit,
+      syntheticRunsUsed: 0,
+      retentionDays: planConfig.retentionDays,
+      minIntervalSec: planConfig.minIntervalSec,
+      allowsWebhooks: planConfig.allowsWebhooks,
+      allowsCustomDomains: planConfig.allowsCustomDomains,
+      allowsSso: planConfig.allowsSso,
+      allowsAuditLogs: planConfig.allowsAuditLogs,
       updatedAt: new Date(),
     },
   });
@@ -110,22 +136,34 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
   if (subscription.status === 'active') {
     const priceId = subscription.items.data[0]?.price.id;
     
-    let plan = 'PRO';
-    let monitorLimit = PLANS.PRO.monitorLimit;
-    let userLimit = PLANS.PRO.userLimit;
+    let plan = 'FREE';
+    let planConfig = PLANS.FREE;
 
-    if (priceId === PLANS.BUSINESS.priceId) {
+    if (priceId === PLANS.DEVELOPER.priceId) {
+      plan = 'DEVELOPER';
+      planConfig = PLANS.DEVELOPER;
+    } else if (priceId === PLANS.TEAM.priceId) {
+      plan = 'TEAM';
+      planConfig = PLANS.TEAM;
+    } else if (priceId === PLANS.BUSINESS.priceId) {
       plan = 'BUSINESS';
-      monitorLimit = PLANS.BUSINESS.monitorLimit;
-      userLimit = PLANS.BUSINESS.userLimit;
+      planConfig = PLANS.BUSINESS;
     }
 
     await prisma.subscriptionPlan.update({
       where: { id: subscriptionPlan.id },
       data: {
         plan,
-        monitorLimit,
-        userLimit,
+        monitorLimit: planConfig.monitorLimit,
+        userLimit: planConfig.userLimit,
+        statusPageLimit: planConfig.statusPageLimit,
+        syntheticRunsLimit: planConfig.syntheticRunsLimit,
+        retentionDays: planConfig.retentionDays,
+        minIntervalSec: planConfig.minIntervalSec,
+        allowsWebhooks: planConfig.allowsWebhooks,
+        allowsCustomDomains: planConfig.allowsCustomDomains,
+        allowsSso: planConfig.allowsSso,
+        allowsAuditLogs: planConfig.allowsAuditLogs,
       },
     });
 
@@ -150,6 +188,15 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
       plan: 'FREE',
       monitorLimit: PLANS.FREE.monitorLimit,
       userLimit: PLANS.FREE.userLimit,
+      statusPageLimit: PLANS.FREE.statusPageLimit,
+      syntheticRunsLimit: PLANS.FREE.syntheticRunsLimit,
+      syntheticRunsUsed: 0,
+      retentionDays: PLANS.FREE.retentionDays,
+      minIntervalSec: PLANS.FREE.minIntervalSec,
+      allowsWebhooks: PLANS.FREE.allowsWebhooks,
+      allowsCustomDomains: PLANS.FREE.allowsCustomDomains,
+      allowsSso: PLANS.FREE.allowsSso,
+      allowsAuditLogs: PLANS.FREE.allowsAuditLogs,
       stripeSubId: null,
     },
   });

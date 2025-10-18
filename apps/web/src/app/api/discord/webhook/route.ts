@@ -45,6 +45,25 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Access denied' }, { status: 403 });
     }
 
+    // Check plan limits for Discord channels
+    const org = await prisma.org.findUnique({
+      where: { id: data.orgId },
+      include: {
+        SubscriptionPlan: true,
+      },
+    });
+
+    if (!org?.SubscriptionPlan) {
+      return NextResponse.json({ error: 'No subscription plan found' }, { status: 404 });
+    }
+
+    if (!org.SubscriptionPlan.allowsWebhooks) {
+      return NextResponse.json(
+        { error: 'Discord channels require Team plan or higher. Please upgrade your plan.' },
+        { status: 403 }
+      );
+    }
+
     // Check if a Discord channel already exists for this org
     const existingChannel = await prisma.alertChannel.findFirst({
       where: {

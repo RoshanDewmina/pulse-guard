@@ -80,6 +80,27 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Access denied' }, { status: 403 });
     }
 
+    // Check plan limits for webhook/Discord channels
+    if (data.type === 'WEBHOOK' || data.type === 'DISCORD') {
+      const org = await prisma.org.findUnique({
+        where: { id: data.orgId },
+        include: {
+          SubscriptionPlan: true,
+        },
+      });
+
+      if (!org?.SubscriptionPlan) {
+        return NextResponse.json({ error: 'No subscription plan found' }, { status: 404 });
+      }
+
+      if (!org.SubscriptionPlan.allowsWebhooks) {
+        return NextResponse.json(
+          { error: 'Webhook and Discord channels require Team plan or higher. Please upgrade your plan.' },
+          { status: 403 }
+        );
+      }
+    }
+
     const channel = await prisma.alertChannel.create({
       data: {
         id: crypto.randomUUID(),

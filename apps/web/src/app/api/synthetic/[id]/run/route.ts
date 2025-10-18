@@ -20,7 +20,7 @@ export async function POST(
 
     const { id } = await params;
 
-    // Verify access
+    // Verify access and check quota
     const monitor = await prisma.syntheticMonitor.findFirst({
       where: {
         id,
@@ -32,16 +32,41 @@ export async function POST(
           },
         },
       },
-      select: {
-        id: true,
-        name: true,
-        isEnabled: true,
+      include: {
+        Org: {
+          include: {
+            SubscriptionPlan: true,
+          },
+        },
       },
     });
 
     if (!monitor) {
       return NextResponse.json({ error: 'Monitor not found' }, { status: 404 });
     }
+
+    // Check synthetic run quota
+    const plan = monitor.Org.SubscriptionPlan;
+    if (!plan) {
+      return NextResponse.json({ error: 'No subscription plan found' }, { status: 404 });
+    }
+
+    if (plan.syntheticRunsUsed >= plan.syntheticRunsLimit) {
+      return NextResponse.json(
+        { error: `Synthetic run quota exceeded (${plan.syntheticRunsLimit}/month). Please upgrade your plan.` },
+        { status: 403 }
+      );
+    }
+
+    // Increment usage counter
+    await prisma.subscriptionPlan.update({
+      where: { id: plan.id },
+      data: {
+        syntheticRunsUsed: {
+          increment: 1,
+        },
+      },
+    });
 
     // Queue the synthetic test
     const job = await syntheticMonitorQueue.add(

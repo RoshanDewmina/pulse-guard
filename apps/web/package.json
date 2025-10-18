@@ -6,7 +6,7 @@
         "dev": "next dev -H 0.0.0.0",
         "build": "NODE_ENV=production next build",
         "start": "next start",
-        "lint": "next lint",
+        "lint": "next lint"
     },
     "dependencies": {
         "@aws-sdk/client-s3": "^3.668.0",

@@ -74,6 +74,32 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
+    // Check status page limit
+    const orgWithPlan = await prisma.org.findUnique({
+      where: { id: org.id },
+      include: {
+        SubscriptionPlan: true,
+        _count: {
+          select: { StatusPage: true },
+        },
+      },
+    });
+
+    if (!orgWithPlan?.SubscriptionPlan) {
+      return NextResponse.json({ error: 'No subscription plan found' }, { status: 404 });
+    }
+
+    const plan = orgWithPlan.SubscriptionPlan;
+    const currentCount = orgWithPlan._count.StatusPage;
+    
+    // Check if at limit (unlimited is -1)
+    if (plan.statusPageLimit !== -1 && currentCount >= plan.statusPageLimit) {
+      return NextResponse.json(
+        { error: `Status page limit reached (${plan.statusPageLimit}). Please upgrade your plan.` },
+        { status: 403 }
+      );
+    }
+
     const body = await request.json();
     const validatedData = createStatusPageSchema.parse(body);
 

@@ -16,14 +16,15 @@ export async function processSyntheticMonitorJob(job: Job): Promise<void> {
   logger.info({ jobId: job.id, monitorId }, 'Processing synthetic monitor job');
 
   try {
-    // Fetch monitor
+    // Fetch monitor with plan info
     const monitor = await prisma.syntheticMonitor.findUnique({
       where: { id: monitorId },
-      select: {
-        id: true,
-        name: true,
-        orgId: true,
-        isEnabled: true,
+      include: {
+        Org: {
+          include: {
+            SubscriptionPlan: true,
+          },
+        },
       },
     });
 
@@ -36,6 +37,28 @@ export async function processSyntheticMonitorJob(job: Job): Promise<void> {
       logger.info({ monitorId }, 'Synthetic monitor is disabled, skipping');
       return;
     }
+
+    // Check synthetic run quota
+    const plan = monitor.Org.SubscriptionPlan;
+    if (!plan) {
+      logger.warn({ monitorId }, 'No subscription plan found');
+      return;
+    }
+
+    if (plan.syntheticRunsUsed >= plan.syntheticRunsLimit) {
+      logger.warn({ monitorId, used: plan.syntheticRunsUsed, limit: plan.syntheticRunsLimit }, 'Synthetic run quota exceeded');
+      return;
+    }
+
+    // Increment usage counter
+    await prisma.subscriptionPlan.update({
+      where: { id: plan.id },
+      data: {
+        syntheticRunsUsed: {
+          increment: 1,
+        },
+      },
+    });
 
     // Create run record
     const run = await prisma.syntheticRun.create({

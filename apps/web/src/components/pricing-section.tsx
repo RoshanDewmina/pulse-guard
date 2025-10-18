@@ -9,68 +9,96 @@ export default function PricingSection() {
   const [billingPeriod, setBillingPeriod] = useState<"monthly" | "annually">("annually")
 
   const pricing = {
-    starter: {
+    free: {
       monthly: 0,
       annually: 0,
     },
-    professional: {
+    developer: {
       monthly: 19,
       annually: 15, // 20% discount for annual
     },
-    enterprise: {
-      monthly: 49,
-      annually: 39, // 20% discount for annual
+    team: {
+      monthly: 39,
+      annually: 31, // 20% discount for annual
+    },
+    business: {
+      monthly: 99,
+      annually: 79, // 20% discount for annual
     },
   }
 
   // Generate Product schemas for each pricing plan
-  const starterSchema = getProductSchema({
-    name: "Saturn Free Plan",
-    description: "Perfect for side projects and small teams getting started with cron monitoring. Up to 5 monitors, 3 team members, email + Slack alerts, 7-day run history, and community support.",
+  const freeSchema = getProductSchema({
+    name: "PulseGuard Free (Dev)",
+    description: "Perfect for side projects and small teams getting started with monitoring. Up to 10 monitors, 3 team members, 10-min checks, 30-day retention, 1 status page, 200 synthetic runs/mo.",
     price: "0",
     priceCurrency: "USD",
     features: [
-      "Up to 5 monitors",
+      "Up to 10 monitors",
       "Up to 3 team members", 
-      "Email + Slack alerts",
-      "7-day run history",
-      "Community support"
+      "10-min minimum interval",
+      "30-day retention",
+      "1 status page",
+      "200 synthetic runs/mo",
+      "Email + Slack alerts"
     ],
-    url: "https://saturnmonitor.com#pricing"
+    url: "https://pulseguard.com#pricing"
   });
 
-  const professionalSchema = getProductSchema({
-    name: "Saturn Professional Plan",
-    description: "For growing teams that need advanced monitoring and analytics. Up to 50 monitors, unlimited team members, advanced alerts, 90-day run history, and priority support.",
+  const developerSchema = getProductSchema({
+    name: "PulseGuard Developer",
+    description: "For individual developers and small teams. Up to 25 monitors, 5 team members, 1-min checks, 90-day retention, 2 status pages, 1,000 synthetic runs/mo.",
     price: billingPeriod === "annually" ? "15" : "19",
     priceCurrency: "USD",
     features: [
-      "Up to 50 monitors",
-      "Unlimited team members",
-      "Advanced alerts (Discord, webhooks)",
-      "90-day run history",
-      "Priority support",
-      "Custom integrations",
-      "Advanced analytics"
+      "Up to 25 monitors",
+      "Up to 5 team members",
+      "1-min checks",
+      "90-day retention",
+      "2 status pages",
+      "1,000 synthetic runs/mo",
+      "All alert channels"
     ],
-    url: "https://saturnmonitor.com#pricing"
+    url: "https://pulseguard.com#pricing"
   });
 
-  const enterpriseSchema = getProductSchema({
-    name: "Saturn Enterprise Plan", 
-    description: "For large organizations with complex monitoring needs. Unlimited monitors, advanced security, custom retention, dedicated support, and enterprise integrations.",
-    price: billingPeriod === "annually" ? "39" : "49",
+  const teamSchema = getProductSchema({
+    name: "PulseGuard Team", 
+    description: "For growing teams that need advanced monitoring. Up to 100 monitors, 10 team members, 1-min checks, 180-day retention, 5 status pages, 5,000 synthetic runs/mo, routing rules.",
+    price: billingPeriod === "annually" ? "31" : "39",
     priceCurrency: "USD",
     features: [
-      "Unlimited monitors",
-      "Advanced security features",
-      "Custom data retention",
-      "Dedicated support",
-      "Enterprise integrations",
-      "SLA guarantees",
-      "Custom reporting"
+      "Up to 100 monitors",
+      "Up to 10 team members",
+      "1-min checks",
+      "180-day retention",
+      "5 status pages",
+      "5,000 synthetic runs/mo",
+      "Slack/Discord/Webhooks",
+      "Routing rules"
     ],
-    url: "https://saturnmonitor.com#pricing"
+    url: "https://pulseguard.com#pricing"
+  });
+
+  const businessSchema = getProductSchema({
+    name: "PulseGuard Business", 
+    description: "For large organizations with enterprise needs. Up to 300 monitors, unlimited team members, 1-min checks, 1-year retention, unlimited status pages, 20,000 synthetic runs/mo, SSO/SAML, custom domains.",
+    price: billingPeriod === "annually" ? "79" : "99",
+    priceCurrency: "USD",
+    features: [
+      "Up to 300 monitors",
+      "Unlimited team members",
+      "1-min checks",
+      "1-year retention",
+      "Unlimited status pages",
+      "20,000 synthetic runs/mo",
+      "All Team features",
+      "SSO/SAML",
+      "Custom domains",
+      "Audit logs",
+      "Premium support"
+    ],
+    url: "https://pulseguard.com#pricing"
   });
 
   return (

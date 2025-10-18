@@ -102,6 +102,27 @@ export async function PATCH(
     const body = await request.json();
     const validatedData = updateStatusPageSchema.parse(body);
 
+    // Check plan limits for custom domains
+    if (validatedData.customDomain) {
+      const org = await prisma.org.findUnique({
+        where: { id: statusPage.orgId },
+        include: {
+          SubscriptionPlan: true,
+        },
+      });
+
+      if (!org?.SubscriptionPlan) {
+        return NextResponse.json({ error: 'No subscription plan found' }, { status: 404 });
+      }
+
+      if (!org.SubscriptionPlan.allowsCustomDomains) {
+        return NextResponse.json(
+          { error: 'Custom domains require Business plan or higher. Please upgrade your plan.' },
+          { status: 403 }
+        );
+      }
+    }
+
     const updatedStatusPage = await prisma.statusPage.update({
       where: { id },
       data: {

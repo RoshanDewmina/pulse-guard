@@ -121,10 +121,24 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Organization not found' }, { status: 404 });
     }
 
-    const monitorLimit = org.SubscriptionPlan?.monitorLimit || 5;
-    if (org._count.Monitor >= monitorLimit) {
+    const plan = org.SubscriptionPlan;
+    if (!plan) {
+      return NextResponse.json({ error: 'No subscription plan found' }, { status: 404 });
+    }
+
+    // Check monitor limit
+    if (org._count.Monitor >= plan.monitorLimit) {
       return NextResponse.json(
-        { error: `Monitor limit reached (${monitorLimit}). Please upgrade your plan.` },
+        { error: `Monitor limit reached (${plan.monitorLimit}). Please upgrade your plan.` },
+        { status: 403 }
+      );
+    }
+
+    // Check minimum interval for INTERVAL schedule type
+    if (data.scheduleType === 'INTERVAL' && data.intervalSec && data.intervalSec < plan.minIntervalSec) {
+      const minMinutes = Math.ceil(plan.minIntervalSec / 60);
+      return NextResponse.json(
+        { error: `Minimum interval for your plan is ${minMinutes} minutes. Please upgrade to use shorter intervals.` },
         { status: 403 }
       );
     }
