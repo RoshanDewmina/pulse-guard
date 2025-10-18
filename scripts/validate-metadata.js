@@ -78,10 +78,14 @@ function extractMetadataFromFile(filePath) {
 
     const content = fs.readFileSync(fullPath, 'utf8');
     
-    // Extract metadata export - handle both patterns
+    // Extract metadata export - handle multiple patterns
     let metadataMatch = content.match(/export\s+const\s+metadata\s*=\s*generatePageMetadata\s*\(\s*\{([^}]+)\}/s);
     if (!metadataMatch) {
-      // Try alternative pattern for static metadata
+      // Try pattern with type annotation
+      metadataMatch = content.match(/export\s+const\s+metadata\s*:\s*Metadata\s*=\s*generatePageMetadata\s*\(\s*\{([^}]+)\}/s);
+    }
+    if (!metadataMatch) {
+      // Try static metadata pattern
       metadataMatch = content.match(/export\s+const\s+metadata\s*:\s*Metadata\s*=\s*\{([^}]+)\}/s);
     }
     if (!metadataMatch) {

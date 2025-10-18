@@ -32,7 +32,7 @@ const PricingSection = dynamic(() => import("@/components/pricing-section"), {
 // SEO Metadata
 export const metadata: Metadata = generatePageMetadata({
   title: 'Saturn - Cron Monitoring with Anomaly Detection',
-  description: 'Statistical anomaly detection catches slowdowns before failures. Monitor your cron jobs with health scores, MTBF/MTTR analytics, and multi-channel alerts. Built for DevOps teams.',
+  description: 'Statistical anomaly detection catches slowdowns before failures. Monitor your cron jobs with health scores, MTBF/MTTR analytics, and multi-channel alerts.',
   keywords: [
     'cron monitoring',
     'cron job monitoring',
