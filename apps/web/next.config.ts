@@ -17,6 +17,16 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: 'cdn.jsdelivr.net' },
     ],
   },
+  // Exclude test files from build
+  pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'md', 'mdx'],
+  outputFileTracingExcludes: {
+    '*': [
+      '**/__tests__/**/*',
+      '**/*.test.*',
+      '**/*.spec.*',
+      '**/node_modules/**',
+    ],
+  },
 };
 
 // Sentry configuration options

@@ -20,7 +20,7 @@ global.TextDecoder = TextDecoder as any;
 
 process.env.TZ = 'UTC';
 // Use production-like settings for testing
-process.env.NODE_ENV = 'test';
+(process.env as any).NODE_ENV = 'test';
 
 // Mock environment variables for testing (production-realistic)
 process.env.DATABASE_URL = "postgresql://test:test@localhost:5432/test";
