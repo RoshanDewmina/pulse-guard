@@ -48,7 +48,7 @@ export function AnalyticsProvider({ children }: AnalyticsProviderProps) {
     const shouldEnable = !hasDNT && savedConsent === 'true';
 
     if (shouldEnable) {
-      // Initialize PostHog
+      // Initialize PostHog with optimized settings
       posthog.init(posthogKey, {
         api_host: posthogHost,
         loaded: (posthog) => {
@@ -56,11 +56,25 @@ export function AnalyticsProvider({ children }: AnalyticsProviderProps) {
             posthog.debug();
           }
         },
-        capture_pageview: true,
-        capture_pageleave: true,
+        capture_pageview: false, // Manual pageview tracking for better control
+        capture_pageleave: false, // Disable automatic page leave tracking
         autocapture: false, // Disable autocapture for privacy
         disable_session_recording: true, // Disable session recording for privacy
         respect_dnt: true,
+        // Performance optimizations
+        batch_events: true,
+        batch_size: 10,
+        batch_flush_interval_ms: 10000,
+        // Disable unnecessary features
+        disable_compression: false,
+        disable_persistence: false,
+        persistence: 'localStorage',
+        // Privacy-first settings
+        opt_out_capturing_by_default: true,
+        loaded: (posthog) => {
+          // Only enable after user consent
+          posthog.opt_out_capturing();
+        },
       });
 
       setIsEnabledState(true);

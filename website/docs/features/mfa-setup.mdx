@@ -1,0 +1,164 @@
+---
+title: Two-Factor Authentication (MFA)
+description: Secure your Saturn account with two-factor authentication using TOTP
+sidebar_position: 1
+---
+
+# Two-Factor Authentication (MFA)
+
+Protect your Saturn account with an extra layer of security using Time-based One-Time Passwords (TOTP).
+
+## Overview
+
+Two-factor authentication (2FA/MFA) adds an additional security layer to your account by requiring both your password and a time-based code from your authenticator app.
+
+**Features:**
+- TOTP-based authentication (compatible with Google Authenticator, Authy, 1Password, etc.)
+- 10 single-use backup codes for emergency access
+- Secure encryption of secrets at rest (AES-256-GCM)
+- Session-based verification (verify once per session)
+
+## Enabling MFA
+
+### Step 1: Navigate to Security Settings
+
+1. Click your profile icon in the top-right corner
+2. Select **Settings** → **Security**
+3. Click **Enable Two-Factor Authentication**
+
+### Step 2: Scan QR Code
+
+1. Open your authenticator app (Google Authenticator, Authy, 1Password, etc.)
+2. Scan the QR code displayed on screen
+3. Alternatively, manually enter the secret key shown below the QR code
+
+### Step 3: Verify Setup
+
+1. Enter the 6-digit code from your authenticator app
+2. Click **Verify and Enable**
+3. Download and securely store your backup codes
+
+:::warning Important
+**Save your backup codes immediately!** They will only be shown once. Store them in a secure location like a password manager or encrypted file.
+:::
+
+## Using Backup Codes
+
+Backup codes are single-use emergency access codes that let you sign in if you lose access to your authenticator app.
+
+### When to Use Backup Codes
+
+- Lost or broken phone
+- Uninstalled authenticator app
+- New device without authenticator access
+
+### How to Use
+
+1. On the MFA challenge page, click **Use backup code instead**
+2. Enter one of your 10 backup codes
+3. The code will be consumed and cannot be reused
+
+### Regenerating Backup Codes
+
+If you've used several backup codes or want fresh ones:
+
+1. Go to **Settings** → **Security**
+2. Click **Regenerate Backup Codes**
+3. Verify with your authenticator app
+4. Download the new codes (old codes will be invalid ated)
+
+## Disabling MFA
+
+:::caution Security Warning
+Disabling MFA makes your account less secure. Only do this if absolutely necessary.
+:::
+
+To disable MFA:
+
+1. Go to **Settings** → **Security**
+2. Click **Disable MFA**
+3. Verify with either:
+   - Your authenticator app code
+   - A backup code
+4. Confirm the action
+
+## Best Practices
+
+### Do's ✅
+
+- **Store backup codes securely** in a password manager or encrypted file
+- **Use a reputable authenticator app** like Google Authenticator, Authy, or 1Password
+- **Set up MFA on a device you regularly have access to**
+- **Test your backup codes** periodically to ensure they work
+
+### Don'ts ❌
+
+- **Don't share your backup codes** with anyone
+- **Don't store backup codes in plain text** on your computer
+- **Don't screenshot the QR code** and leave it unencrypted
+- **Don't rely solely on one device** – consider using cloud-synced authenticators like Authy
+
+## Troubleshooting
+
+### Code Not Working
+
+If your authenticator code isn't being accepted:
+
+1. **Check time sync** – TOTP codes are time-sensitive. Ensure your device's clock is accurate
+2. **Wait for new code** – Each code is valid for 30 seconds. Try the next code
+3. **Try a backup code** – Use one of your emergency backup codes
+
+### Lost Access
+
+If you've lost access to both your authenticator and backup codes:
+
+1. Contact support at [support@saturnmonitor.com](mailto:support@saturnmonitor.com)
+2. Provide proof of account ownership
+3. Our team will assist with account recovery (may take 24-48 hours)
+
+### Authenticator App Recommendations
+
+- **Google Authenticator** – Simple, reliable (iOS/Android)
+- **Authy** – Cloud backup, multi-device (iOS/Android/Desktop)
+- **1Password** – Integrated with password manager
+- **Microsoft Authenticator** – Enterprise-friendly
+
+## Security Details
+
+### Encryption
+
+- TOTP secrets are encrypted using **AES-256-GCM** before storage
+- Backup codes are **bcrypt-hashed** before encryption
+- Encryption keys are managed securely via environment variables
+- No plaintext secrets are ever stored
+
+### Session Management
+
+- MFA verification is required once per session
+- Sessions expire based on your NextAuth configuration
+- Signing out clears the MFA verification status
+
+## FAQ
+
+**Q: Can I use the same authenticator for multiple accounts?**  
+A: Yes! Most authenticator apps support multiple accounts. Each will have its own entry.
+
+**Q: What happens if I lose my phone?**  
+A: Use a backup code to sign in, then set up MFA on your new device.
+
+**Q: How long are backup codes valid?**  
+A: Backup codes never expire but are single-use. Regenerate them if you've used several.
+
+**Q: Can I use SMS for 2FA?**  
+A: SMS 2FA is not currently supported due to security concerns. TOTP apps are more secure.
+
+**Q: Does MFA affect API access?**  
+A: No, API keys work independently of MFA. However, we recommend using MFA to protect the account that creates API keys.
+
+## Need Help?
+
+If you have questions or issues with MFA:
+- Check our [Support page](/support)
+- Email us at [support@saturnmonitor.com](mailto:support@saturnmonitor.com)
+- Join our [Discord community](https://discord.gg/saturn)
+

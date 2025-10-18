@@ -1,0 +1,271 @@
+---
+title: PagerDuty Integration
+description: Send incidents to PagerDuty for on-call alerting and incident management
+sidebar_position: 5
+---
+
+# PagerDuty Integration
+
+Integrate Saturn with PagerDuty to leverage powerful on-call management, escalation policies, and incident response workflows.
+
+## Overview
+
+The PagerDuty integration uses the **Events API v2** to create, acknowledge, and resolve incidents in PagerDuty when your monitors detect issues.
+
+**Features:**
+- Automatic incident creation with deduplication
+- Severity mapping based on incident type
+- Automatic acknowledge and resolve updates
+- Full incident context and links back to Saturn
+
+## Setup
+
+### Prerequisites
+
+- A PagerDuty account (Free, Professional, or Enterprise)
+- Admin access to create integration keys
+
+### Step 1: Create an Integration in PagerDuty
+
+1. Log in to your PagerDuty account
+2. Go to **Services** → Select your service (or create a new one)
+3. Click the **Integrations** tab
+4. Click **Add Integration**
+5. Choose **Events API V2**
+6. Give it a name (e.g., "Saturn Monitoring")
+7. Click **Add Integration**
+8. Copy the **Integration Key** (routing key)
+
+### Step 2: Add PagerDuty Channel in Saturn
+
+1. In Saturn, go to **Settings** → **Alerts**
+2. Click **Add Alert Channel**
+3. Select **PagerDuty**
+4. Paste your Integration Key (routing key)
+5. Give the channel a name (e.g., "PagerDuty - Production")
+6. Click **Test Notification** to verify the integration
+7. Click **Save**
+
+### Step 3: Configure Alert Rules
+
+1. Go to **Settings** → **Alert Rules**
+2. Create or edit a rule
+3. Select your PagerDuty channel as a notification target
+4. Choose which monitors should alert to PagerDuty
+5. Save the rule
+
+## How It Works
+
+### Incident Lifecycle
+
+Saturn automatically syncs incident state changes to PagerDuty:
+
+| Saturn Event | PagerDuty Action | API Event |
+|--------------|------------------|-----------|
+| Incident Opened | Creates new incident | `trigger` |
+| Incident Acknowledged | Acknowledges PD incident | `acknowledge` |
+| Incident Resolved | Resolves PD incident | `resolve` |
+
+### Deduplication
+
+Saturn uses the incident's `dedupeHash` as the PagerDuty `dedup_key`. This ensures:
+- Repeated failures don't create multiple PagerDuty incidents
+- Updates (ack/resolve) apply to the correct incident
+- Clean incident tracking across both systems
+
+### Severity Mapping
+
+Saturn incident types map to PagerDuty severities:
+
+| Saturn Type | PagerDuty Severity |
+|-------------|-------------------|
+| MISSED | `critical` |
+| FAIL | `error` |
+| LATE | `warning` |
+| ANOMALY | `warning` |
+
+## Incident Payload
+
+### What PagerDuty Receives
+
+```json
+{
+  "routing_key": "your-integration-key",
+  "event_action": "trigger",
+  "dedup_key": "incident-dedupe-hash",
+  "payload": {
+    "summary": "Monitor: Production Backup - MISSED",
+    "source": "Acme Inc",
+    "severity": "critical",
+    "timestamp": "2025-01-15T10:30:00Z",
+    "component": "Production Backup",
+    "group": "Saturn Monitoring",
+    "class": "MISSED",
+    "custom_details": {
+      "monitor_id": "mon_abc123",
+      "monitor_name": "Production Backup",
+      "incident_id": "inc_xyz789",
+      "incident_type": "MISSED",
+      "details": "Monitor has not checked in...",
+      "opened_at": "2025-01-15T10:30:00Z"
+    }
+  },
+  "links": [
+    {
+      "href": "https://app.saturn.sh/app/incidents/inc_xyz789",
+      "text": "View Incident in Saturn"
+    },
+    {
+      "href": "https://app.saturn.sh/app/monitors/mon_abc123",
+      "text": "View Monitor"
+    }
+  ]
+}
+```
+
+## Advanced Configuration
+
+### Multiple Services
+
+You can add multiple PagerDuty channels for different services:
+
+1. Create separate integrations in PagerDuty for each service
+2. Add each as a separate alert channel in Saturn
+3. Use alert rules to route different monitors to different services
+
+Example:
+- **Production** monitors → Production On-Call service
+- **Staging** monitors → Development service
+- **Critical** monitors → Executive escalation service
+
+### Escalation Policies
+
+Configure escalation in PagerDuty (not Saturn):
+
+1. In PagerDuty, go to **Escalation Policies**
+2. Create or edit a policy
+3. Add escalation levels (e.g., L1 → L2 → Manager)
+4. Assign the policy to your service
+5. Saturn incidents will follow your escalation rules
+
+### Maintenance Windows
+
+When running maintenance:
+
+**Option 1: Snooze in Saturn**
+- Snooze incidents in Saturn before maintenance
+- No alerts will be sent to PagerDuty during snooze period
+
+**Option 2: Maintenance Window in PagerDuty**
+- Create a maintenance window in PagerDuty
+- Incidents will still be created but won't alert
+
+## Testing
+
+### Send a Test Alert
+
+1. Go to **Settings** → **Alerts**
+2. Find your PagerDuty channel
+3. Click **Test Notification**
+4. Check PagerDuty for the test incident
+5. Resolve the test incident in PagerDuty
+
+### Verify Lifecycle
+
+1. Create a test monitor
+2. Let it miss a check (or force a failure)
+3. Verify incident appears in PagerDuty
+4. Acknowledge in Saturn → check PagerDuty updates
+5. Resolve in Saturn → check PagerDuty resolves
+
+## Troubleshooting
+
+### Test Notification Fails
+
+**Error: Invalid routing key**
+- Double-check you copied the entire Integration Key
+- Ensure you're using Events API V2 (not V1)
+- Verify the integration is enabled in PagerDuty
+
+**Error: 429 Rate Limit**
+- PagerDuty has rate limits on the Events API
+- Wait a few minutes and try again
+- Consider splitting incidents across multiple services
+
+### Incidents Not Syncing
+
+**Check 1: Alert Rules**
+- Verify your alert rule includes the PagerDuty channel
+- Check the monitor is covered by the rule
+
+**Check 2: Worker Status**
+- Check worker logs for errors
+- Verify `PAGERDUTY_ENABLED=true` in environment
+- Ensure worker is running and healthy
+
+**Check 3: PagerDuty Service**
+- Check if the service is disabled
+- Verify integration is active
+- Check PagerDuty service event logs
+
+### Duplicate Incidents
+
+If you're seeing duplicate PagerDuty incidents:
+- Check that you don't have multiple PagerDuty channels configured
+- Verify alert rules aren't overlapping
+- Check deduplication keys in PagerDuty event logs
+
+## Best Practices
+
+### Do's ✅
+
+- **Use separate services** for different environments (prod/staging)
+- **Configure escalation policies** in PagerDuty
+- **Test the full lifecycle** before going live
+- **Set up maintenance windows** for planned work
+- **Use meaningful monitor names** – they appear in PagerDuty
+- **Monitor your PagerDuty costs** – incidents count toward limits
+
+### Don'ts ❌
+
+- **Don't share routing keys** across teams/environments
+- **Don't skip the test notification** step
+- **Don't create too many services** – consolidate where possible
+- **Don't rely solely on PagerDuty** – configure multiple channels
+
+## Limits & Quotas
+
+### PagerDuty Limits
+
+- **Events API**: 120 requests/minute per integration
+- **Dedup window**: 24 hours (configurable)
+- **Incident retention**: Varies by plan
+
+### Saturn Rate Limiting
+
+- Saturn does not add additional rate limiting for PagerDuty
+- Worker will retry failed API calls with exponential backoff
+
+## FAQ
+
+**Q: Do I need a paid PagerDuty plan?**  
+A: No, the free plan supports Events API V2. Paid plans offer more features like advanced escalation.
+
+**Q: Can I use PagerDuty and Slack together?**  
+A: Yes! Configure both channels and they'll both receive alerts.
+
+**Q: What happens if PagerDuty is down?**  
+A: Saturn will retry the API call. Alerts to other channels will still work.
+
+**Q: Can I customize the PagerDuty incident payload?**  
+A: Not currently, but we're open to feedback. Contact support with your use case.
+
+**Q: Does resolving in PagerDuty update Saturn?**  
+A: No, it's one-way (Saturn → PagerDuty). Resolve in Saturn to close both.
+
+## Need Help?
+
+- [PagerDuty Events API Documentation](https://developer.pagerduty.com/docs/ZG9jOjExMDI5NTgw-events-api-v2-overview)
+- [Saturn Support](/support)
+- [Saturn Discord Community](https://discord.gg/saturn)
+

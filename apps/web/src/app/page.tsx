@@ -177,14 +177,14 @@ export default function LandingPage() {
               <div className="w-full max-w-[937px] lg:w-[937px] flex flex-col justify-center items-center gap-3 sm:gap-4 md:gap-5 lg:gap-6">
                 <div className="self-stretch rounded-[3px] flex flex-col justify-center items-center gap-4 sm:gap-5 md:gap-6 lg:gap-8">
                   <h1 className="w-full max-w-[748.71px] lg:w-[748.71px] text-center flex justify-center flex-col text-[#37322F] text-[24px] xs:text-[28px] sm:text-[36px] md:text-[52px] lg:text-[80px] font-normal leading-[1.1] sm:leading-[1.15] md:leading-[1.2] lg:leading-24 font-serif px-2 sm:px-4 md:px-0">
-                    Catch cron failures
+                    Cron Monitoring with
                     <br />
-                    before they happen
+                    Anomaly Detection
                   </h1>
                   <p className="w-full max-w-[506.08px] lg:w-[506.08px] text-center flex justify-center flex-col text-[rgba(55,50,47,0.80)] sm:text-lg md:text-xl leading-[1.4] sm:leading-[1.45] md:leading-[1.5] lg:leading-7 font-sans px-2 sm:px-4 md:px-0 lg:text-lg font-medium text-sm">
-                    Saturn detects performance degradation using statistical analysis.
+                    Statistical anomaly detection catches slowdowns before failures.
                     <br className="hidden sm:block" />
-                    Get alerts when jobs slow down 3x—before complete failure.
+                    Monitor your cron jobs with health scores, MTBF/MTTR analytics, and multi-channel alerts.
                   </p>
                 </div>
               </div>
@@ -217,6 +217,63 @@ export default function LandingPage() {
                   loading="lazy"
                   quality={75}
                 />
+              </div>
+
+              {/* How It Works Section */}
+              <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 md:py-24">
+                <div className="text-center mb-12 sm:mb-16">
+                  <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#37322F] mb-4 sm:mb-6 font-serif">
+                    How Cron Monitoring Works
+                  </h2>
+                  <p className="text-lg sm:text-xl text-[#605A57] max-w-3xl mx-auto leading-relaxed">
+                    Saturn uses advanced statistical analysis to detect anomalies in your scheduled jobs before they fail completely. 
+                    Our platform monitors performance patterns and alerts you to potential issues.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-12">
+                  <div className="text-center">
+                    <div className="w-16 h-16 mx-auto mb-6 bg-gradient-to-br from-[#37322F] to-[#49423D] rounded-full flex items-center justify-center">
+                      <span className="text-2xl text-white font-bold">1</span>
+                    </div>
+                    <h3 className="text-xl font-semibold text-[#37322F] mb-4">Deploy & Monitor</h3>
+                    <p className="text-[#605A57] leading-relaxed">
+                      Deploy our <Link href="/docs/kubernetes" className="text-[#37322F] hover:underline font-medium">Kubernetes Helm chart</Link> or 
+                      <Link href="/docs/wordpress" className="text-[#37322F] hover:underline font-medium"> WordPress plugin</Link> to start monitoring your cron jobs in minutes.
+                    </p>
+                  </div>
+
+                  <div className="text-center">
+                    <div className="w-16 h-16 mx-auto mb-6 bg-gradient-to-br from-[#37322F] to-[#49423D] rounded-full flex items-center justify-center">
+                      <span className="text-2xl text-white font-bold">2</span>
+                    </div>
+                    <h3 className="text-xl font-semibold text-[#37322F] mb-4">Statistical Analysis</h3>
+                    <p className="text-[#605A57] leading-relaxed">
+                      Our Welford algorithm calculates z-scores and establishes performance baselines. 
+                      We detect when jobs slow down 3x or more—even if they still succeed.
+                    </p>
+                  </div>
+
+                  <div className="text-center">
+                    <div className="w-16 h-16 mx-auto mb-6 bg-gradient-to-br from-[#37322F] to-[#49423D] rounded-full flex items-center justify-center">
+                      <span className="text-2xl text-white font-bold">3</span>
+                    </div>
+                    <h3 className="text-xl font-semibold text-[#37322F] mb-4">Smart Alerts</h3>
+                    <p className="text-[#605A57] leading-relaxed">
+                      Get notified via <Link href="/docs/alerts" className="text-[#37322F] hover:underline font-medium">Email, Slack, Discord, or webhooks</Link> 
+                      when anomalies are detected. Track incidents and maintain high reliability.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-12 sm:mt-16 text-center">
+                  <Link href="/company/about" className="inline-flex items-center text-[#37322F] hover:text-[#49423D] font-medium">
+                    Learn more about our technology
+                    <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </Link>
+                </div>
               </div>
 
               {/* Interactive Hero Carousel and Feature Cards */}

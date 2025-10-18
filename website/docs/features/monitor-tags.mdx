@@ -1,0 +1,293 @@
+---
+title: Monitor Tags
+description: Organize and filter monitors using tags
+sidebar_position: 3
+---
+
+# Monitor Tags
+
+Organize your monitors with tags to easily filter, group, and manage them across your organization.
+
+## Overview
+
+Tags are labels you can attach to monitors to categorize and organize them. They're especially useful when you have many monitors across different environments, services, or teams.
+
+**Benefits:**
+- Quickly filter monitors by tag on the dashboard
+- Group related monitors together
+- Identify monitors by environment, service, team, or any custom category
+- Improve monitoring organization as your infrastructure grows
+
+## Creating Tags
+
+### Via Monitor Form
+
+When creating or editing a monitor:
+
+1. Scroll to the **Tags** section
+2. Start typing a tag name
+3. Select an existing tag or press Enter to create a new one
+4. Add multiple tags as needed
+5. Save the monitor
+
+### Via Tags Management
+
+1. Go to **Settings** → **Tags** (coming soon)
+2. Click **Create Tag**
+3. Enter a tag name
+4. Click **Save**
+
+## Tag Naming Conventions
+
+### Recommended Patterns
+
+**Environment Tags:**
+```
+production
+staging  
+development
+test
+```
+
+**Service Tags:**
+```
+api
+database
+frontend
+worker
+cache
+```
+
+**Team Tags:**
+```
+team-platform
+team-devops
+team-backend
+```
+
+**Priority Tags:**
+```
+critical
+high-priority
+low-priority
+```
+
+**Custom Categories:**
+```
+customer-facing
+internal
+scheduled
+on-demand
+```
+
+### Best Practices
+
+- Use **lowercase** for consistency
+- Use **hyphens** instead of spaces (e.g., `high-priority` not `high priority`)
+- Keep names **short and descriptive** (under 20 characters)
+- Use a **consistent naming scheme** across your org
+- Avoid **redundant prefixes** (e.g., use `production` not `env-production`)
+
+## Using Tags
+
+### Filtering Monitors
+
+On the monitors dashboard:
+
+1. Click the **Filter** icon or dropdown
+2. Select one or more tags
+3. The monitor list updates to show only matching monitors
+4. Tags are combined with AND logic (monitor must have all selected tags)
+
+### URL Filtering
+
+Tags are reflected in the URL for easy bookmarking:
+```
+/app/monitors?tags=production,api
+```
+
+Share filtered views with your team by copying the URL.
+
+### Multi-Tag Filtering
+
+You can filter by multiple tags:
+- `production + api` → Shows only monitors tagged with BOTH
+- Clear filters to see all monitors again
+
+## Managing Tags
+
+### Renaming Tags
+
+(Coming soon)
+
+1. Go to **Settings** → **Tags**
+2. Click the tag you want to rename
+3. Enter the new name
+4. All monitors using this tag will be updated automatically
+
+### Deleting Tags
+
+To delete a tag:
+
+1. Go to **Settings** → **Tags**
+2. Click the **Delete** icon next to the tag
+3. Confirm the deletion
+4. The tag will be removed from all monitors
+
+:::tip
+Deleting a tag doesn't delete the monitors – it just removes the tag from them.
+:::
+
+### Bulk Tag Operations
+
+(Coming soon)
+
+- Add tags to multiple monitors at once
+- Remove tags from multiple monitors
+- Replace tags across monitors
+
+## Examples
+
+### Example 1: Environment-Based Organization
+
+```
+Production API Monitor       → production, api, critical
+Production Database Monitor  → production, database, critical
+Staging API Monitor          → staging, api
+Development Worker Monitor   → development, worker
+```
+
+**Filter by `production`** → See all production monitors  
+**Filter by `production + api`** → See only production API monitors
+
+### Example 2: Team-Based Organization
+
+```
+Auth Service Monitor         → team-platform, api, critical
+User Service Monitor         → team-platform, api, high-priority
+Postgres Backup Monitor      → team-devops, database, critical
+Redis Monitor                → team-devops, cache
+```
+
+**Filter by `team-platform`** → See Platform team's monitors  
+**Filter by `critical`** → See all critical monitors across teams
+
+### Example 3: Custom Categories
+
+```
+Customer Checkout Monitor    → customer-facing, critical, production
+Internal Admin Panel Monitor → internal, production
+Scheduled Report Job         → scheduled, low-priority
+On-Demand Export Job         → on-demand, worker
+```
+
+**Filter by `customer-facing`** → See monitors affecting customers  
+**Filter by `scheduled`** → See all scheduled job monitors
+
+## Advanced Use Cases
+
+### Alert Rules with Tags
+
+(Coming soon)
+
+Create alert rules that target monitors by tag:
+- All `production` monitors → alert to PagerDuty
+- All `staging` monitors → alert to Slack only
+- All `critical` monitors → alert to multiple channels
+
+### Status Pages with Tags
+
+(Coming soon)
+
+Build status pages that show monitors filtered by tags:
+- Public status page showing only `customer-facing` monitors
+- Internal dashboard showing `production + database` monitors
+
+### API Access
+
+Query monitors by tag via API:
+```bash
+curl 'https://api.saturn.sh/v1/monitors?tags=production,api' \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+## Limits
+
+- **Tags per monitor**: 10 (recommended: 3-5)
+- **Tag name length**: 50 characters
+- **Total tags per org**: 100
+- **Tag characters**: a-z, 0-9, hyphens, underscores
+
+## Migration from Legacy Tags
+
+If you're using the old string-array tags:
+
+1. Your existing tags will be automatically migrated
+2. Duplicates will be consolidated
+3. All tag names will be normalized to lowercase
+4. Spaces will be converted to hyphens
+
+**No action needed** – the migration happens automatically when you upgrade.
+
+## FAQ
+
+**Q: Are tags case-sensitive?**  
+A: No, tags are normalized to lowercase. `Production` and `production` are the same.
+
+**Q: Can I use spaces in tag names?**  
+A: Spaces are automatically converted to hyphens. We recommend using hyphens from the start.
+
+**Q: How many tags should I use per monitor?**  
+A: We recommend 3-5 tags per monitor. More than that becomes hard to manage.
+
+**Q: Can I share tags across organizations?**  
+A: No, tags are scoped to your organization.
+
+**Q: Do tags affect monitoring or alerting?**  
+A: Currently no, but we're adding tag-based alert rules soon.
+
+**Q: Can I color-code tags?**  
+A: Not yet, but this is on our roadmap!
+
+## Tips & Tricks
+
+### Start Simple
+
+Begin with just environment tags:
+- `production`
+- `staging`
+- `development`
+
+Add more categories as you grow.
+
+### Use Tag Hierarchies
+
+While tags are flat, you can create pseudo-hierarchies with naming:
+```
+aws-us-east-1
+aws-us-west-2
+aws-eu-west-1
+```
+
+Filter by `aws` (partial match coming soon) to see all AWS monitors.
+
+### Document Your Tags
+
+Create a team document explaining your tagging strategy:
+- What each tag means
+- When to use which tags
+- Tag naming conventions
+
+### Review Regularly
+
+Periodically review your tags:
+- Remove unused tags
+- Consolidate similar tags
+- Ensure consistency across monitors
+
+## Need Help?
+
+- Check our [Monitor Management Guide](/docs/monitors/overview)
+- Visit our [Support Page](/support)
+- Join our [Discord Community](https://discord.gg/saturn)
+
