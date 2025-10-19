@@ -141,8 +141,8 @@ export async function rescheduleOnboardingEmails(userId: string): Promise<void> 
     }
 
     const org = user.Membership[0]?.Org;
-    const hasMonitors = org.monitors.length > 0;
-    const hasAlerts = org.alertChannels.length > 0;
+    const hasMonitors = org.Monitor.length > 0;
+    const hasAlerts = org.AlertChannel.length > 0;
     const hasMfa = user.mfaEnabled;
 
     // If user has completed most onboarding steps, don't send reminder emails

@@ -20,10 +20,10 @@ export function startAlertWorker() {
       const incident = await prisma.incident.findUnique({
         where: { id: incidentId },
         include: {
-          monitor: {
+          Monitor: {
             include: {
-              org: true,
-              runs: {
+              Org: true,
+              Run: {
                 take: 5,
                 orderBy: {
                   startedAt: 'desc',

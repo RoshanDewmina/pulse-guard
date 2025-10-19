@@ -62,15 +62,15 @@ async function sendPagerDutyEvent(
   if (eventAction === 'trigger') {
     payload.payload = {
       summary: incident.summary,
-      source: incident.Monitor.org.name,
+      source: incident.monitor.org.name,
       severity: getSeverity(incident.kind),
       timestamp: incident.openedAt.toISOString(),
-      component: incident.Monitor.name,
+      component: incident.monitor.name,
       group: 'Saturn Monitoring',
       class: incident.kind,
       custom_details: {
-        monitor_id: incident.Monitor.id,
-        monitor_name: incident.Monitor.name,
+        monitor_id: incident.monitor.id,
+        monitor_name: incident.monitor.name,
         incident_id: incident.id,
         incident_type: incident.kind,
         details: incident.details,
@@ -85,7 +85,7 @@ async function sendPagerDutyEvent(
         text: 'View Incident in Saturn',
       },
       {
-        href: `${process.env.NEXT_PUBLIC_APP_URL || 'https://app.saturn.sh'}/app/monitors/${incident.Monitor.id}`,
+        href: `${process.env.NEXT_PUBLIC_APP_URL || 'https://app.saturn.sh'}/app/monitors/${incident.monitor.id}`,
         text: 'View Monitor',
       },
     ];

@@ -42,9 +42,9 @@ async function hasCompletedStep(userId: string, step: string): Promise<boolean> 
 
   switch (step) {
     case 'create_monitor':
-      return org.monitors.length > 0;
+      return org.Monitor.length > 0;
     case 'configure_alerts':
-      return org.alertChannels.length > 0;
+      return org.AlertChannel.length > 0;
     case 'enable_mfa':
       return user.mfaEnabled === true;
     case 'create_status_page':
@@ -93,8 +93,15 @@ export async function sendWelcomeEmail(userId: string): Promise<void> {
     const user = await prisma.user.findUnique({
       where: { id: userId },
       include: {
-        orgs: {
-          take: 1,
+        Membership: {
+          include: {
+            Org: {
+              include: {
+                Monitor: true,
+                AlertChannel: true,
+              },
+            },
+          },
         },
       },
     });
@@ -118,12 +125,7 @@ export async function sendWelcomeEmail(userId: string): Promise<void> {
     const html = generateWelcomeEmailHTML(data);
     const text = generateWelcomeEmailText(data);
 
-    await sendEmail({
-      to: user.email,
-      subject,
-      html,
-      text,
-    });
+    await sendEmail(user.email, subject, html);
 
     logger.info({ userId, email: user.email }, 'Welcome email sent');
   } catch (error) {
@@ -145,8 +147,15 @@ export async function sendMonitorReminderEmail(userId: string): Promise<void> {
     const user = await prisma.user.findUnique({
       where: { id: userId },
       include: {
-        orgs: {
-          take: 1,
+        Membership: {
+          include: {
+            Org: {
+              include: {
+                Monitor: true,
+                AlertChannel: true,
+              },
+            },
+          },
         },
       },
     });
@@ -170,12 +179,7 @@ export async function sendMonitorReminderEmail(userId: string): Promise<void> {
     const html = generateMonitorReminderEmailHTML(data);
     const text = generateMonitorReminderEmailText(data);
 
-    await sendEmail({
-      to: user.email,
-      subject,
-      html,
-      text,
-    });
+    await sendEmail(user.email, subject, html);
 
     logger.info({ userId, email: user.email }, 'Monitor reminder email sent');
   } catch (error) {
@@ -199,8 +203,15 @@ export async function sendOnboardingReminderEmail(userId: string): Promise<void>
     const user = await prisma.user.findUnique({
       where: { id: userId },
       include: {
-        orgs: {
-          take: 1,
+        Membership: {
+          include: {
+            Org: {
+              include: {
+                Monitor: true,
+                AlertChannel: true,
+              },
+            },
+          },
         },
       },
     });
@@ -224,12 +235,7 @@ export async function sendOnboardingReminderEmail(userId: string): Promise<void>
     const html = generateOnboardingReminderEmailHTML(data, progress);
     const text = generateOnboardingReminderEmailText(data, progress);
 
-    await sendEmail({
-      to: user.email,
-      subject,
-      html,
-      text,
-    });
+    await sendEmail(user.email, subject, html);
 
     logger.info({ userId, email: user.email }, 'Onboarding reminder email sent');
   } catch (error) {
@@ -251,8 +257,15 @@ export async function sendAlertSuggestionEmail(userId: string): Promise<void> {
     const user = await prisma.user.findUnique({
       where: { id: userId },
       include: {
-        orgs: {
-          take: 1,
+        Membership: {
+          include: {
+            Org: {
+              include: {
+                Monitor: true,
+                AlertChannel: true,
+              },
+            },
+          },
         },
       },
     });
@@ -276,12 +289,7 @@ export async function sendAlertSuggestionEmail(userId: string): Promise<void> {
     const html = generateAlertSuggestionEmailHTML(data);
     const text = generateAlertSuggestionEmailText(data);
 
-    await sendEmail({
-      to: user.email,
-      subject,
-      html,
-      text,
-    });
+    await sendEmail(user.email, subject, html);
 
     logger.info({ userId, email: user.email }, 'Alert suggestion email sent');
   } catch (error) {

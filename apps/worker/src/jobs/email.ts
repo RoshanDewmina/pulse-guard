@@ -42,7 +42,7 @@ export function startEmailWorker() {
         include: {
           Monitor: {
             include: {
-              runs: {
+              Run: {
                 take: 5,
                 orderBy: {
                   startedAt: 'desc',
@@ -78,7 +78,7 @@ export function startEmailWorker() {
         DEGRADED: '⚠️',
       }[incident.kind] || '⚠️';
 
-      const recentRuns = incident.Monitor.runs
+      const recentRuns = incident.Monitor.Run
         .map(run => (run.outcome === 'SUCCESS' ? '✅' : '❌'))
         .join(' ');
 

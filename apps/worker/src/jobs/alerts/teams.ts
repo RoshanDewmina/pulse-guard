@@ -88,22 +88,22 @@ function getStatusEmoji(status: string): string {
 function createAdaptiveCard(incident: Incident, action: 'opened' | 'acked' | 'resolved'): any {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://app.saturn.sh';
   const incidentUrl = `${appUrl}/app/incidents/${incident.id}`;
-  const monitorUrl = `${appUrl}/app/monitors/${incident.Monitor.id}`;
+  const monitorUrl = `${appUrl}/app/monitors/${incident.monitor.id}`;
 
   let title = '';
   let subtitle = '';
 
   switch (action) {
     case 'opened':
-      title = `${getEmoji(incident.kind)} Incident Opened: ${incident.Monitor.name}`;
+      title = `${getEmoji(incident.kind)} Incident Opened: ${incident.monitor.name}`;
       subtitle = incident.summary;
       break;
     case 'acked':
-      title = `${getStatusEmoji('ACKED')} Incident Acknowledged: ${incident.Monitor.name}`;
+      title = `${getStatusEmoji('ACKED')} Incident Acknowledged: ${incident.monitor.name}`;
       subtitle = 'The incident has been acknowledged';
       break;
     case 'resolved':
-      title = `${getStatusEmoji('RESOLVED')} Incident Resolved: ${incident.Monitor.name}`;
+      title = `${getStatusEmoji('RESOLVED')} Incident Resolved: ${incident.monitor.name}`;
       subtitle = 'The incident has been resolved';
       break;
   }
@@ -112,12 +112,12 @@ function createAdaptiveCard(incident: Incident, action: 'opened' | 'acked' | 're
   
   facts.push({
     title: 'Monitor',
-    value: incident.Monitor.name,
+    value: incident.monitor.name,
   });
   
   facts.push({
     title: 'Organization',
-    value: incident.Monitor.org.name,
+    value: incident.monitor.org.name,
   });
   
   facts.push({

@@ -304,7 +304,7 @@ View: https://app.saturn.sh/app/incidents/incident-123`;
 
       const callArgs = (mockTwilioClient.messages.create as any).mock.calls[0][0];
       expect(callArgs.body.length).toBeLessThanOrEqual(900);
-      expect(callArgs.body).toEndWith('...');
+      expect(callArgs.body).toMatch(/\.\.\.$/);
     });
 
     it('should not truncate short messages', async () => {
@@ -318,7 +318,7 @@ View: https://app.saturn.sh/app/incidents/incident-123`;
       await sendSMSOpened('incident-123', 'channel-123');
 
       const callArgs = (mockTwilioClient.messages.create as any).mock.calls[0][0];
-      expect(callArgs.body).not.toEndWith('...');
+      expect(callArgs.body).not.toMatch(/\.\.\.$/);
     });
   });
 

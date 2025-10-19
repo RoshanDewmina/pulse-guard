@@ -87,7 +87,7 @@ export function startDataExportWorker() {
         }
 
         // Get monitors from all user's organizations
-        const monitors = await prisma.Monitor.findMany({
+        const monitors = await prisma.monitor.findMany({
           where: {
             Org: {
               Membership: {

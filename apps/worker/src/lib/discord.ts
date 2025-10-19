@@ -148,7 +148,7 @@ export function buildIncidentEmbed(
   const fields: Array<{ name: string; value: string; inline?: boolean }> = [
     {
       name: '📊 Monitor',
-      value: incident.Monitor.name,
+      value: incident.monitor.name,
       inline: true,
     },
     {
@@ -163,26 +163,26 @@ export function buildIncidentEmbed(
     },
   ];
 
-  if (incident.Monitor.lastRunAt) {
+  if (incident.monitor.lastRunAt) {
     fields.push({
       name: '⏰ Last Run',
-      value: new Date(incident.Monitor.lastRunAt).toLocaleString(),
+      value: new Date(incident.monitor.lastRunAt).toLocaleString(),
       inline: true,
     });
   }
 
-  if (incident.Monitor.nextDueAt) {
+  if (incident.monitor.nextDueAt) {
     fields.push({
       name: '⏭️ Next Due',
-      value: new Date(incident.Monitor.nextDueAt).toLocaleString(),
+      value: new Date(incident.monitor.nextDueAt).toLocaleString(),
       inline: true,
     });
   }
 
-  if (incident.Monitor.lastDurationMs) {
+  if (incident.monitor.lastDurationMs) {
     fields.push({
       name: '⏱️ Duration',
-      value: `${incident.Monitor.lastDurationMs}ms`,
+      value: `${incident.monitor.lastDurationMs}ms`,
       inline: true,
     });
   }
@@ -242,7 +242,7 @@ export async function sendIncidentResolution(
   incident: Incident
 ): Promise<boolean> {
   const embed: DiscordEmbed = {
-    title: `✅ Incident Resolved: ${incident.Monitor.name}`,
+    title: `✅ Incident Resolved: ${incident.monitor.name}`,
     description: incident.summary,
     color: 0x00ff00, // Green
     fields: [

@@ -62,13 +62,13 @@ export function startWebhookWorker() {
         let success: boolean;
         switch (event) {
           case 'incident.opened':
-            success = await sendIncidentOpenedWebhook(config, incident, incident.monitor);
+            success = await sendIncidentOpenedWebhook(config, incident, incident.Monitor);
             break;
           case 'incident.acknowledged':
-            success = await sendIncidentAcknowledgedWebhook(config, incident, incident.monitor);
+            success = await sendIncidentAcknowledgedWebhook(config, incident, incident.Monitor);
             break;
           case 'incident.resolved':
-            success = await sendIncidentResolvedWebhook(config, incident, incident.monitor);
+            success = await sendIncidentResolvedWebhook(config, incident, incident.Monitor);
             break;
           default:
             throw new Error(`Unknown webhook event: ${event}`);

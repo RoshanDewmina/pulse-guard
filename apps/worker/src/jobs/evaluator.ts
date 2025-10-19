@@ -36,7 +36,7 @@ export function startEvaluator() {
       const now = new Date();
 
       // Find monitors that are overdue (nextDueAt + graceSec < now)
-      const overdueMonitors = await prisma.Monitor.findMany({
+      const overdueMonitors = await prisma.monitor.findMany({
         where: {
           status: {
             not: 'DISABLED',
@@ -81,7 +81,7 @@ export function startEvaluator() {
             logger.info(`Monitor ${monitor.name} (${monitor.id}) is MISSED`);
 
             // Update monitor status
-            await prisma.Monitor.update({
+            await prisma.monitor.update({
               where: { id: monitor.id },
               data: {
                 status: 'MISSED',

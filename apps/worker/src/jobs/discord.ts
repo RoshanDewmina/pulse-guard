@@ -56,9 +56,9 @@ export function startDiscordWorker() {
         // Send Discord message
         let success: boolean;
         if (type === 'alert') {
-          success = await sendIncidentAlert(config, incident);
+          success = await sendIncidentAlert(config, incident as any);
         } else {
-          success = await sendIncidentResolution(config, incident);
+          success = await sendIncidentResolution(config, incident as any);
         }
 
         if (success) {

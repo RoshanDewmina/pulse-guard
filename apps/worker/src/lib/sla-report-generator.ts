@@ -359,7 +359,7 @@ export async function generateSlaReport(
   // Get org/monitor name
   let reportName: string;
   if (monitorId) {
-    const monitor = await prisma.Monitor.findUnique({
+    const monitor = await prisma.monitor.findUnique({
       where: { id: monitorId },
       select: { name: true },
     });

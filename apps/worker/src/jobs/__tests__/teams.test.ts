@@ -240,7 +240,7 @@ describe('Teams integration', () => {
       const detailsContent = card.body.find((item: any) => item.text?.startsWith('a'));
       
       expect(detailsContent.text).toHaveLength(503); // 500 + '...'
-      expect(detailsContent.text).toEndWith('...');
+      expect(detailsContent.text).toMatch(/\.\.\.$/);
     });
   });
 

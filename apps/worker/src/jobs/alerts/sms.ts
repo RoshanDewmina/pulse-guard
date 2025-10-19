@@ -59,7 +59,7 @@ function formatSMS(incident: Incident, action: 'opened' | 'acked' | 'resolved'):
   switch (action) {
     case 'opened':
       message = `🚨 INCIDENT OPENED
-Monitor: ${incident.Monitor.name}
+Monitor: ${incident.monitor.name}
 Type: ${incident.kind}
 ${incident.summary}
 
@@ -67,13 +67,13 @@ View: ${incidentUrl}`;
       break;
     case 'acked':
       message = `👀 INCIDENT ACKNOWLEDGED
-Monitor: ${incident.Monitor.name}
+Monitor: ${incident.monitor.name}
 
 View: ${incidentUrl}`;
       break;
     case 'resolved':
       message = `✅ INCIDENT RESOLVED
-Monitor: ${incident.Monitor.name}
+Monitor: ${incident.monitor.name}
 
 View: ${incidentUrl}`;
       break;
@@ -128,10 +128,10 @@ async function sendSMS(
   }
 
   // Check rate limit
-  if (!checkRateLimit(incident.Monitor.org.name)) {
+  if (!checkRateLimit(incident.monitor.org.name)) {
     logger.warn({
       incidentId: incident.id,
-      orgId: incident.Monitor.org.name,
+      orgId: incident.monitor.org.name,
     }, 'SMS rate limit exceeded, skipping');
     return;
   }
