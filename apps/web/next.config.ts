@@ -24,6 +24,7 @@ const nextConfig: NextConfig = {
       '**/__tests__/**/*',
       '**/*.test.*',
       '**/*.spec.*',
+      '**/test/**/*',
       '**/node_modules/**',
     ],
   },

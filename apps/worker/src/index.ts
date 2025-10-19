@@ -13,6 +13,7 @@ import { startDomainCheckWorker, scheduleAllDomainChecks } from './jobs/domain-c
 import { startSyntheticMonitorWorker, scheduleAllSyntheticMonitors } from './jobs/synthetic-monitor';
 import { startSlaReportWorker } from './jobs/sla-reports';
 import { startScheduledReportsChecker } from './jobs/scheduled-reports';
+import { startOnboardingEmailWorker } from './jobs/onboarding-emails';
 import { startHealthCheckServer } from './health';
 import { prisma } from '@tokiflow/db';
 import Redis from 'ioredis';
@@ -104,6 +105,9 @@ async function main() {
 
   startSlaReportWorker();
   logger.info('✅ SLA report worker started');
+
+  startOnboardingEmailWorker();
+  logger.info('✅ Onboarding email worker started');
 
   // Start scheduled reports checker (runs every hour)
   const scheduledReportsInterval = startScheduledReportsChecker();

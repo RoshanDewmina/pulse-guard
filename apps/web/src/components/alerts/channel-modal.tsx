@@ -18,7 +18,7 @@ import {
   SaturnTabs,
 } from '@/components/saturn';
 import { useToast } from '@/components/ui/use-toast';
-import { Loader2, Mail, Webhook as WebhookIcon } from 'lucide-react';
+import { Loader2, Mail, Webhook as WebhookIcon, Bell, MessageSquare, Smartphone } from 'lucide-react';
 
 interface ChannelModalProps {
   open: boolean;
@@ -30,7 +30,7 @@ export function ChannelModal({ open, onClose, orgId }: ChannelModalProps) {
   const router = useRouter();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
-  const [channelType, setChannelType] = useState<'EMAIL' | 'WEBHOOK'>('EMAIL');
+  const [channelType, setChannelType] = useState<'EMAIL' | 'WEBHOOK' | 'PAGERDUTY' | 'TEAMS' | 'SMS'>('EMAIL');
   
   const [emailData, setEmailData] = useState({
     label: '',
@@ -44,11 +44,32 @@ export function ChannelModal({ open, onClose, orgId }: ChannelModalProps) {
     isDefault: false,
   });
 
+  const [pagerdutyData, setPagerdutyData] = useState({
+    label: '',
+    routingKey: '',
+    isDefault: false,
+  });
+
+  const [teamsData, setTeamsData] = useState({
+    label: '',
+    webhookUrl: '',
+    isDefault: false,
+  });
+
+  const [smsData, setSmsData] = useState({
+    label: '',
+    recipients: [''],
+    isDefault: false,
+  });
+
   useEffect(() => {
     if (!open) {
       // Reset form when closed
       setEmailData({ label: '', email: '', isDefault: false });
       setWebhookData({ label: '', url: '', isDefault: false });
+      setPagerdutyData({ label: '', routingKey: '', isDefault: false });
+      setTeamsData({ label: '', webhookUrl: '', isDefault: false });
+      setSmsData({ label: '', recipients: [''], isDefault: false });
       setChannelType('EMAIL');
     }
   }, [open]);
@@ -68,13 +89,37 @@ export function ChannelModal({ open, onClose, orgId }: ChannelModalProps) {
           configJson: { email: emailData.email },
           isDefault: emailData.isDefault,
         };
-      } else {
+      } else if (channelType === 'WEBHOOK') {
         payload = {
           orgId,
           type: 'WEBHOOK',
           label: webhookData.label,
           configJson: { url: webhookData.url },
           isDefault: webhookData.isDefault,
+        };
+      } else if (channelType === 'PAGERDUTY') {
+        payload = {
+          orgId,
+          type: 'PAGERDUTY',
+          label: pagerdutyData.label,
+          configJson: { routingKey: pagerdutyData.routingKey },
+          isDefault: pagerdutyData.isDefault,
+        };
+      } else if (channelType === 'TEAMS') {
+        payload = {
+          orgId,
+          type: 'TEAMS',
+          label: teamsData.label,
+          configJson: { webhookUrl: teamsData.webhookUrl },
+          isDefault: teamsData.isDefault,
+        };
+      } else if (channelType === 'SMS') {
+        payload = {
+          orgId,
+          type: 'SMS',
+          label: smsData.label,
+          configJson: { recipients: smsData.recipients.filter(r => r.trim() !== '') },
+          isDefault: smsData.isDefault,
         };
       }
 
@@ -119,11 +164,11 @@ export function ChannelModal({ open, onClose, orgId }: ChannelModalProps) {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Channel Type Selector */}
-          <div className="flex gap-2 border-b border-[rgba(55,50,47,0.12)]">
+          <div className="flex gap-2 border-b border-[rgba(55,50,47,0.12)] overflow-x-auto">
             <button
               type="button"
               onClick={() => setChannelType('EMAIL')}
-              className={`flex items-center gap-2 px-4 py-2 border-b-2 transition-colors ${
+              className={`flex items-center gap-2 px-4 py-2 border-b-2 transition-colors whitespace-nowrap ${
                 channelType === 'EMAIL'
                   ? 'border-[#37322F] text-[#37322F]'
                   : 'border-transparent text-[rgba(55,50,47,0.60)] hover:text-[#37322F]'
@@ -135,7 +180,7 @@ export function ChannelModal({ open, onClose, orgId }: ChannelModalProps) {
             <button
               type="button"
               onClick={() => setChannelType('WEBHOOK')}
-              className={`flex items-center gap-2 px-4 py-2 border-b-2 transition-colors ${
+              className={`flex items-center gap-2 px-4 py-2 border-b-2 transition-colors whitespace-nowrap ${
                 channelType === 'WEBHOOK'
                   ? 'border-[#37322F] text-[#37322F]'
                   : 'border-transparent text-[rgba(55,50,47,0.60)] hover:text-[#37322F]'
@@ -143,6 +188,42 @@ export function ChannelModal({ open, onClose, orgId }: ChannelModalProps) {
             >
               <WebhookIcon className="w-4 h-4" />
               Webhook
+            </button>
+            <button
+              type="button"
+              onClick={() => setChannelType('PAGERDUTY')}
+              className={`flex items-center gap-2 px-4 py-2 border-b-2 transition-colors whitespace-nowrap ${
+                channelType === 'PAGERDUTY'
+                  ? 'border-[#37322F] text-[#37322F]'
+                  : 'border-transparent text-[rgba(55,50,47,0.60)] hover:text-[#37322F]'
+              }`}
+            >
+              <Bell className="w-4 h-4" />
+              PagerDuty
+            </button>
+            <button
+              type="button"
+              onClick={() => setChannelType('TEAMS')}
+              className={`flex items-center gap-2 px-4 py-2 border-b-2 transition-colors whitespace-nowrap ${
+                channelType === 'TEAMS'
+                  ? 'border-[#37322F] text-[#37322F]'
+                  : 'border-transparent text-[rgba(55,50,47,0.60)] hover:text-[#37322F]'
+              }`}
+            >
+              <MessageSquare className="w-4 h-4" />
+              Teams
+            </button>
+            <button
+              type="button"
+              onClick={() => setChannelType('SMS')}
+              className={`flex items-center gap-2 px-4 py-2 border-b-2 transition-colors whitespace-nowrap ${
+                channelType === 'SMS'
+                  ? 'border-[#37322F] text-[#37322F]'
+                  : 'border-transparent text-[rgba(55,50,47,0.60)] hover:text-[#37322F]'
+              }`}
+            >
+              <Smartphone className="w-4 h-4" />
+              SMS
             </button>
           </div>
 
@@ -186,7 +267,7 @@ export function ChannelModal({ open, onClose, orgId }: ChannelModalProps) {
                 </SaturnLabel>
               </div>
             </>
-          ) : (
+          ) : channelType === 'WEBHOOK' ? (
             <>
               <div className="space-y-2">
                 <SaturnLabel htmlFor="webhook-label" required>Label</SaturnLabel>
@@ -229,7 +310,163 @@ export function ChannelModal({ open, onClose, orgId }: ChannelModalProps) {
                 </SaturnLabel>
               </div>
             </>
-          )}
+          ) : channelType === 'PAGERDUTY' ? (
+            <>
+              <div className="space-y-2">
+                <SaturnLabel htmlFor="pagerduty-label" required>Label</SaturnLabel>
+                <SaturnInput
+                  id="pagerduty-label"
+                  placeholder="e.g., On-Call Team"
+                  value={pagerdutyData.label}
+                  onChange={(e) => setPagerdutyData({ ...pagerdutyData, label: e.target.value })}
+                  required
+                  fullWidth
+                />
+              </div>
+
+              <div className="space-y-2">
+                <SaturnLabel htmlFor="pagerduty-routing-key" required>Routing Key</SaturnLabel>
+                <SaturnInput
+                  id="pagerduty-routing-key"
+                  placeholder="Your PagerDuty Integration Key"
+                  value={pagerdutyData.routingKey}
+                  onChange={(e) => setPagerdutyData({ ...pagerdutyData, routingKey: e.target.value })}
+                  required
+                  fullWidth
+                />
+                <p className="text-xs text-[rgba(55,50,47,0.60)]">
+                  Your PagerDuty Integration Key (Events API v2)
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="pagerduty-default"
+                  checked={pagerdutyData.isDefault}
+                  onChange={(e) => setPagerdutyData({ ...pagerdutyData, isDefault: e.target.checked })}
+                  className="w-4 h-4 rounded border-[rgba(55,50,47,0.16)]"
+                />
+                <SaturnLabel htmlFor="pagerduty-default" className="mb-0 cursor-pointer">
+                  Set as default channel
+                </SaturnLabel>
+              </div>
+            </>
+          ) : channelType === 'TEAMS' ? (
+            <>
+              <div className="space-y-2">
+                <SaturnLabel htmlFor="teams-label" required>Label</SaturnLabel>
+                <SaturnInput
+                  id="teams-label"
+                  placeholder="e.g., Alerts Channel"
+                  value={teamsData.label}
+                  onChange={(e) => setTeamsData({ ...teamsData, label: e.target.value })}
+                  required
+                  fullWidth
+                />
+              </div>
+
+              <div className="space-y-2">
+                <SaturnLabel htmlFor="teams-webhook-url" required>Webhook URL</SaturnLabel>
+                <SaturnInput
+                  id="teams-webhook-url"
+                  type="url"
+                  placeholder="https://outlook.office.com/webhook/..."
+                  value={teamsData.webhookUrl}
+                  onChange={(e) => setTeamsData({ ...teamsData, webhookUrl: e.target.value })}
+                  required
+                  fullWidth
+                />
+                <p className="text-xs text-[rgba(55,50,47,0.60)]">
+                  Your Teams Incoming Webhook URL
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="teams-default"
+                  checked={teamsData.isDefault}
+                  onChange={(e) => setTeamsData({ ...teamsData, isDefault: e.target.checked })}
+                  className="w-4 h-4 rounded border-[rgba(55,50,47,0.16)]"
+                />
+                <SaturnLabel htmlFor="teams-default" className="mb-0 cursor-pointer">
+                  Set as default channel
+                </SaturnLabel>
+              </div>
+            </>
+          ) : channelType === 'SMS' ? (
+            <>
+              <div className="space-y-2">
+                <SaturnLabel htmlFor="sms-label" required>Label</SaturnLabel>
+                <SaturnInput
+                  id="sms-label"
+                  placeholder="e.g., Emergency Contacts"
+                  value={smsData.label}
+                  onChange={(e) => setSmsData({ ...smsData, label: e.target.value })}
+                  required
+                  fullWidth
+                />
+              </div>
+
+              <div className="space-y-2">
+                <SaturnLabel htmlFor="sms-recipients" required>Phone Numbers</SaturnLabel>
+                <div className="space-y-2">
+                  {smsData.recipients.map((recipient, index) => (
+                    <div key={index} className="flex gap-2">
+                      <SaturnInput
+                        placeholder="+1234567890"
+                        value={recipient}
+                        onChange={(e) => {
+                          const newRecipients = [...smsData.recipients];
+                          newRecipients[index] = e.target.value;
+                          setSmsData({ ...smsData, recipients: newRecipients });
+                        }}
+                        fullWidth
+                      />
+                      {smsData.recipients.length > 1 && (
+                        <SaturnButton
+                          type="button"
+                          variant="ghost"
+                          onClick={() => {
+                            const newRecipients = smsData.recipients.filter((_, i) => i !== index);
+                            setSmsData({ ...smsData, recipients: newRecipients });
+                          }}
+                          className="px-3"
+                        >
+                          Remove
+                        </SaturnButton>
+                      )}
+                    </div>
+                  ))}
+                  <SaturnButton
+                    type="button"
+                    variant="ghost"
+                    onClick={() => setSmsData({ ...smsData, recipients: [...smsData.recipients, ''] })}
+                    className="text-sm"
+                  >
+                    + Add Phone Number
+                  </SaturnButton>
+                </div>
+                <p className="text-xs text-[rgba(55,50,47,0.60)]">
+                  Enter phone numbers in E.164 format (e.g., +1234567890)
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="sms-default"
+                  checked={smsData.isDefault}
+                  onChange={(e) => setSmsData({ ...smsData, isDefault: e.target.checked })}
+                  className="w-4 h-4 rounded border-[rgba(55,50,47,0.16)]"
+                />
+                <SaturnLabel htmlFor="sms-default" className="mb-0 cursor-pointer">
+                  Set as default channel
+                </SaturnLabel>
+              </div>
+            </>
+          ) : null}
 
           <DialogFooter>
             <SaturnButton type="button" variant="ghost" onClick={onClose} disabled={loading}>

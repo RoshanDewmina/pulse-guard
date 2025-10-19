@@ -71,7 +71,7 @@ async function cleanupOldRuns() {
 
     try {
       // Delete old monitor runs
-      const deletedRuns = await prisma.monitorRun.deleteMany({
+      const deletedRuns = await prisma.run.deleteMany({
         where: {
           Monitor: {
             orgId: org.id,

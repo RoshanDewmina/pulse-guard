@@ -1,13 +1,12 @@
 import { chromium, Browser, Page, BrowserContext } from 'playwright';
-import { prisma } from '@tokiflow/db';
-import type { SyntheticStepType, SyntheticRunStatus, SyntheticStepStatus } from '@tokiflow/db';
+import { prisma, SyntheticStepType, SyntheticRunStatus, SyntheticStepStatus } from '@tokiflow/db';
 import { uploadToS3 } from '@tokiflow/shared';
 import { createLogger } from '../logger';
 
 const logger = createLogger('synthetic-runner');
 
 export interface SyntheticRunResult {
-  status: typeof SyntheticRunStatus;
+  status: SyntheticRunStatus;
   durationMs: number;
   errorMessage?: string;
   screenshots: Record<string, string>; // step ID -> S3 key
@@ -16,7 +15,7 @@ export interface SyntheticRunResult {
 
 export interface StepResult {
   stepId: string;
-  status: typeof SyntheticStepStatus;
+  status: SyntheticStepStatus;
   durationMs: number;
   errorMessage?: string;
   screenshot?: string;
@@ -24,7 +23,7 @@ export interface StepResult {
 
 interface StepDefinition {
   id: string;
-  type: typeof SyntheticStepType;
+  type: SyntheticStepType;
   label: string;
   selector?: string | null;
   value?: string | null;
@@ -133,7 +132,7 @@ export async function runSyntheticMonitor(
     // Execute steps
     for (const step of monitor.SyntheticStep) {
       const stepStart = Date.now();
-      let stepStatus: 'SUCCESS' | 'FAILED' | 'SKIPPED' = 'SUCCESS';
+      let stepStatus: SyntheticStepStatus = 'SUCCESS' as SyntheticStepStatus;
       let stepError: string | undefined;
       let stepScreenshot: string | undefined;
 
@@ -159,7 +158,7 @@ export async function runSyntheticMonitor(
           screenshots[step.id] = s3Key;
         }
 
-        stepStatus = 'SUCCESS';
+        stepStatus = 'SUCCESS' as SyntheticStepStatus;
       } catch (error: any) {
         logger.error(
           { err: error, stepId: step.id, label: step.label },
@@ -167,7 +166,7 @@ export async function runSyntheticMonitor(
         );
 
         stepError = error.message || 'Unknown error';
-        stepStatus = step.optional ? 'SKIPPED' : 'FAILED';
+        stepStatus = step.optional ? ('SKIPPED' as SyntheticStepStatus) : ('FAILED' as SyntheticStepStatus);
 
         // Capture error screenshot
         try {
@@ -210,7 +209,7 @@ export async function runSyntheticMonitor(
     );
 
     return {
-      status: 'SUCCESS',
+      status: 'SUCCESS' as SyntheticRunStatus,
       durationMs: totalDuration,
       screenshots,
       stepResults,
@@ -243,7 +242,7 @@ export async function runSyntheticMonitor(
     const isTimeout = error.message?.includes('Timeout') || error.message?.includes('timeout');
 
     return {
-      status: isTimeout ? 'TIMEOUT' : 'FAILED',
+      status: isTimeout ? ('TIMEOUT' as SyntheticRunStatus) : ('FAILED' as SyntheticRunStatus),
       durationMs: totalDuration,
       errorMessage: error.message || 'Unknown error',
       screenshots,

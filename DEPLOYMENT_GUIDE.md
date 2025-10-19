@@ -1,474 +1,685 @@
-# 🚀 Saturn Production Deployment Guide
+# 🚀 PulseGuard Deployment Guide
 
-## 📋 Overview
+Complete deployment guide for PulseGuard, covering all deployment methods, environment setup, and feature configuration.
 
-Deploy Saturn to production with:
-- **Vercel** - Next.js web app (free tier available)
-- **Neon** - PostgreSQL database (you have this!) ✅
-- **Upstash** - Redis cache (you have this!) ✅
-- **Resend** - Email service (you have this!) ✅
-- **Vercel Cron** or **Railway** - BullMQ worker
-- **AWS S3** or **Vercel Blob** - File storage (upgrade from MinIO)
+## 📋 Table of Contents
 
----
-
-## 🎯 Quick Deploy (5 minutes)
-
-### Step 1: Install Vercel CLI
-
-```bash
-npm i -g vercel
-# or
-bun add -g vercel
-```
-
-### Step 2: Login to Vercel
-
-```bash
-vercel login
-```
-
-### Step 3: Deploy
-
-```bash
-cd /home/roshan/development/personal/pulse-guard/apps/web
-vercel --prod
-```
-
-That's it! But you need to set environment variables...
+- [Quick Start](#-quick-start)
+- [Prerequisites](#-prerequisites)
+- [Environment Setup](#-environment-setup)
+- [Database Setup](#-database-setup)
+- [Application Deployment](#-application-deployment)
+- [Feature Configuration](#-feature-configuration)
+- [Monitoring & Maintenance](#-monitoring--maintenance)
+- [Troubleshooting](#-troubleshooting)
 
 ---
 
-## 🔐 Environment Variables for Vercel
+## ⚡ Quick Start
 
-You'll need to add these in the Vercel dashboard:
+### Automated Deployment (Recommended)
 
-### Required Variables
+For first-time deployments, use the automated setup script:
 
 ```bash
-# Database (Neon)
-DATABASE_URL="postgresql://neondb_owner:npg_RBVXn3ewop9c@ep-silent-sun-admrfa2d-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
-DATABASE_URL_UNPOOLED="postgresql://neondb_owner:npg_RBVXn3ewop9c@ep-silent-sun-admrfa2d.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+# Clone the repository
+git clone https://github.com/your-username/pulse-guard.git
+cd pulse-guard
 
-# Redis (Upstash)
-REDIS_URL="rediss://default:AWRQAAIncDI1YmIxN2UxMjk3OGU0YjYzYmVlYjRhMzk1NGMwZDlmMXAyMjU2ODA@mint-giraffe-25680.upstash.io:6379"
+# Run the setup script
+./setup-env.sh
 
-# Next.js Auth
-NEXTAUTH_URL="https://your-app.vercel.app"  # Update after first deploy!
-NEXTAUTH_SECRET="<generate-new-secret-here>"
+# Deploy everything
+./deploy-all.sh production
+```
 
-# Email (Resend)
-RESEND_API_KEY="re_PZYyMBji_LcvWNfV3fWhqwa6Eu8pM3aDG"
-FROM_EMAIL="noreply@yourdomain.com"
+This will:
+1. Set up all environment variables
+2. Deploy the database
+3. Deploy the web application
+4. Deploy the worker
+5. Run health checks
 
-# Node Environment
+### Manual Deployment
+
+For experienced users who want full control:
+
+```bash
+# 1. Set up environment
+cp env.txt .env
+# Edit .env with your values
+
+# 2. Deploy database
+cd packages/db
+npx prisma migrate deploy
+
+# 3. Deploy web app
+./deploy-vercel-cli.sh production
+
+# 4. Deploy worker
+./deploy-flyio.sh
+```
+
+---
+
+## 🔧 Prerequisites
+
+### Required Services
+
+| Service | Purpose | Free Tier Available |
+|---------|---------|-------------------|
+| **Vercel** | Web application hosting | ✅ |
+| **Fly.io** | Worker hosting | ✅ |
+| **Neon/PostgreSQL** | Database | ✅ |
+| **Upstash/Redis** | Cache and queues | ✅ |
+| **Resend** | Email delivery | ✅ |
+
+### Optional Services
+
+| Service | Purpose | When to Use |
+|---------|---------|-------------|
+| **Stripe** | Payment processing | For SaaS monetization |
+| **Sentry** | Error tracking | For production monitoring |
+| **S3** | File storage | For synthetic monitoring screenshots |
+| **Twilio** | SMS notifications | For critical alerts |
+| **Slack/Discord** | Team notifications | For team collaboration |
+
+### System Requirements
+
+- **Node.js**: 18.x or later
+- **Bun**: 1.0 or later (recommended)
+- **Git**: For version control
+- **Domain**: For custom domains and SSL
+
+---
+
+## 🌍 Environment Setup
+
+### Core Environment Variables
+
+Create a `.env` file with the following variables:
+
+```bash
+# Database
+DATABASE_URL="postgresql://user:password@host:port/database?sslmode=require"
+DATABASE_URL_UNPOOLED="postgresql://user:password@host:port/database?sslmode=require"
+
+# Redis
+REDIS_URL="redis://user:password@host:port"
+
+# Authentication
+NEXTAUTH_SECRET="your-32-character-secret-key"
+NEXTAUTH_URL="https://your-domain.com"
+JWT_SECRET="your-jwt-secret-key"
+
+# Email
+RESEND_API_KEY="re_xxxxxxxxxx"
+FROM_EMAIL="noreply@your-domain.com"
+
+# Application
 NODE_ENV="production"
 ```
 
-### Generate New NEXTAUTH_SECRET
+### Feature-Specific Environment Variables
 
+#### Stripe (Payment Processing)
 ```bash
-openssl rand -base64 32
+STRIPE_SECRET_KEY="sk_live_xxxxxxxxxx"
+STRIPE_PUBLISHABLE_KEY="pk_live_xxxxxxxxxx"
+STRIPE_WEBHOOK_SECRET="whsec_xxxxxxxxxx"
 ```
 
-### Optional (for later)
+#### Sentry (Error Tracking)
+```bash
+SENTRY_DSN="https://xxxxxxxxxx@sentry.io/xxxxxxxxxx"
+SENTRY_ORG="your-org"
+SENTRY_PROJECT="pulseguard"
+SENTRY_AUTH_TOKEN="your-sentry-auth-token"
+```
+
+#### S3 (File Storage)
+```bash
+AWS_ACCESS_KEY_ID="AKIAIOSFODNN7EXAMPLE"
+AWS_SECRET_ACCESS_KEY="wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+AWS_REGION="us-east-1"
+AWS_S3_BUCKET="pulseguard-files"
+```
+
+#### Twilio (SMS)
+```bash
+TWILIO_ACCOUNT_SID="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+TWILIO_AUTH_TOKEN="your-twilio-auth-token"
+TWILIO_PHONE_NUMBER="+1234567890"
+```
+
+#### Slack Integration
+```bash
+SLACK_BOT_TOKEN="xoxb-xxxxxxxxxx-xxxxxxxxxx-xxxxxxxxxx"
+SLACK_SIGNING_SECRET="your-slack-signing-secret"
+```
+
+#### Discord Integration
+```bash
+DISCORD_BOT_TOKEN="your-discord-bot-token"
+DISCORD_CLIENT_ID="your-discord-client-id"
+DISCORD_CLIENT_SECRET="your-discord-client-secret"
+```
+
+### Environment Variable Validation
+
+Use the setup script to validate your environment:
 
 ```bash
-# Stripe (if you want billing)
-STRIPE_SECRET_KEY="sk_live_..."
-STRIPE_WEBHOOK_SECRET="whsec_..."
+./setup-env.sh --validate
+```
 
-# Slack (if you want Slack integration)
-SLACK_CLIENT_ID="..."
-SLACK_CLIENT_SECRET="..."
+This will check:
+- Required variables are set
+- Database connectivity
+- Redis connectivity
+- Email service connectivity
+- Optional service connectivity
 
-# S3 Storage (recommended for production)
-S3_BUCKET_NAME="saturn-outputs"
-S3_REGION="us-east-1"
-S3_ACCESS_KEY_ID="..."
-S3_SECRET_ACCESS_KEY="..."
+---
+
+## 🗄️ Database Setup
+
+### Database Provider Setup
+
+#### Neon (Recommended)
+
+1. **Create Database**:
+   ```bash
+   # Install Neon CLI
+   npm install -g @neondatabase/cli
+   
+   # Login to Neon
+   neon auth
+   
+   # Create database
+   neon databases create pulseguard
+   ```
+
+2. **Get Connection String**:
+   ```bash
+   # Get connection details
+   neon connection-string pulseguard
+   ```
+
+#### Supabase
+
+1. **Create Project**: Go to [supabase.com](https://supabase.com)
+2. **Get Connection String**: From project settings
+3. **Enable Extensions**: Enable required PostgreSQL extensions
+
+#### Self-Hosted PostgreSQL
+
+1. **Install PostgreSQL**: Version 15 or later
+2. **Create Database**: `CREATE DATABASE pulseguard;`
+3. **Create User**: `CREATE USER pulseguard WITH PASSWORD 'secure_password';`
+4. **Grant Permissions**: `GRANT ALL PRIVILEGES ON DATABASE pulseguard TO pulseguard;`
+
+### Database Migration
+
+Run database migrations to set up the schema:
+
+```bash
+cd packages/db
+
+# Generate migration (if needed)
+npx prisma migrate dev --name init
+
+# Deploy migrations
+npx prisma migrate deploy
+
+# Generate Prisma client
+npx prisma generate
+```
+
+### Database Seeding (Optional)
+
+Seed the database with initial data:
+
+```bash
+# Run seed script
+npx prisma db seed
+
+# Or manually seed
+bun run seed
 ```
 
 ---
 
-## 📦 Deployment Steps (Detailed)
+## 🚀 Application Deployment
 
-### Option A: Vercel CLI (Recommended)
+### Web Application (Vercel)
+
+#### Method 1: Vercel CLI (Recommended)
 
 ```bash
-# 1. Navigate to web app
-cd /home/roshan/development/personal/pulse-guard/apps/web
+# Install Vercel CLI
+npm install -g vercel
 
-# 2. Login to Vercel
+# Login to Vercel
 vercel login
 
-# 3. Deploy (first time - preview)
-vercel
-
-# 4. Follow prompts:
-#    - Set up and deploy? Y
-#    - Which scope? [Select your account]
-#    - Link to existing project? N
-#    - What's your project's name? saturn
-#    - In which directory is your code located? ./
-#    - Want to override settings? N
-
-# 5. Add environment variables (see next section)
-
-# 6. Deploy to production
+# Deploy
 vercel --prod
+
+# Set environment variables
+vercel env add DATABASE_URL
+vercel env add REDIS_URL
+# ... add all required variables
 ```
 
-### Option B: GitHub + Vercel (Best for Teams)
+#### Method 2: GitHub Integration
+
+1. **Connect Repository**: Link your GitHub repo to Vercel
+2. **Configure Build Settings**:
+   - Framework: Next.js
+   - Build Command: `cd apps/web && bun run build`
+   - Output Directory: `apps/web/.next`
+3. **Set Environment Variables**: Add all required variables
+4. **Deploy**: Automatic deployment on push to main
+
+#### Method 3: Manual Upload
 
 ```bash
-# 1. Push to GitHub
-git remote add origin https://github.com/yourusername/saturn.git
-git add .
-git commit -m "Initial Saturn deployment"
-git push -u origin main
+# Build the application
+cd apps/web
+bun run build
 
-# 2. Go to vercel.com
-# 3. Click "Add New Project"
-# 4. Import from GitHub
-# 5. Select your repository
-# 6. Configure:
-#    - Framework Preset: Next.js
-#    - Root Directory: apps/web
-#    - Build Command: bun run build
-#    - Output Directory: .next
-# 7. Add environment variables (see below)
-# 8. Deploy!
+# Upload to Vercel
+vercel --prod --cwd apps/web
+```
+
+### Worker Application (Fly.io)
+
+#### Method 1: Fly.io CLI (Recommended)
+
+```bash
+# Install Fly.io CLI
+curl -L https://fly.io/install.sh | sh
+
+# Login to Fly.io
+fly auth login
+
+# Deploy worker
+cd apps/worker
+fly deploy
+
+# Set secrets
+fly secrets set DATABASE_URL="your-database-url"
+fly secrets set REDIS_URL="your-redis-url"
+# ... set all required secrets
+```
+
+#### Method 2: GitHub Actions
+
+```yaml
+# .github/workflows/deploy-worker.yml
+name: Deploy Worker
+on:
+  push:
+    branches: [main]
+    paths: ['apps/worker/**']
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - run: flyctl deploy --remote-only
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+```
+
+### Custom Domain Setup
+
+#### Vercel Custom Domain
+
+1. **Add Domain**: In Vercel dashboard, go to project settings
+2. **Configure DNS**: Add CNAME record pointing to Vercel
+3. **SSL Certificate**: Automatic SSL certificate generation
+4. **Update Environment**: Update `NEXTAUTH_URL` with custom domain
+
+#### Fly.io Custom Domain
+
+1. **Add Domain**: `fly domains add your-domain.com`
+2. **Configure DNS**: Add A record pointing to Fly.io IP
+3. **SSL Certificate**: Automatic SSL certificate generation
+
+---
+
+## ⚙️ Feature Configuration
+
+### Multi-Factor Authentication (MFA)
+
+MFA is enabled by default. Configure additional settings:
+
+```bash
+# MFA settings (optional)
+MFA_ISSUER="PulseGuard"
+MFA_WINDOW=1
+MFA_DIGITS=6
+MFA_ALGORITHM="sha1"
+```
+
+### SAML 2.0 SSO
+
+Configure SAML for enterprise SSO:
+
+1. **Get SAML Metadata**: From your Identity Provider
+2. **Configure SAML**: In organization settings
+3. **Test Configuration**: Use the built-in test tool
+4. **Enable SAML**: Toggle SAML authentication
+
+### Audit Logging
+
+Audit logging is enabled by default. Configure retention:
+
+```bash
+# Audit log settings
+AUDIT_LOG_RETENTION_DAYS=365
+AUDIT_LOG_LEVEL=info
+AUDIT_LOG_FORMAT=json
+```
+
+### Maintenance Windows
+
+Configure maintenance window settings:
+
+```bash
+# Maintenance window settings
+MAINTENANCE_WINDOW_MAX_DURATION_HOURS=24
+MAINTENANCE_WINDOW_ADVANCE_NOTICE_HOURS=24
+```
+
+### Synthetic Monitoring
+
+Configure synthetic monitoring (requires S3):
+
+```bash
+# Synthetic monitoring settings
+SYNTHETIC_SCREENSHOT_BUCKET="pulseguard-screenshots"
+SYNTHETIC_SCREENSHOT_RETENTION_DAYS=30
+SYNTHETIC_MAX_STEPS=10
 ```
 
 ---
 
-## 🔧 Adding Environment Variables in Vercel
+## 📊 Monitoring & Maintenance
 
-### Via Dashboard
+### Health Checks
 
-1. Go to https://vercel.com/dashboard
-2. Select your project
-3. Go to **Settings** → **Environment Variables**
-4. Add each variable:
-   - Key: `DATABASE_URL`
-   - Value: `postgresql://...`
-   - Environments: ✅ Production, ✅ Preview, ✅ Development
-5. Click **Save**
-6. Redeploy
+Set up health checks for your deployment:
 
-### Via CLI
+#### Vercel Health Check
 
 ```bash
-# Set production variables
-vercel env add DATABASE_URL production
-# Paste your database URL when prompted
+# Check web application health
+curl https://your-domain.com/api/health
 
-vercel env add REDIS_URL production
-# Paste your Redis URL when prompted
-
-vercel env add NEXTAUTH_SECRET production
-# Generate with: openssl rand -base64 32
-
-# ... repeat for all variables
-```
-
----
-
-## 🔄 Deploy the BullMQ Worker
-
-The worker runs background jobs (missed detection, alerts).
-
-### Option 1: Vercel Cron (Easiest, but limited)
-
-Create `vercel.json` in project root:
-
-```json
+# Expected response
 {
-  "crons": [
-    {
-      "path": "/api/cron/check-missed",
-      "schedule": "* * * * *"
-    }
-  ]
-}
-```
-
-Then create the cron endpoint: `apps/web/src/app/api/cron/check-missed/route.ts`
-
-**Limitation**: Vercel crons run max every 1 minute. Worker should run continuously.
-
-### Option 2: Railway (Recommended for Worker)
-
-```bash
-# 1. Install Railway CLI
-npm i -g @railway/cli
-
-# 2. Login
-railway login
-
-# 3. Create new project
-railway init
-
-# 4. Create worker service
-cd /home/roshan/development/personal/pulse-guard/apps/worker
-railway up
-
-# 5. Add environment variables in Railway dashboard
-# Same as Vercel (DATABASE_URL, REDIS_URL, etc.)
-
-# 6. Deploy
-railway up --detach
-```
-
-Railway config file: `apps/worker/railway.json`
-```json
-{
-  "build": {
-    "builder": "NIXPACKS"
-  },
-  "deploy": {
-    "startCommand": "bun run start",
-    "restartPolicyType": "ON_FAILURE"
+  "status": "healthy",
+  "timestamp": "2024-01-15T10:30:00Z",
+  "services": {
+    "database": "healthy",
+    "redis": "healthy",
+    "email": "healthy"
   }
 }
 ```
 
-### Option 3: Render.com (Alternative)
-
-1. Go to https://render.com
-2. Create **Background Worker**
-3. Connect GitHub repo
-4. Configure:
-   - Build Command: `cd apps/worker && bun install`
-   - Start Command: `cd apps/worker && bun run start`
-5. Add environment variables
-6. Deploy
-
----
-
-## 📊 Storage: Upgrade from MinIO
-
-For production, switch from local MinIO to cloud storage.
-
-### Option A: Vercel Blob (Easiest with Vercel)
+#### Fly.io Health Check
 
 ```bash
-# 1. Enable in Vercel dashboard
-# Project → Storage → Create Blob Store
+# Check worker health
+fly status
 
-# 2. Environment variables are auto-added:
-# BLOB_READ_WRITE_TOKEN (auto-configured)
-
-# 3. Update code to use Vercel Blob
-# In apps/web/src/lib/s3.ts:
-# import { put } from '@vercel/blob';
+# Check worker logs
+fly logs
 ```
 
-### Option B: AWS S3 (Most flexible)
+### Monitoring Setup
+
+#### Application Monitoring
+
+1. **Sentry Integration**: Automatic error tracking
+2. **Performance Monitoring**: Built-in performance metrics
+3. **Uptime Monitoring**: Monitor your own deployment
+
+#### Infrastructure Monitoring
+
+1. **Database Monitoring**: Monitor database performance
+2. **Redis Monitoring**: Monitor cache and queue performance
+3. **CDN Monitoring**: Monitor Vercel edge performance
+
+### Backup Strategy
+
+#### Database Backups
 
 ```bash
-# 1. Create S3 bucket
-aws s3 mb s3://saturn-outputs --region us-east-1
+# Automated backups (recommended)
+# Set up automated backups in your database provider
 
-# 2. Create IAM user with S3 access
-# Get Access Key ID and Secret Access Key
+# Manual backup
+pg_dump $DATABASE_URL > backup_$(date +%Y%m%d_%H%M%S).sql
 
-# 3. Add to Vercel env vars:
-S3_BUCKET_NAME="saturn-outputs"
-S3_REGION="us-east-1"
-S3_ACCESS_KEY_ID="AKIA..."
-S3_SECRET_ACCESS_KEY="..."
+# Restore backup
+psql $DATABASE_URL < backup_20240115_103000.sql
 ```
 
-### Option C: Cloudflare R2 (S3-compatible, no egress fees)
+#### File Backups
 
 ```bash
-# 1. Go to Cloudflare dashboard → R2
-# 2. Create bucket: saturn-outputs
-# 3. Create API token
-# 4. Add to Vercel:
-S3_ENDPOINT="https://your-account-id.r2.cloudflarestorage.com"
-S3_BUCKET_NAME="saturn-outputs"
-S3_ACCESS_KEY_ID="..."
-S3_SECRET_ACCESS_KEY="..."
-S3_REGION="auto"
+# S3 backup (if using S3)
+aws s3 sync s3://your-bucket s3://your-backup-bucket/$(date +%Y%m%d)
 ```
 
----
+### Updates and Maintenance
 
-## 🧪 Post-Deployment Testing
-
-### 1. Test the Application
+#### Application Updates
 
 ```bash
-# Your deployed URL
-curl https://your-app.vercel.app
+# Update application
+git pull origin main
+bun install
+bun run build
 
-# Should return 200 OK
+# Deploy updates
+./deploy-all.sh production
 ```
 
-### 2. Create Test Monitor
-
-1. Go to https://your-app.vercel.app
-2. Sign up
-3. Create organization
-4. Create monitor
-5. Copy ping URL
-
-### 3. Test Ping API
+#### Database Updates
 
 ```bash
-# Test start ping
-curl -X POST "https://your-app.vercel.app/api/ping/YOUR_MONITOR_TOKEN?state=start"
+# Run database migrations
+cd packages/db
+npx prisma migrate deploy
 
-# Should return: {"ok":true}
-
-# Test success ping
-curl -X POST "https://your-app.vercel.app/api/ping/YOUR_MONITOR_TOKEN?state=success&durationMs=1234"
+# Check migration status
+npx prisma migrate status
 ```
 
-### 4. Test Worker
-
-Check if missed detection is working:
-- Create a monitor
-- Don't send any pings
-- Wait for grace period + 1 minute
-- Check if incident was created
-
-### 5. Test Email
-
-- Create alert rule with email channel
-- Trigger an incident
-- Check if email was sent
-
----
-
-## 🎯 Production Checklist
-
-Before going live:
-
-### Security
-- [ ] Generated new `NEXTAUTH_SECRET` (not dev secret!)
-- [ ] Database password is strong
-- [ ] Redis URL uses TLS (`rediss://`)
-- [ ] API keys are in Vercel secrets (not in git)
-- [ ] `.env` files in `.gitignore`
-
-### Performance
-- [ ] Database connection pooling enabled (Neon does this)
-- [ ] Redis connection pooling configured
-- [ ] Image optimization enabled (Next.js default)
-- [ ] Response caching configured
-
-### Monitoring
-- [ ] Sentry configured (optional but recommended)
-- [ ] Uptime monitor for Saturn itself (meta-monitoring!)
-- [ ] Database backup scheduled (Neon has this)
-
-### Features
-- [ ] Email sending works
-- [ ] Worker is running
-- [ ] Missed detection works
-- [ ] Alerts are sent
-- [ ] Status pages accessible
-
----
-
-## 🚨 Troubleshooting
-
-### "Build failed on Vercel"
-
-Check:
-1. Build command is correct: `bun run build`
-2. All dependencies in `package.json`
-3. No TypeScript errors: `npx tsc --noEmit`
-
-### "Database connection failed"
-
-Check:
-1. `DATABASE_URL` is set correctly
-2. `DATABASE_URL_UNPOOLED` is set (for Neon)
-3. Connection string includes `?sslmode=require`
-
-### "Redis connection failed"
-
-Check:
-1. `REDIS_URL` uses `rediss://` (with double 's' for TLS)
-2. Redis is reachable from Vercel servers
-3. Upstash allows connections from any IP
-
-### "Worker not processing jobs"
-
-Check:
-1. Worker is deployed and running
-2. Worker has same `REDIS_URL` as web app
-3. Check worker logs for errors
-
----
-
-## 💰 Cost Estimate
-
-### Current Setup (Serverless)
-
-| Service | Plan | Cost |
-|---------|------|------|
-| **Vercel** | Hobby | Free (or $20/mo Pro) |
-| **Neon PostgreSQL** | Free Tier | $0 (0.5GB storage, 10M rows) |
-| **Upstash Redis** | Free Tier | $0 (10K commands/day) |
-| **Resend Email** | Free Tier | $0 (100 emails/day) |
-| **Railway/Render** | Free Tier | $0 (or $5-10/mo) |
-| **AWS S3** | Pay-as-you-go | ~$1-5/mo |
-| **Total** | | **$0-50/month** |
-
-### At Scale (1000+ monitors)
-
-| Service | Plan | Cost |
-|---------|------|------|
-| **Vercel** | Pro | $20/mo |
-| **Neon** | Scale | $19/mo |
-| **Upstash** | Pay-as-you-go | $10-50/mo |
-| **Resend** | Pro | $20/mo |
-| **Railway** | Pro | $20/mo |
-| **S3** | Standard | $10-50/mo |
-| **Total** | | **$99-179/month** |
-
----
-
-## 🎉 You're Ready to Deploy!
-
-### Quick Commands
+#### Security Updates
 
 ```bash
-# 1. Install Vercel CLI
-npm i -g vercel
+# Update dependencies
+bun update
 
-# 2. Login
-vercel login
+# Check for vulnerabilities
+bun audit
 
-# 3. Deploy
-cd apps/web
-vercel --prod
-
-# 4. Add environment variables in dashboard
-# https://vercel.com/dashboard
-
-# 5. Redeploy
-vercel --prod
-
-# Done! 🚀
+# Update security patches
+bun audit --fix
 ```
 
 ---
 
-## 📞 Need Help?
+## 🔧 Troubleshooting
 
-- Vercel Docs: https://vercel.com/docs
-- Railway Docs: https://docs.railway.app
-- Neon Docs: https://neon.tech/docs
-- Upstash Docs: https://docs.upstash.com
+### Common Issues
+
+#### Database Connection Issues
+
+```bash
+# Check database connectivity
+psql $DATABASE_URL -c "SELECT 1;"
+
+# Check connection pool
+psql $DATABASE_URL_UNPOOLED -c "SELECT 1;"
+```
+
+**Solutions:**
+- Verify connection string format
+- Check database server status
+- Verify network connectivity
+- Check firewall settings
+
+#### Redis Connection Issues
+
+```bash
+# Check Redis connectivity
+redis-cli -u $REDIS_URL ping
+
+# Check Redis memory usage
+redis-cli -u $REDIS_URL info memory
+```
+
+**Solutions:**
+- Verify Redis URL format
+- Check Redis server status
+- Verify network connectivity
+- Check Redis memory limits
+
+#### Email Delivery Issues
+
+```bash
+# Test email delivery
+curl -X POST https://your-domain.com/api/test-email \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"to": "test@example.com", "subject": "Test", "body": "Test email"}'
+```
+
+**Solutions:**
+- Verify Resend API key
+- Check email domain configuration
+- Verify sender email address
+- Check spam folder
+
+#### Worker Issues
+
+```bash
+# Check worker status
+fly status
+
+# Check worker logs
+fly logs --tail
+
+# Restart worker
+fly restart
+```
+
+**Solutions:**
+- Check worker logs for errors
+- Verify environment variables
+- Check Redis connectivity
+- Restart worker if needed
+
+### Performance Issues
+
+#### Slow Database Queries
+
+```bash
+# Check slow queries
+psql $DATABASE_URL -c "SELECT query, mean_time, calls FROM pg_stat_statements ORDER BY mean_time DESC LIMIT 10;"
+```
+
+**Solutions:**
+- Add database indexes
+- Optimize queries
+- Increase database resources
+- Use connection pooling
+
+#### High Memory Usage
+
+```bash
+# Check memory usage
+fly status
+fly logs --tail
+```
+
+**Solutions:**
+- Increase worker memory
+- Optimize code
+- Check for memory leaks
+- Restart worker
+
+#### Slow API Responses
+
+```bash
+# Check API response times
+curl -w "@curl-format.txt" -o /dev/null -s https://your-domain.com/api/monitors
+```
+
+**Solutions:**
+- Enable CDN caching
+- Optimize database queries
+- Use Redis caching
+- Optimize code
+
+### Security Issues
+
+#### Authentication Issues
+
+```bash
+# Check authentication logs
+curl -H "Authorization: Bearer YOUR_API_KEY" https://your-domain.com/api/audit-logs?action=LOGIN_FAILED
+```
+
+**Solutions:**
+- Verify JWT secret
+- Check session configuration
+- Verify MFA setup
+- Check SAML configuration
+
+#### API Security Issues
+
+```bash
+# Test API security
+curl -H "Authorization: Bearer invalid-key" https://your-domain.com/api/monitors
+```
+
+**Solutions:**
+- Verify API key format
+- Check rate limiting
+- Verify CORS settings
+- Check input validation
 
 ---
 
-**Let's deploy Saturn to production!** 🚀
+## 📚 Additional Resources
 
+- [Features Guide](./docs/FEATURES.md)
+- [API Documentation](./docs/API.md)
+- [Security Guide](./docs/SECURITY.md)
+- [Testing Guide](./docs/TESTING.md)
+- [Troubleshooting Guide](./docs/TROUBLESHOOTING.md)
+
+---
+
+## 🆘 Support
+
+- **Documentation**: [docs.pulseguard.com](https://docs.pulseguard.com)
+- **Community**: [Discord](https://discord.gg/pulseguard)
+- **Issues**: [GitHub Issues](https://github.com/pulseguard/pulseguard/issues)
+- **Email**: support@pulseguard.com
+
+---
+
+**Last Updated**: January 2024  
+**Deployment Version**: v2.0

@@ -1,0 +1,17 @@
+apiVersion: v2
+name: saturn-monitor
+description: A Helm chart for monitoring Kubernetes CronJobs with Saturn
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+keywords:
+  - monitoring
+  - cronjob
+  - kubernetes
+  - saturn
+home: https://saturn.sh
+sources:
+  - https://github.com/saturn-sh/pulse-guard
+maintainers:
+  - name: Saturn Team
+    email: support@saturn.sh

@@ -1,5 +1,5 @@
 import { Worker, Job } from 'bullmq';
-import { prisma } from '@tokiflow/db';
+import { prisma, SyntheticRunStatus, SyntheticStepStatus } from '@tokiflow/db';
 import { syntheticMonitorQueue } from '@tokiflow/shared';
 import { runSyntheticMonitor } from '../lib/synthetic-runner';
 import { createLogger } from '../logger';
@@ -78,7 +78,7 @@ export async function processSyntheticMonitorJob(job: Job): Promise<void> {
       await prisma.syntheticRun.update({
         where: { id: run.id },
         data: {
-          status: result.status,
+          status: result.status as SyntheticRunStatus,
           completedAt: new Date(),
           durationMs: result.durationMs,
           errorMessage: result.errorMessage,
@@ -92,7 +92,7 @@ export async function processSyntheticMonitorJob(job: Job): Promise<void> {
           data: {
             syntheticRunId: run.id,
             syntheticStepId: stepResult.stepId,
-            status: stepResult.status,
+            status: stepResult.status as SyntheticStepStatus,
             completedAt: new Date(),
             durationMs: stepResult.durationMs,
             errorMessage: stepResult.errorMessage,
@@ -111,7 +111,7 @@ export async function processSyntheticMonitorJob(job: Job): Promise<void> {
       });
 
       // Create incident if test failed
-      if (result.status === 'FAILED' || result.status === 'TIMEOUT') {
+      if (result.status === SyntheticRunStatus.FAILED || result.status === SyntheticRunStatus.TIMEOUT) {
         await createSyntheticIncident(monitor, run.id, result);
       } else {
         // Resolve any open incidents for this monitor

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   SaturnCard,
@@ -24,6 +24,7 @@ export default function NewMonitorPage() {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [createdMonitor, setCreatedMonitor] = useState<any>(null);
+  const [userPlan, setUserPlan] = useState<any>(null);
   
   const [formData, setFormData] = useState({
     name: '',
@@ -33,6 +34,26 @@ export default function NewMonitorPage() {
     timezone: 'UTC',
     graceSec: 300,
   });
+
+  // Fetch user's plan to show appropriate restrictions
+  useEffect(() => {
+    const fetchUserPlan = async () => {
+      try {
+        const response = await fetch('/api/org');
+        const { org } = await response.json();
+        if (org?.SubscriptionPlan) {
+          setUserPlan(org.SubscriptionPlan);
+          // Set default interval to plan minimum if current is below
+          if (org.SubscriptionPlan.minIntervalSec && formData.intervalSec < org.SubscriptionPlan.minIntervalSec) {
+            setFormData(prev => ({ ...prev, intervalSec: org.SubscriptionPlan.minIntervalSec }));
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch user plan:', error);
+      }
+    };
+    fetchUserPlan();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -300,19 +321,29 @@ requests.get(f"{URL}?state={state}&exitCode={result.returncode}", timeout=5)`}
                   <SaturnInput
                     id="interval"
                     type="number"
-                    min="60"
+                    min={userPlan?.minIntervalSec || 60}
                     value={formData.intervalSec}
-                    onChange={(e) =>
-                      setFormData({ ...formData, intervalSec: parseInt(e.target.value) })
-                    }
+                    onChange={(e) => {
+                      const value = parseInt(e.target.value);
+                      const minInterval = userPlan?.minIntervalSec || 60;
+                      if (value >= minInterval) {
+                        setFormData({ ...formData, intervalSec: value });
+                      }
+                    }}
                     required
                     fullWidth
                   />
                   <p className="text-xs text-[rgba(55,50,47,0.60)] font-sans">
-                    How often the job runs (minimum 60 seconds)
+                    How often the job runs
+                    {userPlan?.minIntervalSec ? ` (minimum ${userPlan.minIntervalSec} seconds for ${userPlan.plan} plan)` : ' (minimum 60 seconds)'}
                     {formData.intervalSec >= 3600 ? ` = ${Math.floor(formData.intervalSec / 3600)}h` :
                      formData.intervalSec >= 60 ? ` = ${Math.floor(formData.intervalSec / 60)}m` : ''}
                   </p>
+                  {userPlan?.minIntervalSec && userPlan.minIntervalSec > 60 && (
+                    <p className="text-xs text-amber-600 font-sans">
+                      💡 Upgrade to Developer plan or higher to use intervals shorter than {userPlan.minIntervalSec} seconds
+                    </p>
+                  )}
                 </div>
               ) : (
                 <div className="space-y-2">

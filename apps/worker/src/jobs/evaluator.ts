@@ -36,7 +36,7 @@ export function startEvaluator() {
       const now = new Date();
 
       // Find monitors that are overdue (nextDueAt + graceSec < now)
-      const overdueMonitors = await prisma.monitor.findMany({
+      const overdueMonitors = await prisma.Monitor.findMany({
         where: {
           status: {
             not: 'DISABLED',
@@ -46,7 +46,7 @@ export function startEvaluator() {
           },
         },
         include: {
-          org: true,
+          Org: true,
         },
       });
 
@@ -81,7 +81,7 @@ export function startEvaluator() {
             logger.info(`Monitor ${monitor.name} (${monitor.id}) is MISSED`);
 
             // Update monitor status
-            await prisma.monitor.update({
+            await prisma.Monitor.update({
               where: { id: monitor.id },
               data: {
                 status: 'MISSED',
@@ -91,6 +91,7 @@ export function startEvaluator() {
             // Create MISSED run record
             await prisma.run.create({
               data: {
+                id: `run_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
                 monitorId: monitor.id,
                 startedAt: monitor.nextDueAt!,
                 finishedAt: now,
@@ -121,6 +122,7 @@ export function startEvaluator() {
 
               const incident = await prisma.incident.create({
                 data: {
+                  id: `incident_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
                   monitorId: monitor.id,
                   kind: 'MISSED',
                   summary: `Job missed by ${missedSeconds}s`,

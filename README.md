@@ -13,15 +13,48 @@ Monitor your servers, APIs, cron jobs, and services with real-time alerts via em
 
 ## ✨ Features
 
-- 🔍 **HTTP/HTTPS Monitoring** - Monitor any endpoint with custom headers, methods, and assertions
-- ⏰ **Cron Job Monitoring** - Heartbeat monitoring for scheduled tasks
-- 📊 **Real-time Dashboards** - Beautiful, responsive monitoring dashboards
-- 🚨 **Multi-channel Alerts** - Email, Slack, Discord, and webhook notifications
-- 📈 **Analytics & Insights** - Track uptime, response times, and incident trends
-- 🔐 **Secure & Private** - Self-hosted or managed, your data stays yours
-- 🎯 **Status Pages** - Public and private status pages for your services
-- 👥 **Team Collaboration** - Organizations, teams, and role-based access
-- 💳 **Billing & Plans** - Built-in Stripe integration for SaaS monetization
+### 🔍 **Advanced Monitoring**
+- **HTTP/HTTPS Monitoring** - Monitor any endpoint with custom headers, methods, and assertions
+- **Synthetic Monitoring** - Multi-step Playwright tests with step-by-step execution
+- **SSL Certificate Monitoring** - Track certificate expiry and domain expiration
+- **Cron Job Monitoring** - Heartbeat monitoring for scheduled tasks
+- **Anomaly Detection** - AI-powered outlier detection with customizable thresholds
+
+### 🚨 **Alerting & Notifications**
+- **Multi-channel Alerts** - Email, Slack, Discord, Webhooks, SMS (Twilio), PagerDuty, Microsoft Teams
+- **Smart Alerting** - Custom messages, routing rules, escalation policies
+- **Maintenance Windows** - Suppress alerts during scheduled maintenance
+- **Incident Management** - Automatic incident creation and resolution
+
+### 🔐 **Security & Authentication**
+- **Multi-Factor Authentication (MFA)** - TOTP-based 2FA with backup codes
+- **SAML 2.0 SSO** - Enterprise single sign-on integration
+- **Role-Based Access Control** - Granular permissions and team management
+- **Audit Logging** - Comprehensive activity tracking and compliance reporting
+
+### 📊 **Analytics & Reporting**
+- **Real-time Dashboards** - Beautiful, responsive monitoring dashboards
+- **SLA Reports** - Uptime tracking and performance metrics
+- **Data Export** - GDPR-compliant data export (CSV/JSON)
+- **Post-mortem System** - Incident analysis and resolution tracking
+
+### 🎯 **Status Pages & Communication**
+- **Public Status Pages** - Custom domains and real-time updates
+- **Incident Management** - Public incident communication
+- **Maintenance Windows** - Scheduled maintenance notifications
+- **Custom Branding** - White-label status pages
+
+### 👥 **Team & Organization Management**
+- **Multi-user Organizations** - Team collaboration and management
+- **User Invitations** - Seamless team onboarding
+- **Organization Switching** - Easy context switching
+- **Member Limits** - Plan-based team size controls
+
+### 💳 **Billing & Subscription Management**
+- **Stripe Integration** - Complete payment processing
+- **Multiple Pricing Tiers** - Flexible subscription plans
+- **Plan Limits** - Monitors, team members, status pages, data retention
+- **Feature Gating** - Plan-based feature access control
 
 ---
 

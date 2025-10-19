@@ -8,15 +8,15 @@ import {
 } from '@/components/saturn';
 import { AlertCircle } from 'lucide-react';
 import Link from 'next/link';
-import { generatePageMetadata } from "@/lib/seo/metadata"
+import { generatePageMetadata } from '@/lib/seo/metadata';
 
 export const metadata = generatePageMetadata({
   title: "Authentication Error | Saturn",
   description: "There was an error signing in to Saturn.",
+  keywords: ['error', 'authentication error', 'login error', 'access denied'],
   path: '/auth/error',
-keywords: ['error', 'authentication error', 'login error', 'access denied'],
   noIndex: true,
-})
+});
 
 export default async function AuthErrorPage({
   searchParams,

@@ -11,10 +11,6 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  // Anomaly tuning API disabled - fields don't exist in schema yet
-  return NextResponse.json({ error: 'Anomaly tuning not implemented' }, { status: 501 });
-
-  /* Uncomment when schema migration is applied
   try {
     const session = await getServerSession(authOptions);
     
@@ -109,7 +105,6 @@ export async function PATCH(
       { status: 500 }
     );
   }
-  */
 }
 
 /**
@@ -120,14 +115,6 @@ export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  // Anomaly tuning API disabled - fields don't exist in schema yet
-  return NextResponse.json({
-    anomalyZScoreThreshold: 3.0,
-    anomalyMedianMultiplier: 5.0,
-    anomalyOutputDropFraction: 0.5,
-  });
-
-  /* Uncomment when schema migration is applied
   try {
     const session = await getServerSession(authOptions);
     
@@ -171,6 +158,5 @@ export async function GET(
       { status: 500 }
     );
   }
-  */
 }
 

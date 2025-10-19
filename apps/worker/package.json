@@ -25,7 +25,8 @@
         "playwright": "^1.56.1",
         "resend": "^6.1.2",
         "twilio": "^5.10.3",
-        "whois-json": "^2.0.0"
+        "whois-json": "^2.0.0",
+        "whoiser": "^2.0.0-beta.9"
     },
     "devDependencies": {
         "@types/node": "^22.7.5"

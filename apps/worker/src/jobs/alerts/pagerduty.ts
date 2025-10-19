@@ -62,15 +62,15 @@ async function sendPagerDutyEvent(
   if (eventAction === 'trigger') {
     payload.payload = {
       summary: incident.summary,
-      source: incident.monitor.org.name,
+      source: incident.Monitor.org.name,
       severity: getSeverity(incident.kind),
       timestamp: incident.openedAt.toISOString(),
-      component: incident.monitor.name,
+      component: incident.Monitor.name,
       group: 'Saturn Monitoring',
       class: incident.kind,
       custom_details: {
-        monitor_id: incident.monitor.id,
-        monitor_name: incident.monitor.name,
+        monitor_id: incident.Monitor.id,
+        monitor_name: incident.Monitor.name,
         incident_id: incident.id,
         incident_type: incident.kind,
         details: incident.details,
@@ -85,7 +85,7 @@ async function sendPagerDutyEvent(
         text: 'View Incident in Saturn',
       },
       {
-        href: `${process.env.NEXT_PUBLIC_APP_URL || 'https://app.saturn.sh'}/app/monitors/${incident.monitor.id}`,
+        href: `${process.env.NEXT_PUBLIC_APP_URL || 'https://app.saturn.sh'}/app/monitors/${incident.Monitor.id}`,
         text: 'View Monitor',
       },
     ];
@@ -136,9 +136,9 @@ export async function sendPagerDutyTrigger(
   const incident = await prisma.incident.findUnique({
     where: { id: incidentId },
     include: {
-      monitor: {
+      Monitor: {
         include: {
-          org: true,
+          Org: true,
         },
       },
     },
@@ -175,9 +175,9 @@ export async function sendPagerDutyAcknowledge(
   const incident = await prisma.incident.findUnique({
     where: { id: incidentId },
     include: {
-      monitor: {
+      Monitor: {
         include: {
-          org: true,
+          Org: true,
         },
       },
     },
@@ -214,9 +214,9 @@ export async function sendPagerDutyResolve(
   const incident = await prisma.incident.findUnique({
     where: { id: incidentId },
     include: {
-      monitor: {
+      Monitor: {
         include: {
-          org: true,
+          Org: true,
         },
       },
     },

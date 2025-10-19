@@ -142,7 +142,7 @@ export async function checkDomainExpiration(
     const cleanDomain = parseDomainFromUrl(domain);
 
     // Query WHOIS
-    const whoisData = await whoiser.default(cleanDomain, {
+    const whoisData = await whoiser(cleanDomain, {
       timeout: 10000, // 10 second timeout
       follow: 2, // Follow up to 2 redirects
     });

@@ -33,7 +33,7 @@ async function checkMonitorDomain(monitorId: string) {
 
   try {
     // Get monitor details
-    const monitor = await prisma.monitor.findUnique({
+    const monitor = await prisma.Monitor.findUnique({
       where: { id: monitorId },
       select: {
         id: true,
@@ -199,7 +199,7 @@ export async function scheduleAllDomainChecks() {
   logger.info('Scheduling domain checks for all monitors');
 
   try {
-    const monitors = await prisma.monitor.findMany({
+    const monitors = await prisma.Monitor.findMany({
       where: {
         checkDomain: true,
         status: { not: 'DISABLED' },

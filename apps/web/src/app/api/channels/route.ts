@@ -8,7 +8,7 @@ export const runtime = 'nodejs';
 
 const createChannelSchema = z.object({
   orgId: z.string(),
-  type: z.enum(['EMAIL', 'SLACK', 'DISCORD', 'WEBHOOK']),
+  type: z.enum(['EMAIL', 'SLACK', 'DISCORD', 'WEBHOOK', 'PAGERDUTY', 'TEAMS', 'SMS']),
   label: z.string().min(1).max(100),
   configJson: z.record(z.any()),
   isDefault: z.boolean().default(false),
@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'No subscription plan found' }, { status: 404 });
       }
 
-      if (!org.SubscriptionPlan.allowsWebhooks) {
+      if (!(org.SubscriptionPlan as any).allowsWebhooks) {
         return NextResponse.json(
           { error: 'Webhook and Discord channels require Team plan or higher. Please upgrade your plan.' },
           { status: 403 }
@@ -101,7 +101,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const channel = await prisma.alertChannel.create({
+    const channel = await (prisma as any).alertChannel.create({
       data: {
         id: crypto.randomUUID(),
         updatedAt: new Date(),

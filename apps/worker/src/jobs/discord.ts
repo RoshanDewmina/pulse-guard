@@ -28,7 +28,7 @@ export function startDiscordWorker() {
         const incident = await prisma.incident.findUnique({
           where: { id: incidentId },
           include: {
-            monitor: true,
+            Monitor: true,
           },
         });
 

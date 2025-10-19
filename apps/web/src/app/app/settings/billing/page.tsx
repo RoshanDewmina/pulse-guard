@@ -34,8 +34,17 @@ export default async function BillingPage() {
 
   const plan = org.SubscriptionPlan || {
     plan: 'FREE',
-    monitorLimit: 5,
+    monitorLimit: 10,
     userLimit: 3,
+    statusPageLimit: 1,
+    syntheticRunsLimit: 200,
+    syntheticRunsUsed: 0,
+    retentionDays: 30,
+    minIntervalSec: 600,
+    allowsWebhooks: false,
+    allowsCustomDomains: false,
+    allowsSso: false,
+    allowsAuditLogs: false,
   };
 
   const monitorCount = await prisma.monitor.count({
@@ -44,6 +53,21 @@ export default async function BillingPage() {
 
   const memberCount = await prisma.membership.count({
     where: { orgId: org.id },
+  });
+
+  const statusPageCount = await prisma.statusPage.count({
+    where: { orgId: org.id },
+  });
+
+  const syntheticRunsCount = await prisma.syntheticRun.count({
+    where: {
+      SyntheticMonitor: {
+        orgId: org.id,
+      },
+      createdAt: {
+        gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1), // This month
+      },
+    },
   });
 
   const currentPlan = PLANS[plan.plan as keyof typeof PLANS] || PLANS.FREE;
@@ -89,7 +113,7 @@ export default async function BillingPage() {
             <span className="text-[rgba(55,50,47,0.60)] text-base font-sans">/month</span>
           </div>
           <p className="text-[rgba(55,50,47,0.60)] text-sm font-sans mt-2">
-            Billed monthly • {plan.userLimit} team members • {plan.monitorLimit} monitors
+            Billed monthly • {plan.userLimit === 999 ? 'Unlimited' : plan.userLimit} team members • {plan.monitorLimit} monitors • {plan.statusPageLimit === -1 ? 'Unlimited' : plan.statusPageLimit} status pages • {plan.syntheticRunsLimit} synthetic runs/mo
           </p>
         </div>
 
@@ -133,6 +157,52 @@ export default async function BillingPage() {
                     : 'bg-gradient-to-r from-[#37322F] to-[#49423D]'
                 }`}
                 style={{ width: `${Math.min((memberCount / plan.userLimit) * 100, 100)}%` }}
+              />
+            </div>
+          </div>
+
+          {/* Status Pages Usage */}
+          <div>
+            <div className="flex justify-between items-baseline mb-3">
+              <span className="text-sm font-medium text-[#37322F] font-sans">Status Pages</span>
+              <span className="text-sm text-[rgba(55,50,47,0.80)] font-sans">
+                <span className="font-semibold text-[#37322F]">{statusPageCount}</span> / {plan.statusPageLimit === -1 ? '∞' : plan.statusPageLimit}
+              </span>
+            </div>
+            <div className="w-full bg-[rgba(55,50,47,0.06)] rounded-full h-2.5 overflow-hidden shadow-inner">
+              <div
+                className={`h-2.5 rounded-full transition-all duration-500 shadow-sm ${
+                  plan.statusPageLimit !== -1 && statusPageCount >= plan.statusPageLimit 
+                    ? 'bg-gradient-to-r from-red-500 to-red-600' 
+                    : plan.statusPageLimit !== -1 && statusPageCount >= plan.statusPageLimit * 0.8 
+                    ? 'bg-gradient-to-r from-yellow-500 to-yellow-600' 
+                    : 'bg-gradient-to-r from-[#37322F] to-[#49423D]'
+                }`}
+                style={{ 
+                  width: plan.statusPageLimit === -1 ? '100%' : `${Math.min((statusPageCount / plan.statusPageLimit) * 100, 100)}%` 
+                }}
+              />
+            </div>
+          </div>
+
+          {/* Synthetic Runs Usage */}
+          <div>
+            <div className="flex justify-between items-baseline mb-3">
+              <span className="text-sm font-medium text-[#37322F] font-sans">Synthetic Runs (This Month)</span>
+              <span className="text-sm text-[rgba(55,50,47,0.80)] font-sans">
+                <span className="font-semibold text-[#37322F]">{syntheticRunsCount}</span> / {plan.syntheticRunsLimit}
+              </span>
+            </div>
+            <div className="w-full bg-[rgba(55,50,47,0.06)] rounded-full h-2.5 overflow-hidden shadow-inner">
+              <div
+                className={`h-2.5 rounded-full transition-all duration-500 shadow-sm ${
+                  syntheticRunsCount >= plan.syntheticRunsLimit 
+                    ? 'bg-gradient-to-r from-red-500 to-red-600' 
+                    : syntheticRunsCount >= plan.syntheticRunsLimit * 0.8 
+                    ? 'bg-gradient-to-r from-yellow-500 to-yellow-600' 
+                    : 'bg-gradient-to-r from-[#37322F] to-[#49423D]'
+                }`}
+                style={{ width: `${Math.min((syntheticRunsCount / plan.syntheticRunsLimit) * 100, 100)}%` }}
               />
             </div>
           </div>

@@ -89,7 +89,9 @@ model Incident {
   suppressUntil  DateTime?
   slackMessageTs String?
   slackChannelId String?
+  maintenanceWindowId String?
   Monitor        Monitor         @relation(fields: [monitorId], references: [id], onDelete: Cascade)
+  MaintenanceWindow MaintenanceWindow? @relation(fields: [maintenanceWindowId], references: [id], onDelete: SetNull)
   IncidentEvent  IncidentEvent[]
   PostMortem     PostMortem[]
 
@@ -159,6 +161,14 @@ model Monitor {
   anomalyZScoreThreshold    Float?             @default(3.0)
   anomalyMedianMultiplier   Float?             @default(5.0)
   anomalyOutputDropFraction Float?             @default(0.5)
+  // HTTP monitoring fields
+  monitorType               MonitorType        @default(HEARTBEAT)
+  httpMethod                HttpMethod?        @default(GET)
+  httpHeaders               Json?              // Custom headers as JSON
+  httpBody                  String?            // Request body for POST/PUT
+  expectedStatusCode        Int?               @default(200)
+  responseAssertions        Json?              // Assertions as JSON array
+  responseTimeSla           Int?               // Max response time in ms
   Incident                  Incident[]
   Org                       Org                @relation(fields: [orgId], references: [id], onDelete: Cascade)
   Run                       Run[]
@@ -191,6 +201,8 @@ model Org {
   SlaReport        SlaReport[]
   PostMortem       PostMortem[]
   Tag              Tag[]
+  MaintenanceWindow MaintenanceWindow[]
+  SAMLConfig       SAMLConfig?
 }
 
 model Rule {
@@ -522,7 +534,9 @@ model Tag {
   id         String       @id @default(cuid())
   orgId      String
   name       String
+  color      String?
   createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
   Org        Org          @relation(fields: [orgId], references: [id], onDelete: Cascade)
   MonitorTag MonitorTag[]
 
@@ -541,6 +555,45 @@ model MonitorTag {
   @@index([tagId])
 }
 
+model MaintenanceWindow {
+  id          String                    @id @default(cuid())
+  orgId       String
+  name        String
+  description String?
+  startAt     DateTime
+  endAt       DateTime
+  isActive    Boolean                  @default(false)
+  createdAt   DateTime                 @default(now())
+  updatedAt   DateTime
+  Org         Org                      @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  Incidents   Incident[]
+
+  @@index([orgId])
+  @@index([startAt, endAt])
+  @@index([isActive])
+}
+
+model SAMLConfig {
+  id                String   @id @default(cuid())
+  orgId             String   @unique
+  name              String
+  idpUrl            String
+  idpCert           String   @db.Text
+  spCert            String   @db.Text
+  spKey             String   @db.Text
+  spEntityId        String
+  acsUrl            String
+  sloUrl            String?
+  nameIdFormat      String   @default("urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress")
+  attributeMapping  Json?
+  isEnabled         Boolean  @default(false)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  Org               Org      @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@index([orgId])
+}
+
 enum ChannelType {
   EMAIL
   SLACK
@@ -549,6 +602,21 @@ enum ChannelType {
   PAGERDUTY
   TEAMS
   SMS
+}
+
+enum MonitorType {
+  HEARTBEAT
+  HTTP_CHECK
+}
+
+enum HttpMethod {
+  GET
+  POST
+  PUT
+  DELETE
+  PATCH
+  HEAD
+  OPTIONS
 }
 
 enum IncidentKind {

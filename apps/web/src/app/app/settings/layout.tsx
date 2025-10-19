@@ -19,6 +19,7 @@ export default function SettingsLayout({
     { name: 'Billing', href: '/app/settings/billing' },
     { name: 'Data', href: '/app/settings/data' },
     { name: 'Maintenance', href: '/app/settings/maintenance' },
+    { name: 'SAML SSO', href: '/app/settings/saml' },
     { name: 'Audit Logs', href: '/app/settings/audit-logs' },
   ];
 

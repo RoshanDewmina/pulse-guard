@@ -5,7 +5,7 @@
  * Maps old FREE/PRO/BUSINESS plans to new FREE/DEVELOPER/TEAM/BUSINESS structure
  */
 
-import { PrismaClient } from '@tokiflow/db';
+import { PrismaClient } from '../packages/db/src';
 
 const prisma = new PrismaClient();
 

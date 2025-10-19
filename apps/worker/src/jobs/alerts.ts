@@ -59,7 +59,7 @@ export function startAlertWorker() {
       // Find applicable rules
       const rules = await prisma.rule.findMany({
         where: {
-          orgId: incident.monitor.orgId,
+          orgId: incident.Monitor.orgId,
           OR: [
             {
               monitorIds: {
@@ -74,7 +74,7 @@ export function startAlertWorker() {
           ],
         },
         include: {
-          org: true,
+          Org: true,
         },
       });
 

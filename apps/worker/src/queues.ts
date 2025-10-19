@@ -11,6 +11,8 @@ export const emailQueue = new Queue('email', { connection });
 export const slackQueue = new Queue('slack', { connection });
 export const discordQueue = new Queue('discord', { connection });
 export const webhookQueue = new Queue('webhook', { connection });
+export const onboardingQueue = new Queue('onboarding', { connection });
+export const notificationQueue = new Queue('notification', { connection });
 
 // Queue events for monitoring
 export const evaluateQueueEvents = new QueueEvents('evaluate', { connection });
@@ -19,4 +21,5 @@ export const emailQueueEvents = new QueueEvents('email', { connection });
 export const slackQueueEvents = new QueueEvents('slack', { connection });
 export const discordQueueEvents = new QueueEvents('discord', { connection });
 export const webhookQueueEvents = new QueueEvents('webhook', { connection });
+export const onboardingQueueEvents = new QueueEvents('onboarding', { connection });
 

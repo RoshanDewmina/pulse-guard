@@ -55,7 +55,7 @@ export async function processSlaReportJob(job: Job<GenerateReportJobData>): Prom
         orgId: reportData.orgId,
         monitorId: reportData.monitorId || null,
         name: reportData.name,
-        period: reportData.period,
+        period: reportData.period as any,
         startDate: reportData.startDate,
         endDate: reportData.endDate,
         generatedBy: reportData.generatedBy || null,
@@ -70,7 +70,7 @@ export async function processSlaReportJob(job: Job<GenerateReportJobData>): Prom
         averageResponseTime: reportData.averageResponseTime || null,
         p95ResponseTime: reportData.p95ResponseTime || null,
         p99ResponseTime: reportData.p99ResponseTime || null,
-        data: reportData.data,
+        data: JSON.parse(JSON.stringify(reportData.data)),
         pdfUrl,
       },
     });

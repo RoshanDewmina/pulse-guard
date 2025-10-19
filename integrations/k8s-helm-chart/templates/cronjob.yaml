@@ -1,0 +1,93 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "saturn-monitor.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "saturn-monitor.labels" . | nindent 4 }}
+  {{- with .Values.jobAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  schedule: {{ .Values.job.schedule | quote }}
+  concurrencyPolicy: {{ .Values.job.concurrencyPolicy }}
+  successfulJobsHistoryLimit: {{ .Values.job.successfulJobsHistoryLimit }}
+  failedJobsHistoryLimit: {{ .Values.job.failedJobsHistoryLimit }}
+  jobTemplate:
+    metadata:
+      labels:
+        {{- include "saturn-monitor.selectorLabels" . | nindent 8 }}
+      {{- with .Values.jobLabels }}
+      labels:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      {{- with .Values.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      restartPolicy: {{ .Values.job.restartPolicy }}
+      backoffLimit: {{ .Values.job.backoffLimit }}
+      activeDeadlineSeconds: {{ .Values.job.activeDeadlineSeconds }}
+      {{- with .Values.serviceAccount }}
+      serviceAccountName: {{ include "saturn-monitor.serviceAccountName" . }}
+      {{- end }}
+      containers:
+      - name: main
+        image: "{{ .Values.container.image.repository }}:{{ .Values.container.image.tag }}"
+        imagePullPolicy: {{ .Values.container.image.pullPolicy }}
+        command: {{ .Values.container.command }}
+        args: {{ .Values.container.args }}
+        {{- with .Values.securityContext }}
+        securityContext:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.container.resources }}
+        resources:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+      - name: saturn-sidecar
+        image: "{{ .Values.sidecar.image.repository }}:{{ .Values.sidecar.image.tag }}"
+        imagePullPolicy: {{ .Values.sidecar.image.pullPolicy }}
+        env:
+        - name: SATURN_URL
+          value: {{ .Values.saturn.url | quote }}
+        - name: SATURN_MONITOR_TOKEN
+          value: {{ .Values.saturn.token | quote }}
+        - name: JOB_NAME
+          value: {{ include "saturn-monitor.fullname" . }}
+        - name: NAMESPACE
+          value: {{ .Release.Namespace }}
+        - name: CHECK_INTERVAL
+          value: {{ .Values.saturn.checkInterval | quote }}
+        - name: TIMEOUT
+          value: {{ .Values.saturn.timeout | quote }}
+        {{- with .Values.securityContext }}
+        securityContext:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.sidecar.resources }}
+        resources:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.podLabels }}
+      labels:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

@@ -104,9 +104,10 @@ export default function PricingSection() {
   return (
     <>
       {/* Product Schema for SEO */}
-      <JsonLd data={starterSchema} />
-      <JsonLd data={professionalSchema} />
-      <JsonLd data={enterpriseSchema} />
+      <JsonLd data={freeSchema} />
+      <JsonLd data={developerSchema} />
+      <JsonLd data={teamSchema} />
+      <JsonLd data={businessSchema} />
       
       <div id="pricing" className="w-full flex flex-col justify-center items-center gap-2 scroll-mt-20">
       {/* Header Section */}
@@ -210,21 +211,21 @@ export default function PricingSection() {
 
           {/* Pricing Cards Container */}
           <div className="flex-1 flex flex-col md:flex-row justify-center items-center gap-6 py-12 md:py-0">
-            {/* Starter Plan */}
+            {/* Free Plan */}
             <div className="flex-1 max-w-full md:max-w-none self-stretch px-6 py-5 border border-[rgba(50,45,43,0.12)] border-[#E0DEDB] overflow-hidden flex flex-col justify-start items-start gap-12 bg-[rgba(255,255,255,0)]">
               {/* Plan Header */}
               <div className="self-stretch flex flex-col justify-start items-center gap-9">
                 <div className="self-stretch flex flex-col justify-start items-start gap-2">
-                  <div className="text-[rgba(55,50,47,0.90)] text-lg font-medium leading-7 font-sans">Free</div>
+                  <div className="text-[rgba(55,50,47,0.90)] text-lg font-medium leading-7 font-sans">Free (Dev)</div>
                   <div className="w-full max-w-[242px] text-[rgba(41,37,35,0.70)] text-sm font-normal leading-5 font-sans">
-                    Perfect for side projects and small teams getting started with cron monitoring.
+                    Perfect for side projects and small teams getting started with monitoring.
                   </div>
                 </div>
 
                 <div className="self-stretch flex flex-col justify-start items-start gap-2">
                   <div className="flex flex-col justify-start items-start gap-1">
                     <div className="relative h-[60px] flex items-center text-[#37322F] text-5xl font-medium leading-[60px] font-serif">
-                      <span className="invisible">${pricing.starter[billingPeriod]}</span>
+                      <span className="invisible">${pricing.free[billingPeriod]}</span>
                       <span
                         className="absolute inset-0 flex items-center transition-all duration-500"
                         style={{
@@ -234,7 +235,7 @@ export default function PricingSection() {
                         }}
                         aria-hidden={billingPeriod !== "annually"}
                       >
-                        ${pricing.starter.annually}
+                        ${pricing.free.annually}
                       </span>
                       <span
                         className="absolute inset-0 flex items-center transition-all duration-500"
@@ -245,7 +246,7 @@ export default function PricingSection() {
                         }}
                         aria-hidden={billingPeriod !== "monthly"}
                       >
-                        ${pricing.starter.monthly}
+                        ${pricing.free.monthly}
                       </span>
                     </div>
                     <div className="text-[#847971] text-sm font-medium font-sans">
@@ -264,11 +265,13 @@ export default function PricingSection() {
 
               <div className="self-stretch flex flex-col justify-start items-start gap-2">
                 {[
-                  "Up to 5 monitors",
+                  "Up to 10 monitors",
                   "Up to 3 team members",
+                  "10-min minimum interval",
+                  "30-day retention",
+                  "1 status page",
+                  "200 synthetic runs/mo",
                   "Email + Slack alerts",
-                  "7-day run history",
-                  "Community support",
                 ].map((feature, index) => (
                   <div key={index} className="self-stretch flex justify-start items-center gap-[13px]">
                     <div className="w-4 h-4 relative flex items-center justify-center">
@@ -290,21 +293,21 @@ export default function PricingSection() {
               </div>
             </div>
 
-            {/* Professional Plan (Featured) */}
+            {/* Developer Plan (Featured) */}
             <div className="flex-1 max-w-full md:max-w-none self-stretch px-6 py-5 bg-[#37322F] border border-[rgba(50,45,43,0.12)] border-[rgba(55,50,47,0.12)] overflow-hidden flex flex-col justify-start items-start gap-12">
               {/* Plan Header */}
               <div className="self-stretch flex flex-col justify-start items-center gap-9">
                 <div className="self-stretch flex flex-col justify-start items-start gap-2">
-                  <div className="text-[#FBFAF9] text-lg font-medium leading-7 font-sans">Pro</div>
+                  <div className="text-[#FBFAF9] text-lg font-medium leading-7 font-sans">Developer</div>
                   <div className="w-full max-w-[242px] text-[#B2AEA9] text-sm font-normal leading-5 font-sans">
-                    Advanced features for growing teams. Full anomaly detection and analytics.
+                    For individual developers and small teams. 1-min checks, 90-day retention.
                   </div>
                 </div>
 
                 <div className="self-stretch flex flex-col justify-start items-start gap-2">
                   <div className="flex flex-col justify-start items-start gap-1">
                     <div className="relative h-[60px] flex items-center text-[#F0EFEE] text-5xl font-medium leading-[60px] font-serif">
-                      <span className="invisible">${pricing.professional[billingPeriod]}</span>
+                      <span className="invisible">${pricing.developer[billingPeriod]}</span>
                       <span
                         className="absolute inset-0 flex items-center transition-all duration-500"
                         style={{
@@ -314,7 +317,7 @@ export default function PricingSection() {
                         }}
                         aria-hidden={billingPeriod !== "annually"}
                       >
-                        ${pricing.professional.annually}
+                        ${pricing.developer.annually}
                       </span>
                       <span
                         className="absolute inset-0 flex items-center transition-all duration-500"
@@ -325,11 +328,11 @@ export default function PricingSection() {
                         }}
                         aria-hidden={billingPeriod !== "monthly"}
                       >
-                        ${pricing.professional.monthly}
+                        ${pricing.developer.monthly}
                       </span>
                     </div>
                     <div className="text-[#D2C6BF] text-sm font-medium font-sans">
-                      per {billingPeriod === "monthly" ? "month" : "year"}, per user.
+                      per {billingPeriod === "monthly" ? "month" : "year"}
                     </div>
                   </div>
                 </div>
@@ -347,14 +350,13 @@ export default function PricingSection() {
 
               <div className="self-stretch flex flex-col justify-start items-start gap-2">
                 {[
-                  "Up to 100 monitors",
-                  "Up to 10 team members",
-                  "All alert channels (Discord, Webhooks)",
-                  "Output capture & analysis",
-                  "90-day run history",
-                  "Runtime anomaly detection",
-                  "Health scores & MTBF/MTTR",
-                  "Priority email support",
+                  "Up to 25 monitors",
+                  "Up to 5 team members",
+                  "1-min checks",
+                  "90-day retention",
+                  "2 status pages",
+                  "1,000 synthetic runs/mo",
+                  "All alert channels",
                 ].map((feature, index) => (
                   <div key={index} className="self-stretch flex justify-start items-center gap-[13px]">
                     <div className="w-4 h-4 relative flex items-center justify-center">
@@ -381,14 +383,14 @@ export default function PricingSection() {
                 <div className="self-stretch flex flex-col justify-start items-start gap-2">
                   <div className="text-[rgba(55,50,47,0.90)] text-lg font-medium leading-7 font-sans">Business</div>
                   <div className="w-full max-w-[242px] text-[rgba(41,37,35,0.70)] text-sm font-normal leading-5 font-sans">
-                    Complete solution for scale-ups, agencies, and multi-product companies.
+                    For large organizations with enterprise needs. SSO/SAML, custom domains, audit logs.
                   </div>
                 </div>
 
                 <div className="self-stretch flex flex-col justify-start items-start gap-2">
                   <div className="flex flex-col justify-start items-start gap-1">
                     <div className="relative h-[60px] flex items-center text-[#37322F] text-5xl font-medium leading-[60px] font-serif">
-                      <span className="invisible">${pricing.enterprise[billingPeriod]}</span>
+                      <span className="invisible">${pricing.business[billingPeriod]}</span>
                       <span
                         className="absolute inset-0 flex items-center transition-all duration-500"
                         style={{
@@ -398,7 +400,7 @@ export default function PricingSection() {
                         }}
                         aria-hidden={billingPeriod !== "annually"}
                       >
-                        ${pricing.enterprise.annually}
+                        ${pricing.business.annually}
                       </span>
                       <span
                         className="absolute inset-0 flex items-center transition-all duration-500"
@@ -409,7 +411,7 @@ export default function PricingSection() {
                         }}
                         aria-hidden={billingPeriod !== "monthly"}
                       >
-                        ${pricing.enterprise.monthly}
+                        ${pricing.business.monthly}
                       </span>
                     </div>
                     <div className="text-[#847971] text-sm font-medium font-sans">
@@ -428,14 +430,17 @@ export default function PricingSection() {
 
               <div className="self-stretch flex flex-col justify-start items-start gap-2">
                 {[
-                  "Up to 500 monitors",
+                  "Up to 300 monitors",
                   "Unlimited team members",
-                  "Everything in Pro",
-                  "Priority support",
-                  "365-day run history",
-                  "Advanced analytics",
-                  "Kubernetes + WordPress",
-                  "Maintenance windows",
+                  "1-min checks",
+                  "1-year retention",
+                  "Unlimited status pages",
+                  "20,000 synthetic runs/mo",
+                  "All Team features",
+                  "SSO/SAML",
+                  "Custom domains",
+                  "Audit logs",
+                  "Premium support",
                 ].map((feature, index) => (
                   <div key={index} className="self-stretch flex justify-start items-center gap-[13px]">
                     <div className="w-4 h-4 relative flex items-center justify-center">

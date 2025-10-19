@@ -1,0 +1,123 @@
+# Default values for saturn-monitor
+# This is a YAML-formatted file.
+
+# Saturn configuration
+saturn:
+  # Saturn API URL
+  url: "https://api.saturn.sh"
+  # Monitor token (required)
+  token: ""
+  # Check interval in seconds
+  checkInterval: 30
+  # Request timeout in seconds
+  timeout: 300
+
+# Sidecar configuration
+sidecar:
+  # Sidecar image
+  image:
+    repository: saturn-sh/k8s-sidecar
+    tag: "latest"
+    pullPolicy: IfNotPresent
+  
+  # Resource limits
+  resources:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 50m
+      memory: 64Mi
+
+# Job configuration
+job:
+  # Job name (will be auto-generated if not specified)
+  name: ""
+  # Namespace (defaults to release namespace)
+  namespace: ""
+  # Job schedule (cron format)
+  schedule: "0 2 * * *"
+  # Job concurrency policy
+  concurrencyPolicy: "Forbid"
+  # Job successful history limit
+  successfulJobsHistoryLimit: 3
+  # Job failed history limit
+  failedJobsHistoryLimit: 1
+  # Job restart policy
+  restartPolicy: "OnFailure"
+  # Job backoff limit
+  backoffLimit: 3
+  # Job active deadline seconds
+  activeDeadlineSeconds: 3600
+
+# Container configuration
+container:
+  # Container image
+  image:
+    repository: busybox
+    tag: "1.35"
+    pullPolicy: IfNotPresent
+  
+  # Container command
+  command: ["/bin/sh"]
+  args: ["-c", "echo 'Hello from Saturn monitored job'; sleep 30"]
+  
+  # Resource limits
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+# Service account configuration
+serviceAccount:
+  # Create service account
+  create: true
+  # Service account name
+  name: ""
+  # Annotations for service account
+  annotations: {}
+
+# RBAC configuration
+rbac:
+  # Create RBAC resources
+  create: true
+
+# Pod security context
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  fsGroup: 1000
+
+# Security context
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 1000
+  capabilities:
+    drop:
+      - ALL
+
+# Node selector
+nodeSelector: {}
+
+# Tolerations
+tolerations: []
+
+# Affinity
+affinity: {}
+
+# Pod annotations
+podAnnotations: {}
+
+# Pod labels
+podLabels: {}
+
+# Job annotations
+jobAnnotations: {}
+
+# Job labels
+jobLabels: {}

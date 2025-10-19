@@ -38,7 +38,7 @@ export function startSlackWorker() {
       const incident = await prisma.incident.findUnique({
         where: { id: incidentId },
         include: {
-          monitor: {
+          Monitor: {
             include: {
               runs: {
                 take: 5,
@@ -77,7 +77,7 @@ export function startSlackWorker() {
         DEGRADED: '⚠️',
       }[incident.kind] || '⚠️';
 
-      const recentRuns = incident.monitor.runs
+      const recentRuns = incident.Monitor.runs
         .map(run => (run.outcome === 'SUCCESS' ? '✅' : '❌'))
         .join(' ');
 
@@ -86,7 +86,7 @@ export function startSlackWorker() {
           type: 'header',
           text: {
             type: 'plain_text',
-            text: `${emoji} ${incident.kind} — ${incident.monitor.name}`,
+            text: `${emoji} ${incident.kind} — ${incident.Monitor.name}`,
             emoji: true,
           },
         },
@@ -100,21 +100,21 @@ export function startSlackWorker() {
         {
           type: 'section',
           fields: [
-            ...(incident.monitor.nextDueAt ? [{
+            ...(incident.Monitor.nextDueAt ? [{
               type: 'mrkdwn' as const,
-              text: `*Next Due:*\n${format(incident.monitor.nextDueAt, 'PPpp')}`,
+              text: `*Next Due:*\n${format(incident.Monitor.nextDueAt, 'PPpp')}`,
             }] : []),
-            ...(incident.monitor.lastRunAt ? [{
+            ...(incident.Monitor.lastRunAt ? [{
               type: 'mrkdwn' as const,
-              text: `*Last Run:*\n${format(incident.monitor.lastRunAt, 'PPpp')}`,
+              text: `*Last Run:*\n${format(incident.Monitor.lastRunAt, 'PPpp')}`,
             }] : []),
-            ...(incident.monitor.lastDurationMs ? [{
+            ...(incident.Monitor.lastDurationMs ? [{
               type: 'mrkdwn' as const,
-              text: `*Duration:*\n${incident.monitor.lastDurationMs}ms`,
+              text: `*Duration:*\n${incident.Monitor.lastDurationMs}ms`,
             }] : []),
-            ...(incident.monitor.lastExitCode !== null && incident.monitor.lastExitCode !== undefined ? [{
+            ...(incident.Monitor.lastExitCode !== null && incident.Monitor.lastExitCode !== undefined ? [{
               type: 'mrkdwn' as const,
-              text: `*Exit Code:*\n${incident.monitor.lastExitCode}`,
+              text: `*Exit Code:*\n${incident.Monitor.lastExitCode}`,
             }] : []),
           ],
         },
@@ -170,7 +170,7 @@ export function startSlackWorker() {
           accessToken,
           slackChannel,
           blocks,
-          `${incident.kind}: ${incident.monitor.name} - ${incident.summary}`
+          `${incident.kind}: ${incident.Monitor.name} - ${incident.summary}`
         );
 
         // Store message timestamp and channel for future updates

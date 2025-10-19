@@ -33,7 +33,7 @@ async function checkMonitorSsl(monitorId: string) {
 
   try {
     // Get monitor details
-    const monitor = await prisma.monitor.findUnique({
+    const monitor = await prisma.Monitor.findUnique({
       where: { id: monitorId },
       select: {
         id: true,
@@ -209,7 +209,7 @@ export async function scheduleAllSslChecks() {
   logger.info('Scheduling SSL checks for all monitors');
 
   try {
-    const monitors = await prisma.monitor.findMany({
+    const monitors = await prisma.Monitor.findMany({
       where: {
         checkSsl: true,
         status: { not: 'DISABLED' },

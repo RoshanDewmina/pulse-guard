@@ -6,7 +6,7 @@ export interface SlaReportData {
   orgId: string;
   monitorId?: string;
   name: string;
-  period: typeof ReportPeriod;
+  period: ReportPeriod;
   startDate: Date;
   endDate: Date;
   generatedBy?: string;
@@ -359,7 +359,7 @@ export async function generateSlaReport(
   // Get org/monitor name
   let reportName: string;
   if (monitorId) {
-    const monitor = await prisma.monitor.findUnique({
+    const monitor = await prisma.Monitor.findUnique({
       where: { id: monitorId },
       select: { name: true },
     });

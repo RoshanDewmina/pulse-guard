@@ -59,7 +59,7 @@ function formatSMS(incident: Incident, action: 'opened' | 'acked' | 'resolved'):
   switch (action) {
     case 'opened':
       message = `🚨 INCIDENT OPENED
-Monitor: ${incident.monitor.name}
+Monitor: ${incident.Monitor.name}
 Type: ${incident.kind}
 ${incident.summary}
 
@@ -67,13 +67,13 @@ View: ${incidentUrl}`;
       break;
     case 'acked':
       message = `👀 INCIDENT ACKNOWLEDGED
-Monitor: ${incident.monitor.name}
+Monitor: ${incident.Monitor.name}
 
 View: ${incidentUrl}`;
       break;
     case 'resolved':
       message = `✅ INCIDENT RESOLVED
-Monitor: ${incident.monitor.name}
+Monitor: ${incident.Monitor.name}
 
 View: ${incidentUrl}`;
       break;
@@ -128,10 +128,10 @@ async function sendSMS(
   }
 
   // Check rate limit
-  if (!checkRateLimit(incident.monitor.org.name)) {
+  if (!checkRateLimit(incident.Monitor.org.name)) {
     logger.warn({
       incidentId: incident.id,
-      orgId: incident.monitor.org.name,
+      orgId: incident.Monitor.org.name,
     }, 'SMS rate limit exceeded, skipping');
     return;
   }
@@ -189,9 +189,9 @@ export async function sendSMSOpened(
   const incident = await prisma.incident.findUnique({
     where: { id: incidentId },
     include: {
-      monitor: {
+      Monitor: {
         include: {
-          org: true,
+          Org: true,
         },
       },
     },
@@ -228,9 +228,9 @@ export async function sendSMSAcknowledged(
   const incident = await prisma.incident.findUnique({
     where: { id: incidentId },
     include: {
-      monitor: {
+      Monitor: {
         include: {
-          org: true,
+          Org: true,
         },
       },
     },
@@ -267,9 +267,9 @@ export async function sendSMSResolved(
   const incident = await prisma.incident.findUnique({
     where: { id: incidentId },
     include: {
-      monitor: {
+      Monitor: {
         include: {
-          org: true,
+          Org: true,
         },
       },
     },

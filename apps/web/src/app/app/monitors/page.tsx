@@ -8,29 +8,11 @@ import {
   SaturnCardDescription,
   SaturnCardContent,
   SaturnButton,
-  SaturnBadge,
-  SaturnTable,
-  SaturnTableHeader,
-  SaturnTableBody,
-  SaturnTableRow,
-  SaturnTableHead,
-  SaturnTableCell,
-  PageHeader,
-  StatusIcon,
 } from '@/components/saturn';
 import { generatePageMetadata } from '@/lib/seo/metadata'
-
-export const metadata = generatePageMetadata({
-  title: "Monitors",
-  description: "View and manage your cron job monitors.",
-  path: '/app/monitors',
-keywords: ['monitors', 'cron monitors', 'job monitoring', 'monitor list'],
-  noIndex: true,
-})
+import { MonitorsList } from '@/components/monitors/monitors-list';
 import Link from 'next/link';
 import { Plus } from 'lucide-react';
-import { formatSchedule } from '@/lib/schedule';
-import { format } from 'date-fns';
 import { Breadcrumbs } from '@/components/breadcrumbs';
 import { PageHeader as PageHeaderComponent } from '@/components/page-header';
 
@@ -62,19 +44,21 @@ export default async function MonitorsPage() {
           Run: true,
         },
       },
+      MonitorTag: {
+        include: {
+          Tag: true,
+        },
+      },
     },
     orderBy: {
       createdAt: 'desc',
     },
   });
 
-  const getStatusVariant = (status: MonitorStatus): 'success' | 'warning' | 'error' | 'default' => {
-    if (status === 'OK') return 'success';
-    if (status === 'LATE' || status === 'MISSED') return 'warning';
-    if (status === 'FAILING') return 'error';
-    if (status === 'DISABLED') return 'default';
-    return 'default';
-  };
+  const tags = await prisma.tag.findMany({
+    where: { orgId: org.id },
+    orderBy: { name: 'asc' },
+  });
 
   return (
     <div className="space-y-8 sm:space-y-10 md:space-y-12">
@@ -115,93 +99,12 @@ export default async function MonitorsPage() {
           </SaturnCardContent>
         </SaturnCard>
       ) : (
-        <SaturnCard padding="none">
-          <SaturnCardHeader>
-            <SaturnCardTitle as="h2">Your Monitors ({monitors.length})</SaturnCardTitle>
-            <SaturnCardDescription>
-              {org.SubscriptionPlan
-                ? `Using ${monitors.length} of ${org.SubscriptionPlan.monitorLimit} monitors`
-                : 'Manage your monitors'}
-            </SaturnCardDescription>
-          </SaturnCardHeader>
-          <SaturnCardContent>
-            <SaturnTable>
-              <SaturnTableHeader>
-                <SaturnTableRow>
-                  <SaturnTableHead>Name</SaturnTableHead>
-                  <SaturnTableHead>Status</SaturnTableHead>
-                  <SaturnTableHead>Schedule</SaturnTableHead>
-                  <SaturnTableHead>Last Run</SaturnTableHead>
-                  <SaturnTableHead>Next Due</SaturnTableHead>
-                  <SaturnTableHead>Incidents</SaturnTableHead>
-                  <SaturnTableHead className="text-right">Actions</SaturnTableHead>
-                </SaturnTableRow>
-              </SaturnTableHeader>
-              <SaturnTableBody>
-                {monitors.map((monitor) => (
-                  <SaturnTableRow key={monitor.id}>
-                    <SaturnTableCell className="font-medium">
-                      <Link
-                        href={`/app/monitors/${monitor.id}`}
-                        className="hover:underline text-[#37322F]"
-                      >
-                        {monitor.name}
-                      </Link>
-                    </SaturnTableCell>
-                    <SaturnTableCell>
-                      <div className="flex items-center gap-2">
-                        <StatusIcon status={monitor.status as MonitorStatus} size="sm" />
-                        <SaturnBadge variant={getStatusVariant(monitor.status as MonitorStatus)} size="sm">
-                          {monitor.status}
-                        </SaturnBadge>
-                      </div>
-                    </SaturnTableCell>
-                    <SaturnTableCell className="text-[rgba(55,50,47,0.80)]">
-                      {formatSchedule(monitor.scheduleType, monitor.intervalSec, monitor.cronExpr)}
-                    </SaturnTableCell>
-                    <SaturnTableCell>
-                      {monitor.lastRunAt ? (
-                        <span className="text-[#37322F]">
-                          {format(monitor.lastRunAt, 'MMM d, HH:mm')}
-                          {monitor.lastDurationMs && (
-                            <span className="text-[rgba(55,50,47,0.60)] ml-2">
-                              ({monitor.lastDurationMs}ms)
-                            </span>
-                          )}
-                        </span>
-                      ) : (
-                        <span className="text-[rgba(55,50,47,0.40)]">Never</span>
-                      )}
-                    </SaturnTableCell>
-                    <SaturnTableCell>
-                      {monitor.nextDueAt ? (
-                        <span className="text-[#37322F]">{format(monitor.nextDueAt, 'MMM d, HH:mm')}</span>
-                      ) : (
-                        <span className="text-[rgba(55,50,47,0.40)]">N/A</span>
-                      )}
-                    </SaturnTableCell>
-                    <SaturnTableCell>
-                      {monitor._count.Incident > 0 ? (
-                        <SaturnBadge variant="error" size="sm">
-                          {monitor._count.Incident}
-                        </SaturnBadge>
-                      ) : (
-                        <span className="text-[rgba(55,50,47,0.40)]">—</span>
-                      )}
-                    </SaturnTableCell>
-                    <SaturnTableCell className="text-right">
-                      <Link href={`/app/monitors/${monitor.id}`}>
-                        <SaturnButton variant="ghost" size="sm">
-                          View
-                        </SaturnButton>
-                      </Link>
-                    </SaturnTableCell>
-                  </SaturnTableRow>
-                ))}
-              </SaturnTableBody>
-            </SaturnTable>
-          </SaturnCardContent>
-        </SaturnCard>
+        <MonitorsList
+          monitors={monitors}
+          tags={tags}
+          monitorLimit={org.SubscriptionPlan?.monitorLimit}
+          currentCount={monitors.length}
+        />
       )}
     </div>
   );

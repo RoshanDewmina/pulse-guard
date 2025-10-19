@@ -10,7 +10,7 @@ const connection = new Redis(process.env.REDIS_URL || 'redis://localhost:6379', 
 });
 
 // Dynamically import Resend to avoid dependency issues
-async function sendEmail(to: string, subject: string, html: string) {
+export async function sendEmail(to: string, subject: string, html: string) {
   try {
     const { Resend } = await import('resend');
     const resend = new Resend(process.env.RESEND_API_KEY);
@@ -40,7 +40,7 @@ export function startEmailWorker() {
       const incident = await prisma.incident.findUnique({
         where: { id: incidentId },
         include: {
-          monitor: {
+          Monitor: {
             include: {
               runs: {
                 take: 5,
@@ -78,7 +78,7 @@ export function startEmailWorker() {
         DEGRADED: '⚠️',
       }[incident.kind] || '⚠️';
 
-      const recentRuns = incident.monitor.runs
+      const recentRuns = incident.Monitor.runs
         .map(run => (run.outcome === 'SUCCESS' ? '✅' : '❌'))
         .join(' ');
 
@@ -101,15 +101,15 @@ export function startEmailWorker() {
   <div class="container">
     <div class="header">
       <h1>${emoji} ${incident.kind} Alert</h1>
-      <p>${incident.monitor.name}</p>
+      <p>${incident.Monitor.name}</p>
     </div>
     <div class="content">
       <div class="alert-box">
         <h2 style="color: #e74c3c;">${incident.summary}</h2>
       </div>
-      ${incident.monitor.nextDueAt ? `<div class="info-row"><strong>Next Due:</strong> ${format(incident.monitor.nextDueAt, 'PPpp')}</div>` : ''}
-      ${incident.monitor.lastRunAt ? `<div class="info-row"><strong>Last Run:</strong> ${format(incident.monitor.lastRunAt, 'PPpp')}</div>` : ''}
-      ${incident.monitor.lastDurationMs ? `<div class="info-row"><strong>Duration:</strong> ${incident.monitor.lastDurationMs}ms</div>` : ''}
+      ${incident.Monitor.nextDueAt ? `<div class="info-row"><strong>Next Due:</strong> ${format(incident.Monitor.nextDueAt, 'PPpp')}</div>` : ''}
+      ${incident.Monitor.lastRunAt ? `<div class="info-row"><strong>Last Run:</strong> ${format(incident.Monitor.lastRunAt, 'PPpp')}</div>` : ''}
+      ${incident.Monitor.lastDurationMs ? `<div class="info-row"><strong>Duration:</strong> ${incident.Monitor.lastDurationMs}ms</div>` : ''}
       <div class="info-row"><strong>Recent Runs:</strong> ${recentRuns || 'No runs yet'}</div>
       <a href="${process.env.NEXTAUTH_URL}/app/monitors/${incident.monitorId}" class="button">View Dashboard</a>
     </div>
@@ -121,7 +121,7 @@ export function startEmailWorker() {
       try {
         await sendEmail(
           email,
-          `[Saturn] ${incident.kind} — ${incident.monitor.name}`,
+          `[Saturn] ${incident.kind} — ${incident.Monitor.name}`,
           html
         );
 
